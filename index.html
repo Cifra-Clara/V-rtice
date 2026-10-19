@@ -194,6 +194,7 @@ section.s.alt{background:var(--surface);border-block:1px solid var(--line)}
 .gcap{margin-top:12px;color:var(--ink-3);font-size:13.5px}
 /* contadores */
 .acc{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:40px;align-items:center}
+.acc1{grid-template-columns:minmax(0,760px)}
 .acc ul{list-style:none;padding:0;margin:22px 0 0;display:grid;gap:14px}
 .acc li{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start;color:var(--ink-2)}
 .acc li b{color:var(--ink)}
@@ -387,7 +388,7 @@ footer .legal{grid-column:1/-1;border-top:1px solid var(--line);padding-top:20px
 </section>
 
 <section class="s alt" id="contadores">
-  <div class="wrap acc">
+  <div class="wrap acc acc1">
     <div>
       <p class="eyebrow">Para escritórios de contabilidade e consultorias</p>
       <h2 style="font-size:clamp(28px,3.2vw,40px);font-weight:800;margin-top:12px">Entregue análise, não só obrigação</h2>
@@ -395,17 +396,10 @@ footer .legal{grid-column:1/-1;border-top:1px solid var(--line);padding-top:20px
       <ul>
         <li><svg class="i" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg><span><b>Até 15 empresas em uma conta.</b> Troque de cliente em um clique e veja quem está com os relatórios em dia.</span></li>
         <li><svg class="i" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg><span><b>De/para do plano de contas uma vez só.</b> O Vértice guarda o mapeamento de cada empresa para os meses seguintes.</span></li>
-        <li><svg class="i" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg><span><b>Conferências automáticas.</b> O painel só é gerado quando o balancete fecha em todas as datas.</span></li>
+        <li><svg class="i" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg><span><b>Conferências automáticas.</b> O balancete é conferido em todas as datas e a receita é comparada com o relatório de vendas.</span></li>
       </ul>
     </div>
-    <div class="list" aria-label="Exemplo de lista de empresas">
-      <div class="hd"><span>Empresas</span><span class="pill">Plano Escritório · 4 de 15</span></div>
-      <div class="row"><span class="av" style="background:#4F46E5">DA</span><div><b>Doces Aurora Ltda</b><span>Jan/25 – Dez/26 · atualizado</span></div><span class="pill ok">Painel ativo</span></div>
-      <div class="row"><span class="av" style="background:#0E7490">MF</span><div><b>Madeireira Familiar</b><span>Mai/26 – Jul/26 · atualizado</span></div><span class="pill ok">Painel ativo</span></div>
-      <div class="row"><span class="av" style="background:#B45309">AT</span><div><b>Auto Peças Trevo</b><span>falta o balancete de setembro</span></div><span class="pill warn">Aguardando</span></div>
-      <div class="row"><span class="av" style="background:#7C3AED">CL</span><div><b>Clínica Luz</b><span>cadastro iniciado</span></div><span class="pill mute">Rascunho</span></div>
-      <div class="ft2">Ilustração com empresas fictícias.</div>
-    </div>
+
   </div>
 </section>
 
@@ -425,7 +419,7 @@ footer .legal{grid-column:1/-1;border-top:1px solid var(--line);padding-top:20px
     <div class="sec3">
       <div><h3>Processamento no navegador</h3><p>Os balancetes e relatórios são lidos e calculados no seu próprio navegador. Os arquivos originais não são repassados a terceiros.</p></div>
       <div><h3>Acesso por usuário</h3><p>Cada conta vê apenas as próprias empresas. Dentro do painel há perfis de administrador, gestão e leitura.</p></div>
-      <div><h3>Conferido antes de exibir</h3><p>O painel só é gerado quando o balancete fecha (devedores = credores) em todas as datas e as vendas estão completas.</p></div>
+      <div><h3>Conferido antes de exibir</h3><p>Antes de entrar no painel, o balancete é conferido (devedores = credores) em todas as datas e a receita é comparada com o relatório de vendas.</p></div>
     </div>
   </div>
 </section>
@@ -472,9 +466,21 @@ const CONFIG={
   slogan:'Inteligência de margem e lucro',
   trialDias:14,
   /* deixe em branco para ocultar; preencha antes de publicar */
-  contato:{email:'',whatsapp:'',cidade:''},
-  /* true enquanto o pagamento não estiver integrado: a assinatura começa como teste grátis, sem cobrança */
-  demo:true,
+  contato:{email:'luizcorti669@gmail.com',whatsapp:'(49) 99123-8750',cidade:''},
+  /* Pagamento: cole aqui o link de pagamento recorrente (assinatura) de cada plano, criado no painel do gateway
+     (Mercado Pago, Asaas, Stripe, PagSeguro…). No gateway, configure a URL de retorno após o pagamento como:
+     https://SEU-DOMINIO/app.html#pagamento-confirmado
+     Plano/ciclo sem link: o botão "Assinar" leva ao WhatsApp de atendimento. */
+  pagamento:{
+    provedor:'',
+    links:{
+      essencial:{mensal:'',anual:''},
+      profissional:{mensal:'',anual:''},
+      escritorio:{mensal:'',anual:''},
+    },
+  },
+  /* true: sem links de pagamento, a assinatura é ativada sem cobrança (só para demonstração). Deixe false no site real. */
+  demo:false,
 };
 /* módulos do painel que cada plano libera (os demais aparecem bloqueados) */
 const MODS_ESSENCIAL_OFF=['orc','proj','acao','alr','rex','pmin'];
@@ -490,6 +496,8 @@ const PLANS=[
    itens:['Até 15 empresas','Tudo do Profissional','Logo de cada cliente no painel','Todas as empresas em uma única conta','Suporte prioritário']},
 ];
 const PLAN_SOB={id:'sob',nome:'Sob medida',para:'Redes, franquias e carteiras com mais de 15 empresas.',itens:['Empresas ilimitadas','Implantação assistida','Modelo de de/para do seu plano de contas','Condições comerciais conforme o volume']};
+const waLink=(msg)=>CONFIG.contato.whatsapp?'https://wa.me/55'+CONFIG.contato.whatsapp.replace(/\D/g,'')+(msg?'?text='+encodeURIComponent(msg):''):'';
+const payLink=(id,ciclo)=>((CONFIG.pagamento.links[id]||{})[ciclo]||'').trim();
 const planById=id=>PLANS.find(p=>p.id===id)||null;
 const fmtBRL=(v,d=0)=>'R$ '+Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d});
 const precoMes=(p,ciclo)=>ciclo==='anual'?Math.round(p.preco*10/12):p.preco;
@@ -505,7 +513,7 @@ $('#menuB').onclick=()=>{const m=$('#mnav');const on=m.classList.toggle('on');$(
 document.querySelectorAll('#mnav a').forEach(a=>a.onclick=()=>$('#mnav').classList.remove('on'));
 /* contato (aparece só quando configurado) */
 const C=CONFIG.contato,hasC=!!(C.email||C.whatsapp);
-if(hasC){$('#ftContato').innerHTML=[C.email&&esc(C.email),C.whatsapp&&'WhatsApp '+esc(C.whatsapp)].filter(Boolean).join(' · ');}
+if(hasC){$('#ftContato').innerHTML=[C.email&&`<a href="mailto:${esc(C.email)}">${esc(C.email)}</a>`,C.whatsapp&&`<a href="${waLink('Olá! Quero saber mais sobre o Vértice.')}" target="_blank" rel="noopener">WhatsApp ${esc(C.whatsapp)}</a>`].filter(Boolean).join('<br>');}
 /* ---------- calculadora ---------- */
 const pn=s=>{s=String(s||'').trim().replace(/\s|R\$|%/g,'');if(!s) return NaN;if(s.includes(',')) s=s.replace(/\./g,'').replace(',','.');else if(/^\d{1,3}(\.\d{3})+$/.test(s)) s=s.replace(/\./g,'');return parseFloat(s);};
 const f0=v=>'R$ '+Math.round(v).toLocaleString('pt-BR');
@@ -569,7 +577,7 @@ plans();
 const ROWS=[['Empresas','1','até 3','até 15','ilimitadas'],['Histórico analisado','12 meses','24 meses','24 meses','24 meses'],['Custo-volume-lucro e pontos de equilíbrio',1,1,1,1],['Faturamento, curva ABC e custos',1,1,1,1],['Fluxo de caixa livre e indicadores contábeis',1,1,1,1],['Série mensal e escolha livre do período',1,1,1,1],['Orçamento × realizado',0,1,1,1],['Projeção de cenários',0,1,1,1],['Alertas e plano de ação',0,1,1,1],['Preço mínimo por produto',0,1,1,1],['Relatório executivo',0,1,1,1],['Logo do cliente no painel',0,0,1,1],['Implantação assistida',0,0,0,1]];
 $('#cmp').innerHTML=`<thead><tr><th>Recurso</th>${PLANS.map(p=>`<th>${p.nome}</th>`).join('')}<th>${PLAN_SOB.nome}</th></tr></thead><tbody>${ROWS.map(r=>`<tr><td>${r[0]}</td>${r.slice(1).map(v=>`<td>${v===1?'<span class="y" aria-label="incluído">✓</span>':v===0?'<span class="n" aria-label="não incluído">—</span>':esc(v)}</td>`).join('')}</tr>`).join('')}</tbody>`;
 /* ---------- contato ---------- */
-function openC(){const c=$('#mdlC');c.innerHTML=[C.email&&['E-mail',C.email],C.whatsapp&&['WhatsApp',C.whatsapp]].filter(Boolean).map(([l,v])=>`<div class="cp"><span><small style="display:block;color:var(--ink-3);font-weight:500">${l}</small>${esc(v)}</span><button class="btn sm" type="button" data-cp="${esc(v)}">Copiar</button></div>`).join('');
+function openC(){const c=$('#mdlC');c.innerHTML=[C.email&&['E-mail',C.email,''],C.whatsapp&&['WhatsApp',C.whatsapp,waLink('Olá! Quero uma proposta do plano Sob medida do Vértice.')]].filter(Boolean).map(([l,v,u])=>`<div class="cp"><span><small style="display:block;color:var(--ink-3);font-weight:500">${l}</small>${esc(v)}</span><span style="display:flex;gap:6px">${u?`<a class="btn sm primary" href="${u}" target="_blank" rel="noopener">Abrir</a>`:''}<button class="btn sm" type="button" data-cp="${esc(v)}">Copiar</button></span></div>`).join('');
   c.querySelectorAll('[data-cp]').forEach(b=>b.onclick=()=>{navigator.clipboard&&navigator.clipboard.writeText(b.dataset.cp).then(()=>b.textContent='Copiado',()=>{});});$('#mdl').hidden=false;}
 $('#mdlX').onclick=()=>$('#mdl').hidden=true;$('#mdl').addEventListener('click',e=>{if(e.target.id==='mdl') $('#mdl').hidden=true;});
 </script>
