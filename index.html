@@ -657,6 +657,8 @@ const CLOUD=(()=>{
     'CONTA_BLOQUEADA':'Sua conta está bloqueada. Fale com a nossa equipe.',
     'SEM_PERMISSAO':'Ação permitida apenas para o administrador.',
     'SENHA_CURTA':'A senha precisa de pelo menos 8 caracteres.',
+    'signups are disabled':'O cadastro de novas contas está desligado no momento. Fale com a nossa equipe.',
+    'Signups not allowed':'O cadastro de novas contas está desligado no momento. Fale com a nossa equipe.',
     'CADASTRO_FECHADO':'Os novos cadastros estão fechados no momento. Fale com a nossa equipe.'};
   const human=(t,code)=>{t=String(t||'');for(const k in MSG) if(t.includes(k)) return MSG[k];
     if(code===429||/rate limit|too many/i.test(t)) return 'Muitas tentativas em pouco tempo. Aguarde alguns minutos e tente de novo.';
@@ -686,7 +688,7 @@ const CLOUD=(()=>{
   const auth={
     session:()=>S,uid:()=>S&&S.user&&S.user.id,email:()=>S&&S.user&&S.user.email,
     restore(){load();return !!S;},
-    async signUp(email,pw,data){const r=await authCall('/signup',{email,password:pw,data});if(r&&r.access_token){remember=true;setS(r);return {ok:true};}return {confirm:true};},
+    async signUp(email,pw,data,redirect){const r=await authCall('/signup'+(redirect?'?redirect_to='+encodeURIComponent(redirect):''),{email,password:pw,data});if(r&&r.access_token){remember=true;setS(r);return {ok:true};}return {confirm:true};},
     async signIn(email,pw,rem){remember=rem!==false;setS(await authCall('/token?grant_type=password',{email,password:pw}));return S;},
     async signOut(){try{if(S) await authCall('/logout',null,'POST',S.access_token);}catch(e){}S=null;save();},
     async updatePassword(pw){return authCall('/user',{password:pw},'PUT',await tok());},

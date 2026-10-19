@@ -1645,6 +1645,8 @@ const CLOUD=(()=>{
     'CONTA_BLOQUEADA':'Sua conta está bloqueada. Fale com a nossa equipe.',
     'SEM_PERMISSAO':'Ação permitida apenas para o administrador.',
     'SENHA_CURTA':'A senha precisa de pelo menos 8 caracteres.',
+    'signups are disabled':'O cadastro de novas contas está desligado no momento. Fale com a nossa equipe.',
+    'Signups not allowed':'O cadastro de novas contas está desligado no momento. Fale com a nossa equipe.',
     'CADASTRO_FECHADO':'Os novos cadastros estão fechados no momento. Fale com a nossa equipe.'};
   const human=(t,code)=>{t=String(t||'');for(const k in MSG) if(t.includes(k)) return MSG[k];
     if(code===429||/rate limit|too many/i.test(t)) return 'Muitas tentativas em pouco tempo. Aguarde alguns minutos e tente de novo.';
@@ -1674,7 +1676,7 @@ const CLOUD=(()=>{
   const auth={
     session:()=>S,uid:()=>S&&S.user&&S.user.id,email:()=>S&&S.user&&S.user.email,
     restore(){load();return !!S;},
-    async signUp(email,pw,data){const r=await authCall('/signup',{email,password:pw,data});if(r&&r.access_token){remember=true;setS(r);return {ok:true};}return {confirm:true};},
+    async signUp(email,pw,data,redirect){const r=await authCall('/signup'+(redirect?'?redirect_to='+encodeURIComponent(redirect):''),{email,password:pw,data});if(r&&r.access_token){remember=true;setS(r);return {ok:true};}return {confirm:true};},
     async signIn(email,pw,rem){remember=rem!==false;setS(await authCall('/token?grant_type=password',{email,password:pw}));return S;},
     async signOut(){try{if(S) await authCall('/logout',null,'POST',S.access_token);}catch(e){}S=null;save();},
     async updatePassword(pw){return authCall('/user',{password:pw},'PUT',await tok());},
@@ -1782,7 +1784,7 @@ async function logEv(tipo,detalhe,u){u=u||USER;if(!u) return;
     else await LDB.put('eventos',{at:Date.now(),email:u.email,tipo,detalhe:String(detalhe||'')});}catch(e){}}
 async function signup(nome,email,pw,tipo,tel){
   email=normE(email);
-  if(CLOUD.on){const r=await CLOUD.auth.signUp(email,pw,{nome:nome.trim(),tipo,telefone:tel||''});
+  if(CLOUD.on){const r=await CLOUD.auth.signUp(email,pw,{nome:nome.trim(),tipo,telefone:tel||''},appUrl());
     if(r.confirm){const e=new Error(`Enviamos um link de confirmação para ${email}. Abra o e-mail, confirme e depois entre com a sua senha.`);e.info=true;throw e;}
     await CLOUD.auth.me();return loadMe();}
   if(CONFIG.cadastro==='fechado'&&!isAdminEmail(email)) throw new Error('Os novos cadastros estão fechados no momento. Fale com a nossa equipe.');
@@ -1802,6 +1804,7 @@ async function reloadMe(){if(!USER) return;if(CLOUD.on){const a=USER.admin;USER=
 /* ---------------- plano ---------------- */
 const DAY=864e5;
 function planState(u){
+  if(u&&u.admin&&(!u.plano||!u.plano.status)) return {plan:{id:'escritorio',nome:'Administrador',preco:0,empresas:999,meses:24,hide:[],itens:[]},status:'ativa',label:'Administrador',admin:true};
   if(u&&u.status==='bloqueada') return {plan:u.plano?planById(u.plano.id):null,status:'bloqueada',label:'Conta bloqueada'};
   const p=u&&u.plano;
   if(!p||!p.status){if(p&&p.aguardando) return {plan:planById(p.aguardando.id),status:'aguardando',label:'Pagamento em conferência'};return {plan:null,status:'sem',label:'Sem plano'};}
@@ -2018,6 +2021,7 @@ async function renderNav(){
   let ph='';if(USER.admin&&!USER.plano) ph=`<b>Administrador</b><span>Acesso completo a todas as funções.</span><a href="#adm">Administração</a>`;else if(ps.status==='sem') ph=`<b>Escolha um plano</b><span>Teste grátis por ${CONFIG.trialDias} dias.</span><a href="#assinatura">Ver planos</a>`;
   else if(ps.status==='teste') ph=`<b>${ps.plan.nome} · teste grátis</b><span>${ps.left} de ${CONFIG.trialDias} dias restantes</span><div class="bar"><i style="width:${Math.max(4,100-ps.left/CONFIG.trialDias*100)}%"></i></div><a href="#assinatura">${ps.cartao?'Ver assinatura':'Ativar assinatura'}</a>`;
   else if(ps.status==='expirado') ph=`<b>Teste encerrado</b><span>Ative a assinatura para continuar.</span><a href="#assinatura">Ativar agora</a>`;
+  else if(ps.admin) ph=`<b>Administrador</b><span>Acesso completo · gerador liberado</span><a href="#adm">Administração</a>`;
   else if(['aguardando','suspensa','cancelada','vencida','bloqueada'].includes(ps.status)) ph=`<b>${esc(ps.label)}</b><span>${ps.status==='aguardando'?'Liberamos assim que conferirmos o pagamento.':'Fale com a nossa equipe para regularizar.'}</span><a href="#assinatura">Ver assinatura</a>`;
   else ph=`<b>Plano ${ps.plan.nome}</b><span>${cos.length} de ${ps.plan.empresas} empresa${ps.plan.empresas>1?'s':''}</span>`;
   $('#navPlan').innerHTML=ph;
@@ -2105,7 +2109,7 @@ async function choosePlan(p,act){
 /* ================= empresas ================= */
 async function vEmpresas(){
   const cos=await myCompanies(),ps=planState(USER);
-  const lim=ps.plan?ps.plan.empresas:0;
+  const lim=ps.admin?999:(ps.plan?ps.plan.empresas:0);
   const card=c=>{const M=model(c),g=genState(c);const steps=['empresa','bal','map','vend','gastos'];
     const per=c.gen?`${ML(c.gen.win[0])} a ${ML(c.gen.win[1])}`:M.vm.length?`vendas de ${ML(M.vm[0])} a ${ML(M.vm[M.vm.length-1])}`:'relatórios ainda não enviados';
     const pill=c.bloqueado?'<span class="pill err">Painel bloqueado</span>':awaitingRelease(c)?'<span class="pill warn">Aguardando liberação</span>':g==='ok'?'<span class="pill ok">Painel ativo</span>':g==='old'?'<span class="pill warn">Atualizar painel</span>':M.st.ready?'<span class="pill">Pronto para gerar</span>':'<span class="pill mute">Envio em andamento</span>';
@@ -2114,12 +2118,12 @@ async function vEmpresas(){
       <div class="prog" title="Etapas do envio">${steps.map(s=>`<i class="${M.st[s]==='ok'?'ok':M.st[s]==='warn'?'warn':''}"></i>`).join('')}</div>
       <div class="acts">${c.gen?`<button class="btn primary sm" type="button" data-open="${c.id}">Abrir painel</button>`:''}<button class="btn sm" type="button" data-go="${c.id}">${c.gen?'Atualizar dados':'Continuar envio'}</button></div></div>`;};
   const canNew=canUse(USER)&&cos.length<lim;
-  $('#main').innerHTML=`<div class="ph"><div><h1>Empresas</h1><p>${ps.plan?`${cos.length} de ${lim} empresa${lim>1?'s':''} no plano ${ps.plan.nome}.`:'Escolha um plano para cadastrar empresas.'}</p></div><div class="acts">${cos.length?`<button class="btn primary" type="button" id="newB">Nova empresa</button>`:''}</div></div>
+  $('#main').innerHTML=`<div class="ph"><div><h1>Empresas</h1><p>${ps.admin?`Acesso de administrador: cadastre quantas empresas quiser para testes e análises.`:ps.plan?`${cos.length} de ${lim} empresa${lim>1?'s':''} no plano ${ps.plan.nome}.`:'Escolha um plano para cadastrar empresas.'}</p></div><div class="acts">${cos.length?`<button class="btn primary" type="button" id="newB">Nova empresa</button>`:''}</div></div>
    ${ps.status==='expirado'?`<div class="alert warn" style="margin-bottom:16px">O teste grátis terminou. <a href="#assinatura">Ative a assinatura</a> para gerar e abrir os painéis.</div>`:''}
    ${cos.length?`<div class="cos-g">${cos.map(card).join('')}${canNew?`<button class="co new" type="button" id="newC"><span class="ill" style="width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:var(--tint);color:var(--brand)"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span><b>Cadastrar nova empresa</b><span>${lim-cos.length} vaga${lim-cos.length>1?'s':''} no seu plano</span></button>`:''}</div>`
    :`<div class="panel"><div class="empty"><span class="ill"><svg class="i" viewBox="0 0 24 24"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/></svg></span><h3>Cadastre sua primeira empresa</h3><p>Você vai precisar dos balancetes mensais (Excel ou CSV) e do relatório de vendas por produto. Se ainda não tem os arquivos, experimente com os dados de exemplo.</p>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">${ps.plan?`<button class="btn primary" type="button" id="newB2"${canUse(USER)?'':' disabled'}>Cadastrar empresa</button><button class="btn" type="button" id="sampleB"${canUse(USER)?'':' disabled'}>Experimentar com dados de exemplo</button>`:`<a class="btn primary" href="#assinatura">Escolher plano</a>`}<a class="btn ghost" href="#ajuda">Quais relatórios pedir?</a></div></div></div>`}`;
-  const nb=()=>{if(!ps.plan){go('assinatura');return;}if(!canUse(USER)){toast('Ative a assinatura para cadastrar empresas.');return;}if(cos.length>=lim){toast(`O plano ${ps.plan.nome} permite ${lim} empresa${lim>1?'s':''}. Mude de plano para cadastrar mais.`);go('assinatura');return;}go('nova');};
+      <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">${ps.plan||USER.admin?`<button class="btn primary" type="button" id="newB2">Cadastrar empresa</button><button class="btn" type="button" id="sampleB">Experimentar com dados de exemplo</button>`:`<a class="btn primary" href="#assinatura">Escolher plano</a>`}<a class="btn ghost" href="#ajuda">Quais relatórios pedir?</a></div></div></div>`}`;
+  const nb=()=>{if(USER.admin){go('nova');return;}if(!ps.plan){go('assinatura');return;}if(!canUse(USER)){toast('Ative a assinatura para cadastrar empresas.');return;}if(cos.length>=lim){toast(`O plano ${ps.plan.nome} permite ${lim} empresa${lim>1?'s':''}. Mude de plano para cadastrar mais.`);go('assinatura');return;}go('nova');};
   ['#newB','#newB2','#newC'].forEach(s=>{const b=$(s);if(b) b.onclick=nb;});
   const sb=$('#sampleB');if(sb) sb.onclick=()=>loadSample();
   document.querySelectorAll('[data-open]').forEach(b=>b.onclick=async()=>openPanel(await DB.get('companies',b.dataset.open)));
@@ -2127,8 +2131,8 @@ async function vEmpresas(){
 }
 async function vNova(){
   const ps=planState(USER),cos=await myCompanies();
-  if(!ps.plan){go('assinatura');return;}
-  if(cos.length>=ps.plan.empresas){toast('Limite de empresas do plano atingido.');go('empresas');return;}
+  if(!ps.plan&&!USER.admin){go('assinatura');return;}
+  if(ps.plan&&!USER.admin&&cos.length>=ps.plan.empresas){toast('Limite de empresas do plano atingido.');go('empresas');return;}
   $('#main').innerHTML=`<p class="crumb"><a href="#empresas">Empresas</a> › Nova empresa</p><div class="ph"><div><h1>Nova empresa</h1><p>Comece pela identificação. Depois você envia os relatórios, na ordem que preferir.</p></div></div>
    <div class="grid2"><div class="panel"><div class="hd"><div><h2>Cadastrar com os relatórios da contabilidade</h2><p>Recomendado. Leva de 10 a 20 minutos na primeira vez.</p></div></div><div class="bd" style="display:grid;gap:14px">
      <div class="f"><label for="nvN">Nome da empresa</label><input id="nvN" placeholder="Ex.: Padaria Bom Dia Ltda"></div>
@@ -2520,8 +2524,8 @@ function vAjuda(){
 function b64buf(b){const s=atob(b),u=new Uint8Array(s.length);for(let i=0;i<s.length;i++) u[i]=s.charCodeAt(i);return u.buffer;}
 async function loadSample(){
   const ps=planState(USER),cos=await myCompanies();
-  if(!ps.plan){go('assinatura');return;}if(!canUse(USER)){toast('Ative a assinatura para continuar.');return;}
-  if(cos.length>=ps.plan.empresas){toast('Limite de empresas do plano atingido.');return;}
+  if(!ps.plan&&!USER.admin){go('assinatura');return;}if(!canUse(USER)){toast('Ative a assinatura para continuar.');return;}
+  if(ps.plan&&!USER.admin&&cos.length>=ps.plan.empresas){toast('Limite de empresas do plano atingido.');return;}
   $('#main').innerHTML=`<div class="panel"><div class="empty"><span class="spin"></span><p>Lendo 24 balancetes e o relatório de vendas de exemplo…</p></div></div>`;
   const S=JSON.parse($('#sample').textContent);const C=blankCompany();C.sample=true;Object.assign(C.empresa,S.empresa);
   for(const f of S.bal) C.bal.push(...await readBalFiles(f.name,b64buf(f.b64)));
@@ -2662,6 +2666,11 @@ async function vAdm(){
     ...P.senha.map(s=>({t:`Senha esquecida · ${s.email}`,s:fmtDT(s.at),h:'#adm-senhas'})),
     ...P.contato.map(s=>({t:`Contato do site · ${s.nome||s.email}`,s:(s.mensagem||'').slice(0,80),h:'#adm-contatos'}))];
   $('#main').innerHTML=admHead('Administração',`${CLOUD.on?'Banco on-line':'Modo local'} · atualizado agora`,'<button class="btn sm" type="button" id="aRf">Atualizar</button>')+`
+   <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+     <a class="btn primary sm" href="#empresas" style="display:inline-flex;align-items:center;gap:6px"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Gerar painel (acesso gratuito)</a>
+     <button class="btn sm" type="button" id="aPr">Alterar preços dos planos</button>
+     <a class="btn sm" href="#adm-site">Configurações do site</a>
+   </div>
    <div class="adm-k">
     <div class="kpi"><small>Contas</small><b>${D.contas.length}</b><em>+${novos30} nos últimos 30 dias</em></div>
     <div class="kpi"><small>Assinantes ativos</small><b>${ativos.length}</b><em>${fmtBRL(mrr)} por mês (estimado)</em></div>
@@ -2676,6 +2685,7 @@ async function vAdm(){
    </div>
    <div class="panel" style="margin-top:16px"><div class="hd"><div><h2>Atividade recente</h2></div><a class="btn sm" href="#adm-log">Ver tudo</a></div><div class="bd tw">${ev.length?`<table class="t adm-t"><tbody>${ev.map(e=>`<tr><td style="white-space:nowrap;color:var(--ink-3)">${fmtDT(e.at)}</td><td>${esc(e.email||'')}</td><td><span class="pill mute">${esc(e.tipo)}</span></td><td>${esc(e.detalhe||'')}</td></tr>`).join('')}</tbody></table>`:'<p style="color:var(--ink-3)">Sem atividade registrada.</p>'}</div></div>`;
   $('#aRf').onclick=()=>admRefresh();
+  $('#aPr').onclick=()=>admPrecos();
 }
 
 /* ---------- assinantes ---------- */
@@ -2939,6 +2949,18 @@ async function vAdmLog(){
   $('#aQ').oninput=e=>{ADMF.logq=e.target.value;draw();};$('#aT').onchange=e=>{ADMF.log=e.target.value;draw();};
   $('#aCsv').onclick=()=>csv('atividade_cifra_clara.csv',['Quando','Cliente','Tipo','Detalhe'],L.map(e=>[fmtDT(e.at),e.email,e.tipo,e.detalhe]));
   draw();
+}
+async function admPrecos(){
+  const d=await ADM.config();const pl=d.planos||{};
+  modal(`<h3>Preços dos planos</h3><p style="color:var(--ink-2)">Preço mensal em reais. No ciclo anual, o cliente paga 10 meses no ano. Os limites de empresas e meses também valem a partir daqui.</p>
+   <div class="tw"><table class="t"><thead><tr><th>Plano</th><th>Preço mensal (R$)</th><th>Empresas</th><th>Meses</th></tr></thead><tbody>
+     ${PLANS.map(p=>{const o=pl[p.id]||{};return `<tr><td><b>${p.nome}</b></td><td><input type="number" min="1" data-pp="${p.id}" value="${o.preco||p.preco}" style="width:100px"></td><td><input type="number" min="1" data-pe="${p.id}" value="${o.empresas||p.empresas}" style="width:70px"></td><td><input type="number" min="1" max="24" data-pm="${p.id}" value="${o.meses||p.meses}" style="width:70px"></td></tr>`;}).join('')}</tbody></table></div>
+   <p style="color:var(--ink-3);font-size:12.5px">Se já há clientes nesses planos, o novo preço vale a partir da próxima cobrança no gateway. Lembre de atualizar o valor também no link de pagamento do gateway.</p>
+   <div class="acts"><button class="btn" data-close type="button">Cancelar</button><button class="btn primary" type="button" id="prOk">Salvar preços</button></div>`,(b,close)=>{
+    b.classList.add('wide');
+    b.querySelector('#prOk').onclick=async()=>{const nd=Object.assign({},d);nd.planos=Object.assign({},pl);
+      PLANS.forEach(p=>{nd.planos[p.id]=Object.assign({},pl[p.id]||{},{preco:+b.querySelector(`[data-pp="${p.id}"]`).value||p.preco,empresas:+b.querySelector(`[data-pe="${p.id}"]`).value||p.empresas,meses:Math.min(24,+b.querySelector(`[data-pm="${p.id}"]`).value||p.meses)});});
+      try{await ADM.setConfig(nd);lsSet('cc-config',JSON.stringify(nd));applySiteConfig(nd);await ADM.log(USER.email,'admin','Preços dos planos atualizados pelo painel de administração');close();toast('Preços atualizados. O site já mostra os novos valores.');await admRefresh();}catch(e){toast(e.message);}};});
 }
 const ADMV={adm:vAdm,'adm-contas':vAdmContas,'adm-empresas':vAdmEmpresas,'adm-lib':vAdmLib,'adm-senhas':vAdmSenhas,'adm-contatos':vAdmContatos,'adm-site':vAdmSite,'adm-log':vAdmLog};
 
