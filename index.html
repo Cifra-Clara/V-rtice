@@ -608,7 +608,7 @@ const CONFIG={
   },
   /* Banco on-line (Supabase): preencha os dois campos (Supabase → Project Settings → API) para guardar contas,
      empresas e painéis na nuvem e usar o painel de administração com todos os clientes. Em branco: modo local. */
-  supabase:(typeof window!=='undefined'&&window.__SB)||{url:'',anonKey:''},
+  supabase:(typeof window!=='undefined'&&window.__SB)||{url:'https://sxkjamlfkwvpvlayywhr.supabase.co',anonKey:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN4a2phbWxma3Z3cHZsYXl5d2hyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIzODYwODIsImV4cCI6MjEwNzk2MjA4Mn0.14d9Y3dKy8s3bxAntlQrQVPjzjb-hnL0nvK7_PzM8dk'},
   /* e-mails com acesso ao painel de administração (no banco on-line, a lista vale pela tabela "admins") */
   admins:['luizcorti669@gmail.com'],
   /* regras padrão (o administrador muda em Administração → Site):
@@ -671,15 +671,17 @@ const CLOUD=(()=>{
     const tx=await r.text();let j=null;try{j=tx?JSON.parse(tx):null;}catch(e){}
     if(!r.ok){const m=j&&(j.msg||j.message||j.error_description||j.error)||tx||r.statusText;const err=new Error(human(m,r.status));err.status=r.status;err.raw=m;throw err;}
     return {j,r};}
-  async function authCall(path,body,method,tok){return (await raw(base+'/auth/v1'+path,{method:method||'POST',headers:{apikey:cf.anonKey,'Content-Type':'application/json',Authorization:'Bearer '+(tok||cf.anonKey)},body:body?JSON.stringify(body):undefined})).j;}
+  /* sem login, envia só a chave pública (apikey): funciona com a chave "anon" antiga e com a "publishable" nova */
+  const hdr=t=>{const h={apikey:cf.anonKey,'Content-Type':'application/json'};if(t) h.Authorization='Bearer '+t;return h;};
+  async function authCall(path,body,method,tok){return (await raw(base+'/auth/v1'+path,{method:method||'POST',headers:hdr(tok),body:body?JSON.stringify(body):undefined})).j;}
   let refreshing=null;
   async function refresh(){if(!S||!S.refresh_token) return;if(!refreshing) refreshing=(async()=>{try{setS(await authCall('/token?grant_type=refresh_token',{refresh_token:S.refresh_token}));}catch(e){if(e.status&&e.status<500){S=null;save();}}finally{refreshing=null;}})();return refreshing;}
-  async function tok(){if(S&&S.expires_at*1000<Date.now()+60000) await refresh();return S?S.access_token:cf.anonKey;}
+  async function tok(){if(S&&S.expires_at*1000<Date.now()+60000) await refresh();return S?S.access_token:null;}
   /* REST (tabelas e funções) */
   async function rest(path,o={}){
-    const h={apikey:cf.anonKey,Authorization:'Bearer '+await tok(),'Content-Type':'application/json'};if(o.prefer) h.Prefer=o.prefer;
+    const h=hdr(await tok());if(o.prefer) h.Prefer=o.prefer;
     const run=async()=>raw(base+'/rest/v1/'+path,{method:o.method||'GET',headers:h,body:o.body!==undefined?JSON.stringify(o.body):undefined});
-    try{return (await run()).j;}catch(e){if(e.status===401&&S){await refresh();h.Authorization='Bearer '+await tok();return (await run()).j;}throw e;}}
+    try{return (await run()).j;}catch(e){if(e.status===401&&S){await refresh();const t=await tok();if(t) h.Authorization='Bearer '+t;else delete h.Authorization;return (await run()).j;}throw e;}}
   const rpc=(fn,args)=>rest('rpc/'+fn,{method:'POST',body:args||{}});
   const auth={
     session:()=>S,uid:()=>S&&S.user&&S.user.id,email:()=>S&&S.user&&S.user.email,
