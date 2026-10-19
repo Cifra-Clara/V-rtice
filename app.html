@@ -196,6 +196,8 @@ table.t td.r{white-space:nowrap}
 .prog i{flex:1;height:5px;border-radius:9px;background:var(--line)}
 .prog i.ok{background:var(--brand)}.prog i.warn{background:var(--amber)}
 .co .acts{display:flex;gap:8px;flex-wrap:wrap}
+.co .acts .btn[data-del]{color:var(--err);border-color:transparent}
+.co .acts .btn[data-del]:hover{background:color-mix(in srgb,var(--err) 10%,transparent);border-color:var(--err)}
 .co.new{border-style:dashed;place-items:center;text-align:center;color:var(--ink-3);cursor:pointer;min-height:180px;background:transparent;box-shadow:none}
 .co.new b{color:var(--brand);font-size:15px}
 /* fluxo da empresa */
@@ -2072,7 +2074,8 @@ async function vAssinatura(){
   if(ps.status==='sem') top=`<div class="tip">${IINFO}<span>Escolha um plano para começar. Os primeiros <b>${CONFIG.trialDias} dias são grátis</b>. Para começar, cadastre o cartão na página segura de pagamento: nada é cobrado no teste e você pode cancelar antes do fim dele sem pagar nada.</span></div>`;
   else if(ps.status==='teste') top=ps.cartao?`<div class="tip">${IINFO}<span>Você está no teste grátis do plano <b>${ps.plan.nome}</b>: faltam ${ps.left} dia${ps.left>1?'s':''}. A primeira cobrança é feita em <b>${dataBR(USER.plano.fim)}</b> no cartão cadastrado. Para cancelar antes disso, fale com a gente${CONFIG.contato.whatsapp?` pelo <a href="${esc(waLink('Olá! Quero cancelar meu teste do Vértice. E-mail: '+USER.email))}" target="_blank" rel="noopener">WhatsApp</a>`:''}.</span></div>`:`<div class="tip">${IINFO}<span>Você está no teste grátis do plano <b>${ps.plan.nome}</b>: faltam ${ps.left} dia${ps.left>1?'s':''}. Para continuar depois disso, ative a assinatura.</span></div>`;
   else if(ps.status==='expirado') top=`<div class="alert warn">O teste grátis terminou. Seus dados estão guardados; ative a assinatura para voltar a gerar e abrir os painéis.</div>`;
-  else top=`<div class="alert ok">Assinatura ativa no plano <b>${ps.plan.nome}</b> (${USER.plano.ciclo==='anual'?'anual':'mensal'}).</div>`;
+  else if(ps.admin) top=`<div class="alert info">Você está entrando como administrador. Acesso completo liberado, sem assinatura. Esta página é a visão do cliente.</div>`;
+  else top=`<div class="alert ok">Assinatura ativa no plano <b>${ps.plan.nome}</b> (${(USER.plano&&USER.plano.ciclo)==='anual'?'anual':'mensal'}).</div>`;
   $('#main').innerHTML=`<div class="ph"><div><h1>Assinatura</h1><p>Planos com atualização mensal ilimitada e conferências automáticas.</p></div><div class="cyc" role="group" aria-label="Ciclo"><button type="button" data-cyc="mensal" aria-pressed="${CYC==='mensal'}">Mensal</button><button type="button" data-cyc="anual" aria-pressed="${CYC==='anual'}">Anual<em>2 meses grátis</em></button></div></div>
    ${CONFIG.demo?`<div class="demo-b">${IINFO}<span>Ambiente de demonstração: a assinatura é ativada sem cobrança.</span></div>`:''}
    ${USER.plano&&USER.plano.pend&&USER.plano.status!=='ativa'?`<div class="alert info" style="margin-bottom:14px">Pagamento do plano <b>${esc((planById(USER.plano.pend.id)||{}).nome||'')}</b> iniciado em ${new Date(USER.plano.pend.at).toLocaleDateString('pt-BR')}. Ao concluir no gateway, você volta para cá com a assinatura ativa.</div>`:''}
@@ -2116,7 +2119,7 @@ async function vEmpresas(){
     return `<div class="co"><div class="top"><span class="av" style="background:${avBg(c.empresa.nome)}">${c.logo?`<img src="${c.logo}" alt="">`:esc(initials(c.empresa.nome))}</span><div style="min-width:0"><h3>${esc(c.empresa.nome||'Empresa sem nome')}</h3><p class="meta">${esc(per)}</p></div></div>
       <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">${pill}${c.sample?'<span class="pill mute">Exemplo</span>':''}</div>
       <div class="prog" title="Etapas do envio">${steps.map(s=>`<i class="${M.st[s]==='ok'?'ok':M.st[s]==='warn'?'warn':''}"></i>`).join('')}</div>
-      <div class="acts">${c.gen?`<button class="btn primary sm" type="button" data-open="${c.id}">Abrir painel</button>`:''}<button class="btn sm" type="button" data-go="${c.id}">${c.gen?'Atualizar dados':'Continuar envio'}</button></div></div>`;};
+      <div class="acts">${c.gen?`<button class="btn primary sm" type="button" data-open="${c.id}">Abrir painel</button>`:''}<button class="btn sm" type="button" data-go="${c.id}">${c.gen?'Atualizar dados':'Continuar envio'}</button><button class="btn sm" type="button" data-del="${c.id}" title="Excluir empresa" aria-label="Excluir empresa" style="margin-left:auto;color:var(--err);padding:6px 10px"><svg class="i" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6"/></svg></button></div></div>`;};
   const canNew=canUse(USER)&&cos.length<lim;
   $('#main').innerHTML=`<div class="ph"><div><h1>Empresas</h1><p>${ps.admin?`Acesso de administrador: cadastre quantas empresas quiser para testes e análises.`:ps.plan?`${cos.length} de ${lim} empresa${lim>1?'s':''} no plano ${ps.plan.nome}.`:'Escolha um plano para cadastrar empresas.'}</p></div><div class="acts">${cos.length?`<button class="btn primary" type="button" id="newB">Nova empresa</button>`:''}</div></div>
    ${ps.status==='expirado'?`<div class="alert warn" style="margin-bottom:16px">O teste grátis terminou. <a href="#assinatura">Ative a assinatura</a> para gerar e abrir os painéis.</div>`:''}
@@ -2127,6 +2130,9 @@ async function vEmpresas(){
   ['#newB','#newB2','#newC'].forEach(s=>{const b=$(s);if(b) b.onclick=nb;});
   const sb=$('#sampleB');if(sb) sb.onclick=()=>loadSample();
   document.querySelectorAll('[data-open]').forEach(b=>b.onclick=async()=>openPanel(await DB.get('companies',b.dataset.open)));
+  document.querySelectorAll('[data-del]').forEach(b=>b.onclick=async e=>{e.stopPropagation();const C=await DB.get('companies',b.dataset.del);if(!C) return;
+    if(!await confirmBox('Excluir empresa',`A empresa <b>${esc(C.empresa.nome||'(sem nome)')}</b>, os relatórios enviados e o painel serão apagados. Essa ação não pode ser desfeita.`,'Excluir',true)) return;
+    try{await DB.del('companies',C.id);await logEv('exclusao','Empresa excluída pela lista: '+C.empresa.nome);if(CUR&&CUR.id===C.id) CUR=null;toast('Empresa excluída.');vEmpresas();}catch(x){toast(x.message);}});
   document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>openCompany(b.dataset.go));
 }
 async function vNova(){
