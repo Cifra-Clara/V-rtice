@@ -129,12 +129,12 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .nav .cos a[aria-current="page"]{background:rgba(255,255,255,.14);color:#fff}
 .nav .cos i.st{width:7px;height:7px;border-radius:50%;flex:none;background:rgba(255,255,255,.35)}
 .nav .cos i.st.ok{background:#34D399}.nav .cos i.st.warn{background:var(--amber)}
-.nav .plan{margin-top:auto;border:1px solid var(--deep-line);border-radius:12px;padding:12px;background:rgba(255,255,255,.05);font-size:12.5px;display:grid;gap:6px}
+.nav .plan{border:1px solid var(--deep-line);border-radius:12px;padding:12px;background:rgba(255,255,255,.05);font-size:12.5px;display:grid;gap:6px}
 .nav .plan b{color:#fff;font-size:13.5px}
 .nav .plan .bar{height:5px;border-radius:9px;background:rgba(255,255,255,.12);overflow:hidden}
 .nav .plan .bar i{display:block;height:100%;background:var(--amber)}
 .nav .plan a{color:#C7D2FE;font-weight:650}
-.nav .me{display:flex;align-items:center;gap:10px;margin-top:12px;padding:10px 8px 0;border-top:1px solid var(--deep-line)}
+.nav .me{display:flex;align-items:center;gap:10px;margin-top:auto;padding:10px 8px 0;border-top:1px solid var(--deep-line)}
 .nav .me .av{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.16);font-weight:800;font-size:12.5px;color:#fff;flex:none}
 .nav .me div{min-width:0;font-size:12.5px}
 .nav .me b{display:block;color:#fff;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -2069,14 +2069,15 @@ async function renderNav(){
   else if(ps.admin) ph='';/* quadro escondido para admin — menu de administração já cobre */
   else if(['aguardando','suspensa','cancelada','vencida','bloqueada'].includes(ps.status)) ph=`<b>${esc(ps.label)}</b><span>${ps.status==='aguardando'?'Liberamos assim que conferirmos o pagamento.':'Fale com a nossa equipe para regularizar.'}</span><a href="#assinatura">Ver assinatura</a>`;
   else ph=`<b>Plano ${ps.plan.nome}</b><span>${cos.length} de ${ps.plan.empresas} empresa${ps.plan.empresas>1?'s':''}</span>`;
-  $('#navPlan').innerHTML=ph;
+  const npl=$('#navPlan');npl.innerHTML=ph;npl.style.display=ph?'':'none';
   $('#navMe').innerHTML=`<span class="av">${esc(initials(USER.nome))}</span><div><b>${esc(USER.nome)}</b><span>${esc(USER.email)}</span></div><button type="button" id="outB" title="Sair" aria-label="Sair"><svg class="i" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg></button>`;
   $('#outB').onclick=async()=>{await logout();location.hash='entrar';route();};
   const na=$('#navAdm');if(na){na.hidden=!USER.admin;if(USER.admin) await admNav(na);}
   const nc=$('#navCli');
   if(USER.admin&&nc&&!nc.dataset.moved){nc.dataset.moved='1';
-    const g=document.createElement('div');g.className='grp';g.textContent='Área do cliente';g.style.marginTop='6px';
-    nc.parentNode.appendChild(g);nc.parentNode.appendChild(nc);}
+    const g=document.createElement('div');g.className='grp';g.textContent='Visão do cliente';g.style.marginTop='18px';g.style.opacity='.65';g.style.fontSize='11px';
+    nc.parentNode.appendChild(g);nc.parentNode.appendChild(nc);
+    nc.style.opacity='.75';nc.querySelectorAll('.it').forEach(x=>x.style.fontSize='13px');}
 }
 $('#navB').onclick=()=>$('#nav').classList.toggle('on');
 async function openCompany(id,step){CUR=await DB.get('companies',id);STEP=step||(CUR&&CUR.gen?'geral':'empresa');if(location.hash==='#empresa') route();else location.hash='empresa';}
