@@ -2074,10 +2074,7 @@ async function renderNav(){
   $('#outB').onclick=async()=>{await logout();location.hash='entrar';route();};
   const na=$('#navAdm');if(na){na.hidden=!USER.admin;if(USER.admin) await admNav(na);}
   const nc=$('#navCli');
-  if(USER.admin&&nc&&!nc.dataset.moved){nc.dataset.moved='1';
-    const g=document.createElement('div');g.className='grp';g.textContent='Visão do cliente';g.style.marginTop='18px';g.style.opacity='.65';g.style.fontSize='11px';
-    nc.parentNode.appendChild(g);nc.parentNode.appendChild(nc);
-    nc.style.opacity='.75';nc.querySelectorAll('.it').forEach(x=>x.style.fontSize='13px');}
+  if(USER.admin&&nc) nc.style.display='none';
 }
 $('#navB').onclick=()=>$('#nav').classList.toggle('on');
 async function openCompany(id,step){CUR=await DB.get('companies',id);STEP=step||(CUR&&CUR.gen?'geral':'empresa');if(location.hash==='#empresa') route();else location.hash='empresa';}
