@@ -283,6 +283,32 @@ table.t td.r{white-space:nowrap}
 textarea.copy{width:100%;min-height:200px;border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--surface-2);font:13px/1.55 var(--font);color:var(--ink-2);resize:vertical}
 .spin{width:18px;height:18px;border-radius:50%;border:2.5px solid var(--line);border-top-color:var(--brand);animation:sp .8s linear infinite;display:inline-block}
 @keyframes sp{to{transform:rotate(360deg)}}
+/* ---------- administração ---------- */
+#navAdm .grp{margin-top:6px}
+#navAdm a.it .bdg{margin-left:auto;background:var(--amber);color:#1B1530;font-size:11px;font-weight:800;border-radius:999px;padding:1px 7px;min-width:20px;text-align:center}
+.adm-k{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.adm-k .kpi b{font-size:26px}
+.adm-k .kpi.hot{border-color:color-mix(in srgb,var(--amber) 60%,var(--line));background:color-mix(in srgb,var(--amber) 7%,var(--surface))}
+.adm-bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:12px}
+.adm-bar .srch{flex:1;min-width:220px;max-width:380px;border:1px solid var(--line);border-radius:10px;padding:9px 12px;background:var(--surface);font-size:14px}
+.adm-t td .sub2{display:block;color:var(--ink-3);font-size:12px;margin-top:1px}
+.adm-t tr.click{cursor:pointer}.adm-t tr.click:hover td{background:color-mix(in srgb,var(--brand) 5%,transparent)}
+.adm-t .acts2{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.chart{display:grid;grid-template-columns:repeat(12,1fr);gap:6px;align-items:end;height:150px;padding:10px 4px 0}
+.chart div{display:grid;gap:4px;justify-items:center;align-content:end;height:100%}
+.chart i{display:block;width:100%;max-width:34px;border-radius:6px 6px 2px 2px;background:linear-gradient(180deg,var(--brand),color-mix(in srgb,var(--brand) 55%,#fff));min-height:3px}
+.chart span{font-size:10.5px;color:var(--ink-3)}.chart b{font-size:11px;color:var(--ink-2)}
+.mdl .box.wide{max-width:880px}
+.adm-sec{display:grid;gap:12px;border-top:1px solid var(--line-2);padding-top:14px}
+.adm-sec h4{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.g2f{display:grid;grid-template-columns:1fr 1fr;gap:12px}.g3f{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media (max-width:640px){.g2f,.g3f{grid-template-columns:1fr}}
+.f textarea{min-height:80px;resize:vertical}
+.qa{display:flex;gap:8px;flex-wrap:wrap}
+.lst{display:grid;gap:8px}.lst .it2{display:flex;gap:12px;align-items:center;justify-content:space-between;border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--surface);flex-wrap:wrap}
+.lst .it2 .tx{min-width:0;flex:1}.lst .it2 .tx b{display:block}.lst .it2 .tx span{color:var(--ink-3);font-size:12.5px}
+.pwbox{font:700 20px var(--mono);letter-spacing:.06em;padding:12px 14px;border-radius:12px;background:var(--surface-2);border:1px dashed var(--line);text-align:center}
+.mode-b{display:flex;gap:10px;align-items:center;font-size:13px;color:var(--ink-2);background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-bottom:16px}
 </style>
 
 <div id="boot" class="empty" style="min-height:100%;align-content:center"><span class="spin"></span><p>Carregando…</p></div>
@@ -312,13 +338,14 @@ textarea.copy{width:100%;min-height:200px;border:1px solid var(--line);border-ra
         <label class="chk"><input type="checkbox" id="inR" checked> Manter conectado neste computador</label>
         <div id="inErr" class="alert err" hidden></div>
         <button class="btn primary lg" type="submit">Entrar</button>
-        <p style="font-size:13px;color:var(--ink-3)">Esqueceu a senha? <a href="#" id="forgot">Saiba como recuperar</a></p>
+        <p style="font-size:13px;color:var(--ink-3)">Esqueceu a senha? <a href="#" id="forgot">Recuperar a senha</a></p>
       </form>
       <form id="fUp" class="card-a" novalidate hidden>
         <div><h2>Crie sua conta</h2><p class="sub">Teste grátis por 7 dias. Nada é cobrado durante o teste.</p></div>
         <div class="f"><label for="upN">Seu nome</label><input id="upN" autocomplete="name" required></div>
         <div class="f"><label for="upE">E-mail</label><input id="upE" type="email" autocomplete="email" required></div>
         <div class="f"><label for="upP">Senha</label><input id="upP" type="password" autocomplete="new-password" minlength="8" required><small>Pelo menos 8 caracteres, com letras e números.</small></div>
+        <div class="f"><label for="upW">WhatsApp <span style="font-weight:500;color:var(--ink-3)">(opcional)</span></label><input id="upW" inputmode="tel" autocomplete="tel" placeholder="(00) 00000-0000"></div>
         <div class="f"><label for="upT">Você é</label><select id="upT"><option value="empresa">Dono ou gestor de empresa</option><option value="contador">Contador ou escritório de contabilidade</option><option value="consultor">Consultor financeiro</option></select></div>
         <label class="chk"><input type="checkbox" id="upA"> <span>Li e aceito os <a href="legal.html#termos" target="_blank" rel="noopener">termos de uso</a> e a <a href="legal.html#privacidade" target="_blank" rel="noopener">política de privacidade</a>.</span></label>
         <div id="upErr" class="alert err" hidden></div>
@@ -337,6 +364,7 @@ textarea.copy{width:100%;min-height:200px;border:1px solid var(--line);border-ra
     <a class="it" href="#assinatura" data-r="assinatura"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/></svg>Assinatura</a>
     <a class="it" href="#conta" data-r="conta"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>Minha conta</a>
     <a class="it" href="#ajuda" data-r="ajuda"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6V14M12 17h.01"/></svg>Relatórios necessários</a>
+    <div id="navAdm" hidden></div>
     <div class="grp">Suas empresas</div>
     <div class="cos" id="navCos"></div>
     <div class="plan" id="navPlan"></div>
@@ -1566,6 +1594,16 @@ const CONFIG={
       escritorio:{mensal:'',anual:''},
     },
   },
+  /* Banco on-line (Supabase): preencha os dois campos (Supabase → Project Settings → API) para guardar contas,
+     empresas e painéis na nuvem e usar o painel de administração com todos os clientes. Em branco: modo local. */
+  supabase:(typeof window!=='undefined'&&window.__SB)||{url:'',anonKey:''},
+  /* e-mails com acesso ao painel de administração (no banco on-line, a lista vale pela tabela "admins") */
+  admins:['luizcorti669@gmail.com'],
+  /* regras padrão (o administrador muda em Administração → Site):
+     ativacao: 'auto' ativa a assinatura no retorno do pagamento; 'manual' espera a sua liberação
+     liberacao: 'manual' cada painel novo espera a sua liberação; 'auto' abre na hora
+     cadastro: 'aberto' ou 'fechado' para novos clientes */
+  ativacao:'auto',liberacao:'manual',cadastro:'aberto',aviso:null,
   /* true: sem links de pagamento, a assinatura é ativada sem cobrança (só para demonstração). Deixe false no site real. */
   demo:false,
 };
@@ -1592,6 +1630,75 @@ const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;'
 const lsGet=(k,d)=>{try{const v=localStorage.getItem(k);return v==null?d:v;}catch(e){return d;}};
 const lsSet=(k,v)=>{try{localStorage.setItem(k,v);}catch(e){}};
 
+/* ================= banco on-line (Supabase) =================
+   Ativo quando CONFIG.supabase.url e CONFIG.supabase.anonKey estão preenchidos.
+   Sem eles, o site funciona no modo local (dados no navegador de quem usa). */
+const CLOUD=(()=>{
+  const cf=CONFIG.supabase||{};const on=!!(cf.url&&cf.anonKey);const base=String(cf.url||'').replace(/\/+$/,'');
+  const K='cc-sb';let S=null,remember=true;
+  const MSG={
+    'Invalid login credentials':'E-mail ou senha incorretos.',
+    'User already registered':'Já existe uma conta com este e-mail. Use a opção Entrar.',
+    'Email not confirmed':'Confirme o seu e-mail pelo link que enviamos antes de entrar.',
+    'Database error saving new user':'Não foi possível criar a conta agora. Fale com a nossa equipe.',
+    'LIMITE_EMPRESAS':'Você atingiu o limite de empresas do seu plano.',
+    'CONTA_BLOQUEADA':'Sua conta está bloqueada. Fale com a nossa equipe.',
+    'SEM_PERMISSAO':'Ação permitida apenas para o administrador.',
+    'SENHA_CURTA':'A senha precisa de pelo menos 8 caracteres.',
+    'CADASTRO_FECHADO':'Os novos cadastros estão fechados no momento. Fale com a nossa equipe.'};
+  const human=(t,code)=>{t=String(t||'');for(const k in MSG) if(t.includes(k)) return MSG[k];
+    if(code===429||/rate limit|too many/i.test(t)) return 'Muitas tentativas em pouco tempo. Aguarde alguns minutos e tente de novo.';
+    if(/weak|password should/i.test(t)) return 'Escolha uma senha mais forte: pelo menos 8 caracteres, com letras e números.';
+    if(/Failed to fetch|NetworkError|Load failed/i.test(t)) return 'Sem conexão com o servidor. Verifique a internet e tente de novo.';
+    if(/JWT|jwt|token/i.test(t)) return 'Sua sessão expirou. Entre de novo.';
+    return t||'Não foi possível concluir. Tente de novo.';};
+  const save=()=>{try{const v=S?JSON.stringify(S):null;localStorage.removeItem(K);sessionStorage.removeItem(K);if(v)(remember?localStorage:sessionStorage).setItem(K,v);}catch(e){}};
+  const load=()=>{try{const v=localStorage.getItem(K)||sessionStorage.getItem(K);remember=!!localStorage.getItem(K);S=v?JSON.parse(v):null;}catch(e){S=null;}};
+  const setS=x=>{S=x&&x.access_token?{access_token:x.access_token,refresh_token:x.refresh_token,expires_at:x.expires_at||Math.floor(Date.now()/1000)+(+x.expires_in||3600),user:x.user||(S&&S.user)||null}:null;save();};
+  async function raw(url,o){let r;try{r=await fetch(url,o);}catch(e){throw new Error(human(e.message));}
+    const tx=await r.text();let j=null;try{j=tx?JSON.parse(tx):null;}catch(e){}
+    if(!r.ok){const m=j&&(j.msg||j.message||j.error_description||j.error)||tx||r.statusText;const err=new Error(human(m,r.status));err.status=r.status;err.raw=m;throw err;}
+    return {j,r};}
+  async function authCall(path,body,method,tok){return (await raw(base+'/auth/v1'+path,{method:method||'POST',headers:{apikey:cf.anonKey,'Content-Type':'application/json',Authorization:'Bearer '+(tok||cf.anonKey)},body:body?JSON.stringify(body):undefined})).j;}
+  let refreshing=null;
+  async function refresh(){if(!S||!S.refresh_token) return;if(!refreshing) refreshing=(async()=>{try{setS(await authCall('/token?grant_type=refresh_token',{refresh_token:S.refresh_token}));}catch(e){if(e.status&&e.status<500){S=null;save();}}finally{refreshing=null;}})();return refreshing;}
+  async function tok(){if(S&&S.expires_at*1000<Date.now()+60000) await refresh();return S?S.access_token:cf.anonKey;}
+  /* REST (tabelas e funções) */
+  async function rest(path,o={}){
+    const h={apikey:cf.anonKey,Authorization:'Bearer '+await tok(),'Content-Type':'application/json'};if(o.prefer) h.Prefer=o.prefer;
+    const run=async()=>raw(base+'/rest/v1/'+path,{method:o.method||'GET',headers:h,body:o.body!==undefined?JSON.stringify(o.body):undefined});
+    try{return (await run()).j;}catch(e){if(e.status===401&&S){await refresh();h.Authorization='Bearer '+await tok();return (await run()).j;}throw e;}}
+  const rpc=(fn,args)=>rest('rpc/'+fn,{method:'POST',body:args||{}});
+  const auth={
+    session:()=>S,uid:()=>S&&S.user&&S.user.id,email:()=>S&&S.user&&S.user.email,
+    restore(){load();return !!S;},
+    async signUp(email,pw,data){const r=await authCall('/signup',{email,password:pw,data});if(r&&r.access_token){remember=true;setS(r);return {ok:true};}return {confirm:true};},
+    async signIn(email,pw,rem){remember=rem!==false;setS(await authCall('/token?grant_type=password',{email,password:pw}));return S;},
+    async signOut(){try{if(S) await authCall('/logout',null,'POST',S.access_token);}catch(e){}S=null;save();},
+    async updatePassword(pw){return authCall('/user',{password:pw},'PUT',await tok());},
+    async recover(email,redirect){return authCall('/recover?redirect_to='+encodeURIComponent(redirect),{email});},
+    /* link do e-mail de redefinição: #access_token=...&type=recovery */
+    fromHash(h){h=String(h||'');const i=h.indexOf('access_token=');const p=new URLSearchParams(i>=0?h.slice(i):'');if(!p.get('access_token')) return null;
+      remember=false;setS({access_token:p.get('access_token'),refresh_token:p.get('refresh_token'),expires_at:+p.get('expires_at')||0,expires_in:+p.get('expires_in')||3600,user:null});return p.get('type')||'';},
+    async me(){const u=await authCall('/user',null,'GET',await tok());if(S){S.user={id:u.id,email:u.email};save();}return u;}};
+  return {on,base,rest,rpc,auth,human};
+})();
+/* configurações do site guardadas pelo administrador (banco on-line ou, no modo local, neste navegador) */
+function applySiteConfig(d){if(!d||typeof d!=='object') return;
+  if(d.contato) Object.assign(CONFIG.contato,d.contato);
+  if(d.links) ['essencial','profissional','escritorio'].forEach(k=>{if(d.links[k]) Object.assign(CONFIG.pagamento.links[k],d.links[k]);});
+  if(+d.trialDias>0) CONFIG.trialDias=+d.trialDias;
+  ['ativacao','liberacao','cadastro'].forEach(k=>{if(d[k]) CONFIG[k]=d[k];});
+  CONFIG.aviso=d.aviso||null;
+  if(d.planos) PLANS.forEach(p=>{const o=d.planos[p.id];if(!o) return;['preco','empresas','meses'].forEach(k=>{if(+o[k]>0) p[k]=+o[k];});
+    p.itens=p.itens.map(t=>t.replace(/^(\d+) empresas?$/,()=>p.empresas===1?'1 empresa':p.empresas+' empresas').replace(/^Até \d+ empresas$/,()=>'Até '+p.empresas+' empresas').replace(/^Até \d+ meses de histórico$/,()=>'Até '+p.meses+' meses de histórico'));});
+}
+async function loadSiteConfig(){
+  try{if(CLOUD.on){const r=await Promise.race([CLOUD.rest('config?id=eq.1&select=data'),new Promise((_,j)=>setTimeout(()=>j(new Error('tempo')),4000))]);const d=r&&r[0]&&r[0].data||{};lsSet('cc-config',JSON.stringify(d));applySiteConfig(d);}
+    else applySiteConfig(JSON.parse(lsGet('cc-config','{}')));}
+  catch(e){try{applySiteConfig(JSON.parse(lsGet('cc-config','{}')));}catch(x){}}
+}
+
 /* ================= Cifra Clara · área do cliente =================
    Contas, assinatura, empresas e envio dos relatórios → painel Vértice.
    Armazenamento: IndexedDB do navegador (camada DB abaixo). Para um servidor, troque apenas as funções de DB e de autenticação. */
@@ -1616,47 +1723,100 @@ const IINFO='<svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><
 /* ---------------- interface básica ---------------- */
 let tT=null;
 function toast(t){const e=$('#toast');e.textContent=t;e.hidden=false;clearTimeout(tT);tT=setTimeout(()=>e.hidden=true,3200);}
-function modal(html,onMount){const m=$('#mdl');$('#mdlBox').innerHTML=html;m.hidden=false;const close=()=>{m.hidden=true;$('#mdlBox').innerHTML='';};m.onclick=e=>{if(e.target===m) close();};
+function modal(html,onMount){const m=$('#mdl');$('#mdlBox').className='box';$('#mdlBox').innerHTML=html;m.hidden=false;const close=()=>{m.hidden=true;$('#mdlBox').innerHTML='';};m.onclick=e=>{if(e.target===m) close();};
   $('#mdlBox').querySelectorAll('[data-close]').forEach(b=>b.onclick=close);if(onMount) onMount($('#mdlBox'),close);const f=$('#mdlBox').querySelector('input,select,button.primary');if(f) f.focus();return close;}
 function confirmBox(t,txt,okLabel,danger){return new Promise(res=>{modal(`<h3>${esc(t)}</h3><p style="color:var(--ink-2)">${txt}</p><div class="acts"><button class="btn" data-close type="button">Cancelar</button><button class="btn primary" id="cOk" type="button"${danger?' style="background:var(--err);border-color:var(--err)"':''}>${esc(okLabel||'Confirmar')}</button></div>`,(b,close)=>{b.querySelector('[data-close]').onclick=()=>{close();res(false);};b.querySelector('#cOk').onclick=()=>{close();res(true);};});});}
 function download(name,data,type){try{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([data],{type}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},4000);}catch(e){toast('Não foi possível baixar o arquivo neste navegador.');}}
 function copyText(t,btn){const ok=()=>{if(btn){const o=btn.textContent;btn.textContent='Copiado';setTimeout(()=>btn.textContent=o,1800);}};
   if(navigator.clipboard) navigator.clipboard.writeText(t).then(ok,()=>toast('Selecione o texto e copie com Ctrl+C.'));else toast('Selecione o texto e copie com Ctrl+C.');}
 
-/* ---------------- armazenamento ---------------- */
-const DB=(()=>{let db=null;const mem={users:{},companies:{}};const key={users:'email',companies:'id'};
-  const open=()=>new Promise(res=>{try{const r=indexedDB.open('cifraclara',1);r.onupgradeneeded=()=>{const d=r.result;d.createObjectStore('users',{keyPath:'email'});d.createObjectStore('companies',{keyPath:'id'});};r.onsuccess=()=>{db=r.result;res();};r.onerror=()=>res();r.onblocked=()=>res();}catch(e){res();}});
+/* ---------------- armazenamento ----------------
+   Modo local: IndexedDB do navegador. Modo on-line (CONFIG.supabase): tabelas contas/empresas no Supabase. */
+const LDB=(()=>{let db=null;const ST={users:'email',companies:'id',config:'id',eventos:'id',solic:'id'};const AUTO={eventos:1,solic:1};const mem={};let seq=1;Object.keys(ST).forEach(k=>mem[k]={});
+  const open=()=>new Promise(res=>{try{const r=indexedDB.open('cifraclara',2);r.onupgradeneeded=()=>{const d=r.result;Object.keys(ST).forEach(k=>{if(!d.objectStoreNames.contains(k)) d.createObjectStore(k,AUTO[k]?{keyPath:ST[k],autoIncrement:true}:{keyPath:ST[k]});});};r.onsuccess=()=>{db=r.result;res();};r.onerror=()=>res();r.onblocked=()=>res();}catch(e){res();}});
   const st=(s,m)=>db.transaction(s,m).objectStore(s);
   const p=r=>new Promise((res,rej)=>{r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});
   return {open,ok:()=>!!db,
     get:(s,k)=>db?p(st(s,'readonly').get(k)):Promise.resolve(mem[s][k]),
-    put:(s,o)=>db?p(st(s,'readwrite').put(o)):(mem[s][o[key[s]]]=o,Promise.resolve()),
+    put:(s,o)=>{if(!db){if(AUTO[s]&&o[ST[s]]==null) o[ST[s]]=seq++;mem[s][o[ST[s]]]=o;return Promise.resolve();}return p(st(s,'readwrite').put(o));},
     all:s=>db?p(st(s,'readonly').getAll()):Promise.resolve(Object.values(mem[s])),
     del:(s,k)=>db?p(st(s,'readwrite').delete(k)):(delete mem[s][k],Promise.resolve())};})();
+const CDB=(()=>{const cache=new Map();let full=false;
+  const fromRow=r=>{const C=r.dados||{};C.id=r.id;C.liberado=!!r.liberado;C.bloqueado=!!r.bloqueado;C._cloud=true;return C;};
+  const dados=C=>{const o=Object.assign({},C);delete o.liberado;delete o.bloqueado;delete o._cloud;return o;};
+  const q=k=>encodeURIComponent(k);
+  return {open:async()=>{},ok:()=>true,
+    async get(s,k){if(s==='users') return USER&&USER.email===k?USER:null;
+      if(cache.has(k)) return cache.get(k);const r=await CLOUD.rest('empresas?id=eq.'+q(k)+'&select=*');if(!r[0]) return null;const C=fromRow(r[0]);cache.set(k,C);return C;},
+    async put(s,o){
+      if(s==='users'){await CLOUD.rest('contas?id=eq.'+o.id,{method:'PATCH',body:{nome:o.nome||'',tipo:o.tipo||'',telefone:o.telefone||'',plano:o.plano||null},prefer:'return=minimal'});return;}
+      if(o._cloud) await CLOUD.rest('empresas?id=eq.'+q(o.id),{method:'PATCH',body:{dados:dados(o)},prefer:'return=minimal'});
+      else{await CLOUD.rest('empresas',{method:'POST',body:{id:o.id,dados:dados(o)},prefer:'return=minimal'});o._cloud=true;}
+      cache.set(o.id,o);},
+    async all(s){if(s!=='companies') return [];
+      if(!full){const r=await CLOUD.rest('empresas?owner=eq.'+CLOUD.auth.uid()+'&select=*&order=criado.asc');cache.clear();r.forEach(x=>cache.set(x.id,fromRow(x)));full=true;}
+      return [...cache.values()];},
+    async del(s,k){if(s==='companies'){await CLOUD.rest('empresas?id=eq.'+q(k),{method:'DELETE'});cache.delete(k);}else if(s==='users') await CLOUD.rpc('excluir_minha_conta');},
+    async flags(id){const r=await CLOUD.rest('empresas?id=eq.'+q(id)+'&select=liberado,bloqueado');const C=cache.get(id);if(C&&r[0]){C.liberado=r[0].liberado;C.bloqueado=r[0].bloqueado;}return r[0]||null;},
+    reset(){cache.clear();full=false;}};})();
+const DB=CLOUD.on?CDB:LDB;
+window.addEventListener('unhandledrejection',e=>{const m=e.reason&&e.reason.message;if(m) toast(m);});
 
 /* ---------------- autenticação ---------------- */
 function pwHash(pw,salt){let h=salt+'|'+pw;for(let i=0;i<2500;i++) h=PARSE.sha256(h+'|'+salt);return 'cc1$'+h;}
 const normE=e=>String(e||'').trim().toLowerCase();
+const isAdminEmail=e=>(CONFIG.admins||[]).map(normE).includes(normE(e));
+const appUrl=()=>location.origin+location.pathname;
 let USER=null;
 function sessGet(){try{const s=JSON.parse(sessionStorage.getItem('cc-sess')||localStorage.getItem('cc-sess')||'null');if(s&&s.exp>Date.now()) return s;}catch(e){}return null;}
-function sessSet(email,remember){const s=JSON.stringify({email,exp:Date.now()+(remember?30:1)*864e5});try{(remember?localStorage:sessionStorage).setItem('cc-sess',s);}catch(e){}}
+function sessSet(email,remember){if(CLOUD.on) return;const s=JSON.stringify({email,exp:Date.now()+(remember?30:1)*864e5});try{(remember?localStorage:sessionStorage).setItem('cc-sess',s);}catch(e){}}
 function sessClear(){try{localStorage.removeItem('cc-sess');sessionStorage.removeItem('cc-sess');}catch(e){}}
-async function signup(nome,email,pw,tipo){
-  email=normE(email);if(await DB.get('users',email)) throw new Error('Já existe uma conta com este e-mail. Use a opção Entrar.');
-  const salt=uid();const u={email,nome:nome.trim(),tipo,salt,hash:pwHash(pw,salt),criado:Date.now(),plano:null};
-  await DB.put('users',u);return u;}
-async function login(email,pw){
-  const u=await DB.get('users',normE(email));if(!u||u.hash!==pwHash(pw,u.salt)) throw new Error('E-mail ou senha incorretos.');return u;}
+const contaToUser=r=>({id:r.id,email:r.email,nome:r.nome||'',tipo:r.tipo||'',telefone:r.telefone||'',plano:r.plano||null,status:r.status||'ativa',obs:r.obs||'',criado:Date.parse(r.criado),ultimo:r.ultimo_acesso?Date.parse(r.ultimo_acesso):null});
+async function loadMe(){
+  const r=await CLOUD.rest('contas?id=eq.'+CLOUD.auth.uid()+'&select=*');if(!r[0]) throw new Error('Conta não encontrada. Fale com a nossa equipe.');
+  const u=contaToUser(r[0]);try{u.admin=!!(await CLOUD.rest('admins?select=email')).length;}catch(e){u.admin=false;}return u;}
+async function logEv(tipo,detalhe,u){u=u||USER;if(!u) return;
+  try{if(CLOUD.on) await CLOUD.rest('eventos',{method:'POST',body:{conta:CLOUD.auth.uid(),email:u.email,tipo,detalhe:String(detalhe||'').slice(0,500)},prefer:'return=minimal'});
+    else await LDB.put('eventos',{at:Date.now(),email:u.email,tipo,detalhe:String(detalhe||'')});}catch(e){}}
+async function signup(nome,email,pw,tipo,tel){
+  email=normE(email);
+  if(CLOUD.on){const r=await CLOUD.auth.signUp(email,pw,{nome:nome.trim(),tipo,telefone:tel||''});
+    if(r.confirm){const e=new Error(`Enviamos um link de confirmação para ${email}. Abra o e-mail, confirme e depois entre com a sua senha.`);e.info=true;throw e;}
+    await CLOUD.auth.me();return loadMe();}
+  if(CONFIG.cadastro==='fechado'&&!isAdminEmail(email)) throw new Error('Os novos cadastros estão fechados no momento. Fale com a nossa equipe.');
+  if(await DB.get('users',email)) throw new Error('Já existe uma conta com este e-mail. Use a opção Entrar.');
+  const salt=uid();const u={email,nome:nome.trim(),tipo,telefone:tel||'',salt,hash:pwHash(pw,salt),criado:Date.now(),plano:null,status:'ativa'};
+  await DB.put('users',u);u.admin=isAdminEmail(email);await logEv('cadastro','Conta criada',u);return u;}
+async function login(email,pw,remember){
+  if(CLOUD.on){await CLOUD.auth.signIn(normE(email),pw,remember);await CLOUD.auth.me();const u=await loadMe();
+    CLOUD.rest('contas?id=eq.'+u.id,{method:'PATCH',body:{ultimo_acesso:new Date().toISOString()},prefer:'return=minimal'}).catch(()=>{});logEv('login','Entrou no site',u);return u;}
+  const u=await DB.get('users',normE(email));if(!u||u.hash!==pwHash(pw,u.salt)) throw new Error('E-mail ou senha incorretos.');
+  u.ultimo=Date.now();await DB.put('users',u);u.admin=isAdminEmail(u.email);logEv('login','Entrou no site',u);return u;}
+async function restoreUser(){
+  if(CLOUD.on){if(!CLOUD.auth.restore()) return null;try{await CLOUD.auth.me();return await loadMe();}catch(e){await CLOUD.auth.signOut();return null;}}
+  const s=sessGet();if(!s) return null;const u=await DB.get('users',s.email);if(u) u.admin=isAdminEmail(u.email);return u||null;}
+async function logout(){if(CLOUD.on){await CLOUD.auth.signOut();CDB.reset();}sessClear();USER=null;CUR=null;}
+async function reloadMe(){if(!USER) return;if(CLOUD.on){const a=USER.admin;USER=await loadMe();USER.admin=a;}else{const u=await DB.get('users',USER.email);if(u){u.admin=USER.admin;USER=u;}}}
 /* ---------------- plano ---------------- */
 const DAY=864e5;
 function planState(u){
-  const p=u&&u.plano;if(!p) return {plan:null,status:'sem',label:'Sem plano'};
-  const plan=planById(p.id);const left=Math.ceil((p.fim-Date.now())/DAY);
+  if(u&&u.status==='bloqueada') return {plan:u.plano?planById(u.plano.id):null,status:'bloqueada',label:'Conta bloqueada'};
+  const p=u&&u.plano;
+  if(!p||!p.status){if(p&&p.aguardando) return {plan:planById(p.aguardando.id),status:'aguardando',label:'Pagamento em conferência'};return {plan:null,status:'sem',label:'Sem plano'};}
+  const plan=planById(p.id);
+  if(p.status==='suspensa') return {plan,status:'suspensa',label:'Assinatura suspensa'};
+  if(p.status==='cancelada') return {plan,status:'cancelada',label:'Assinatura cancelada'};
+  if(p.ate&&p.ate<Date.now()) return {plan,status:'vencida',label:'Acesso vencido'};
+  const left=Math.ceil((p.fim-Date.now())/DAY);
   if(p.status==='teste'&&p.cartao&&left<=0) return {plan,status:'ativa',label:'Assinatura ativa'};
   if(p.status==='teste') return {plan,status:left>0?'teste':'expirado',left,cartao:!!p.cartao,label:left>0?`Teste grátis · ${left} dia${left>1?'s':''}`:'Teste encerrado'};
   return {plan,status:'ativa',label:'Assinatura ativa'};}
+/* plano que resulta de um pagamento concluído (teste com cartão ou assinatura) */
+function planoFromPend(pd){const now=Date.now();
+  return pd.trial?{id:pd.id,ciclo:pd.ciclo,status:'teste',inicio:now,fim:now+CONFIG.trialDias*DAY,cartao:true}
+    :{id:pd.id,ciclo:pd.ciclo,status:'ativa',inicio:now,fim:now+(pd.ciclo==='anual'?365:30)*DAY,pagoEm:now};}
 const dataBR=t=>new Date(t).toLocaleDateString('pt-BR');
-const canUse=u=>['teste','ativa'].includes(planState(u).status);
+const canUse=u=>!!(u&&u.admin)||['teste','ativa'].includes(planState(u).status);
 /* Pagamento por link do gateway (Mercado Pago, Asaas, Stripe…): o cliente paga na página segura do gateway,
    que devolve para app.html#pagamento-confirmado; nesse retorno a assinatura escolhida é ativada.
    Sem link configurado: atendimento pelo WhatsApp. CONFIG.demo=true ativa sem cobrança (demonstração). */
@@ -1680,12 +1840,16 @@ async function checkout(plan,ciclo,trial){
   return false;}
 async function confirmPayment(){
   const pd=USER&&USER.plano&&USER.plano.pend;
-  if(!pd){toast('Nenhum pagamento pendente nesta conta.');return;}
+  if(!pd){if(!(USER&&USER.plano&&USER.plano.aguardando)) toast('Nenhum pagamento pendente nesta conta.');return;}
   const plan=planById(pd.id);
-  if(pd.trial){USER.plano={id:pd.id,ciclo:pd.ciclo,status:'teste',inicio:Date.now(),fim:Date.now()+CONFIG.trialDias*DAY,cartao:true};
-    await DB.put('users',USER);toast(`Cartão cadastrado. Teste grátis do plano ${plan?plan.nome:''} iniciado: ${CONFIG.trialDias} dias sem cobrança.`);return;}
-  USER.plano={id:pd.id,ciclo:pd.ciclo,status:'ativa',inicio:Date.now(),fim:Date.now()+(pd.ciclo==='anual'?365:30)*DAY,pagoEm:Date.now()};
-  await DB.put('users',USER);toast(`Pagamento recebido. Assinatura do plano ${plan?plan.nome:''} ativada.`);
+  if(CLOUD.on){USER.plano=await CLOUD.rpc('confirmar_pagamento');}
+  else if(CONFIG.ativacao==='manual'){const x=Object.assign({},USER.plano);delete x.pend;x.aguardando=pd;USER.plano=x;await DB.put('users',USER);
+    await LDB.put('solic',{at:Date.now(),tipo:'pagamento',email:USER.email,nome:USER.nome,mensagem:`Voltou da página de pagamento: plano ${plan?plan.nome:pd.id} (${pd.ciclo})${pd.trial?', teste com cartão':''}. Confira no gateway e libere.`,status:'aberta'});
+    logEv('pagamento','Retorno do pagamento, aguardando liberação: '+pd.id);}
+  else{USER.plano=planoFromPend(pd);await DB.put('users',USER);logEv(pd.trial?'teste':'assinatura',(pd.trial?'Teste com cartão iniciado: ':'Assinatura ativada no retorno do pagamento: ')+pd.id);}
+  if(USER.plano&&USER.plano.aguardando&&!USER.plano.pend) toast('Recebemos o retorno do pagamento. Assim que conferirmos, seu acesso é liberado.');
+  else if(USER.plano&&USER.plano.status==='teste') toast(`Cartão cadastrado. Teste grátis do plano ${plan?plan.nome:''} iniciado: ${CONFIG.trialDias} dias sem cobrança.`);
+  else toast(`Pagamento recebido. Assinatura do plano ${plan?plan.nome:''} ativada.`);
 }
 
 /* ================= modelo de uma empresa ================= */
@@ -1773,7 +1937,7 @@ async function generate(C){
   const r=runParse(C);if(!r.ok) return r;
   C.gen={RAW:r.P.RAW,USERS:r.P.USERS,at:Date.now(),rev:C.rev,win:r.win,MSG:r.P.MSG.filter(m=>m.l!=='erro')};
   C.hist.unshift({at:Date.now(),t:`Painel gerado: ${ML(r.win[0])} a ${ML(r.win[1])}`});C.hist=C.hist.slice(0,30);
-  await DB.put('companies',C);return r;
+  await DB.put('companies',C);logEv('painel',`Painel gerado: ${C.empresa.nome} (${ML(r.win[0])} a ${ML(r.win[1])})`);return r;
 }
 const genState=C=>!C.gen?'none':C.gen.rev===C.rev?'ok':'old';
 /* depois de um envio, se o painel já existia e tudo confere, ele é gerado de novo na hora */
@@ -1789,9 +1953,19 @@ function panelHtml(C,opts){
   return SITEPANEL.make(tpl(),{RAW:C.gen.RAW,USERS:opts.users||C.gen.USERS},logo,
     Object.assign({hide,lockMsg:'Recurso disponível a partir do plano Profissional.'},opts.extra||{}));
 }
-function openPanel(C){
+/* liberação do painel pelo administrador */
+const awaitingRelease=C=>!!(C&&C.gen&&!USER.admin&&!C.bloqueado&&CONFIG.liberacao==='manual'&&!C.liberado);
+async function panelGate(C){
+  if(USER.admin) return true;
+  if(CLOUD.on){try{await CDB.flags(C.id);}catch(e){}}
+  const wa=m=>CONFIG.contato.whatsapp?`<a class="btn primary" href="${esc(waLink(m))}" target="_blank" rel="noopener">Falar pelo WhatsApp</a>`:'';
+  if(C.bloqueado){modal(`<h3>Painel bloqueado</h3><p style="color:var(--ink-2)">O acesso ao painel de <b>${esc(C.empresa.nome)}</b> está bloqueado. Fale com a equipe ${esc(CONFIG.marca)} para regularizar.</p><div class="acts"><button class="btn" data-close type="button">Fechar</button>${wa('Olá! O painel da empresa '+C.empresa.nome+' está bloqueado. E-mail: '+USER.email)}</div>`);return false;}
+  if(awaitingRelease(C)){modal(`<h3>Painel aguardando liberação</h3><p style="color:var(--ink-2)">O painel de <b>${esc(C.empresa.nome)}</b> está pronto e passa por uma conferência da equipe ${esc(CONFIG.marca)} antes de ser liberado. Você recebe acesso em breve.</p><div class="acts"><button class="btn" data-close type="button">Fechar</button>${wa('Olá! Gerei o painel da empresa '+C.empresa.nome+' e aguardo a liberação. E-mail: '+USER.email)}</div>`);return false;}
+  return true;}
+async function openPanel(C){
   if(!C.gen) return;
-  if(!canUse(USER)){toast('Seu teste terminou. Ative a assinatura para abrir o painel.');location.hash='assinatura';return;}
+  if(!canUse(USER)&&!USER.admin){toast('Ative a assinatura para abrir o painel.');location.hash='assinatura';return;}
+  if(!await panelGate(C)) return;
   const html=panelHtml(C,{extra:{embedded:true,auto:{u:I.norm(USER.email).replace(/\s+/g,''),p:C.secret}}});
   $('#ovT').textContent=C.empresa.nome+' · Vértice';$('#ovF').srcdoc=html;$('#ov').hidden=false;document.body.style.overflow='hidden';
   $('#ovN').onclick=()=>{try{const u=URL.createObjectURL(new Blob([html],{type:'text/html'}));const a=document.createElement('a');a.href=u;a.target='_blank';a.rel='noopener';document.body.appendChild(a);a.click();a.remove();}catch(e){toast('Não foi possível abrir outra aba.');}};
@@ -1799,7 +1973,8 @@ function openPanel(C){
 function closePanel(){$('#ov').hidden=true;$('#ovF').srcdoc='';document.body.style.overflow='';}
 $('#ovX').onclick=closePanel;
 window.addEventListener('message',e=>{if(e.data&&e.data.vt==='close') closePanel();});
-function downloadPanel(C){
+async function downloadPanel(C){
+  if(!await panelGate(C)) return;
   modal(`<h3>Baixar o painel como arquivo</h3><p style="color:var(--ink-2)">O arquivo abre em qualquer navegador, sem internet. Defina a senha para entrar nele; o login é o seu e-mail.</p>
    <div class="f"><label for="dpP">Senha do arquivo</label><input id="dpP" type="password" minlength="6"><small>Pelo menos 6 caracteres. Os usuários extras cadastrados na etapa Equipe e metas também entram.</small></div>
    <div class="acts"><button class="btn" data-close type="button">Cancelar</button><button class="btn primary" id="dpOk" type="button">Baixar</button></div>`,(b,close)=>{
@@ -1812,17 +1987,24 @@ function downloadPanel(C){
 let ROUTE='empresas',CUR=null,STEP='geral',UI={mapF:'rev',mapQ:''};
 function go(r){if(location.hash!=='#'+r) location.hash=r;else route();}
 window.addEventListener('hashchange',route);
+/* link do e-mail (redefinição de senha ou confirmação de cadastro) */
+async function authHash(){const H=location.hash||'';if(!CLOUD.on||!/access_token=/.test(H)) return false;
+  const t=CLOUD.auth.fromHash(H);history.replaceState(null,'',t==='recovery'?'#nova-senha':'#empresas');
+  if(t==='recovery'){newPasswordForm();return true;}USER=await restoreUser();return false;}
 async function route(){
+  if(await authHash()) return;
   const h=(location.hash||'').slice(1);
   if(!USER){if(h==='pagamento-confirmado') lsSet('cc-payret','1');showAuth(h==='cadastro'?'up':'in');return;}
   if(lsGet('cc-payret','')==='1'){lsSet('cc-payret','');await confirmPayment();}
   $('#auth').hidden=true;$('#shell').hidden=false;$('#nav').classList.remove('on');
   if(h==='pagamento-confirmado'){await confirmPayment();history.replaceState(null,'','#assinatura');}
-  ROUTE=['empresas','assinatura','conta','ajuda','empresa','nova'].includes(h)?h:(h==='pagamento-confirmado'?'assinatura':'empresas');
+  const isAdm=h.startsWith('adm')&&USER.admin&&ADMV[h];
+  ROUTE=isAdm?h:['empresas','assinatura','conta','ajuda','empresa','nova'].includes(h)?h:(h==='pagamento-confirmado'?'assinatura':(USER.admin&&!h?'adm':'empresas'));
   if(ROUTE==='empresa'&&!CUR) ROUTE='empresas';
   await renderNav();
-  const v={empresas:vEmpresas,assinatura:vAssinatura,conta:vConta,ajuda:vAjuda,empresa:vEmpresa,nova:vNova}[ROUTE];
-  await v();window.scrollTo(0,0);
+  const v=ROUTE.startsWith('adm')?ADMV[ROUTE]:{empresas:vEmpresas,assinatura:vAssinatura,conta:vConta,ajuda:vAjuda,empresa:vEmpresa,nova:vNova}[ROUTE];
+  try{await v();}catch(e){$('#main').innerHTML=`<div class="alert err">Não foi possível carregar esta página: ${esc(e.message)}</div>`;}
+  avisoBar();window.scrollTo(0,0);
 }
 async function myCompanies(){return (await DB.all('companies')).filter(c=>c.owner===USER.email).sort((a,b)=>a.criado-b.criado);}
 async function renderNav(){
@@ -1831,13 +2013,15 @@ async function renderNav(){
   $('#navCos').innerHTML=cos.length?cos.map(c=>{const g=genState(c);return `<a href="#" data-co="${c.id}" aria-current="${ROUTE==='empresa'&&CUR&&CUR.id===c.id?'page':'false'}"><i class="st ${g==='ok'?'ok':g==='old'?'warn':''}"></i><span>${esc(c.empresa.nome||'Empresa sem nome')}</span></a>`;}).join(''):'<span style="padding:6px 12px;font-size:12.5px;color:var(--on-deep-2)">Nenhuma empresa ainda</span>';
   $('#navCos').querySelectorAll('[data-co]').forEach(a=>a.onclick=e=>{e.preventDefault();openCompany(a.dataset.co);});
   const ps=planState(USER);
-  let ph='';if(ps.status==='sem') ph=`<b>Escolha um plano</b><span>Teste grátis por ${CONFIG.trialDias} dias.</span><a href="#assinatura">Ver planos</a>`;
+  let ph='';if(USER.admin&&!USER.plano) ph=`<b>Administrador</b><span>Acesso completo a todas as funções.</span><a href="#adm">Administração</a>`;else if(ps.status==='sem') ph=`<b>Escolha um plano</b><span>Teste grátis por ${CONFIG.trialDias} dias.</span><a href="#assinatura">Ver planos</a>`;
   else if(ps.status==='teste') ph=`<b>${ps.plan.nome} · teste grátis</b><span>${ps.left} de ${CONFIG.trialDias} dias restantes</span><div class="bar"><i style="width:${Math.max(4,100-ps.left/CONFIG.trialDias*100)}%"></i></div><a href="#assinatura">${ps.cartao?'Ver assinatura':'Ativar assinatura'}</a>`;
   else if(ps.status==='expirado') ph=`<b>Teste encerrado</b><span>Ative a assinatura para continuar.</span><a href="#assinatura">Ativar agora</a>`;
+  else if(['aguardando','suspensa','cancelada','vencida','bloqueada'].includes(ps.status)) ph=`<b>${esc(ps.label)}</b><span>${ps.status==='aguardando'?'Liberamos assim que conferirmos o pagamento.':'Fale com a nossa equipe para regularizar.'}</span><a href="#assinatura">Ver assinatura</a>`;
   else ph=`<b>Plano ${ps.plan.nome}</b><span>${cos.length} de ${ps.plan.empresas} empresa${ps.plan.empresas>1?'s':''}</span>`;
   $('#navPlan').innerHTML=ph;
   $('#navMe').innerHTML=`<span class="av">${esc(initials(USER.nome))}</span><div><b>${esc(USER.nome)}</b><span>${esc(USER.email)}</span></div><button type="button" id="outB" title="Sair" aria-label="Sair"><svg class="i" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg></button>`;
-  $('#outB').onclick=()=>{sessClear();USER=null;CUR=null;location.hash='entrar';route();};
+  $('#outB').onclick=async()=>{await logout();location.hash='entrar';route();};
+  const na=$('#navAdm');if(na){na.hidden=!USER.admin;if(USER.admin) await admNav(na);}
 }
 $('#navB').onclick=()=>$('#nav').classList.toggle('on');
 async function openCompany(id,step){CUR=await DB.get('companies',id);STEP=step||(CUR&&CUR.gen?'geral':'empresa');if(location.hash==='#empresa') route();else location.hash='empresa';}
@@ -1847,17 +2031,31 @@ function showAuth(tab){$('#boot').hidden=true;$('#shell').hidden=true;$('#auth')
 function setTab(t){$('#tabIn').setAttribute('aria-selected',t==='in');$('#tabUp').setAttribute('aria-selected',t==='up');$('#fIn').hidden=t!=='in';$('#fUp').hidden=t!=='up';}
 $('#tabIn').onclick=()=>{setTab('in');history.replaceState(null,'','#entrar');};
 $('#tabUp').onclick=()=>{setTab('up');history.replaceState(null,'','#cadastro');};
-$('#forgot').onclick=e=>{e.preventDefault();modal(`<h3>Recuperar a senha</h3><p style="color:var(--ink-2)">Por segurança, a senha não pode ser vista por ninguém. Peça à equipe ${esc(CONFIG.marca)} a redefinição a partir do e-mail cadastrado${CONFIG.contato.whatsapp?`: <a href="${esc(waLink('Olá! Preciso redefinir a senha da minha conta no Vértice.'))}" target="_blank" rel="noopener">WhatsApp ${esc(CONFIG.contato.whatsapp)}</a>`:''}${CONFIG.contato.email?` ou ${esc(CONFIG.contato.email)}`:''}.</p><div class="acts"><button class="btn primary" data-close type="button">Entendi</button></div>`);};
-$('#fIn').addEventListener('submit',async e=>{e.preventDefault();const er=$('#inErr');er.hidden=true;
-  try{const u=await login($('#inE').value,$('#inP').value);USER=u;sessSet(u.email,$('#inR').checked);location.hash='empresas';route();}catch(x){er.textContent=x.message;er.hidden=false;}});
-$('#fUp').addEventListener('submit',async e=>{e.preventDefault();const er=$('#upErr');er.hidden=true;
+$('#forgot').onclick=e=>{e.preventDefault();
+  modal(`<h3>Recuperar a senha</h3><p style="color:var(--ink-2)">${CLOUD.on?'Informe o e-mail da conta. Enviamos um link para você criar uma senha nova.':`Informe o e-mail da conta. A equipe ${esc(CONFIG.marca)} recebe o pedido e envia uma senha provisória.`}</p>
+    <div class="f"><label for="fgE">E-mail</label><input id="fgE" type="email" autocomplete="email" value="${esc($('#inE').value||'')}"></div><p class="err" id="fgErr" hidden></p>
+    <div class="acts"><button class="btn" data-close type="button">Cancelar</button><button class="btn primary" id="fgOk" type="button">${CLOUD.on?'Enviar link':'Pedir nova senha'}</button></div>`,(b,close)=>{
+    b.querySelector('#fgOk').onclick=async()=>{const em=normE(b.querySelector('#fgE').value);const er=b.querySelector('#fgErr');er.hidden=true;
+      if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)){er.textContent='Informe um e-mail válido.';er.hidden=false;return;}
+      const btn=b.querySelector('#fgOk');btn.disabled=true;
+      try{const rq={tipo:'senha',email:em,mensagem:CLOUD.on?'Pediu o link de redefinição pelo site':'Pediu uma senha nova pelo site',status:'aberta'};
+        if(CLOUD.on){await CLOUD.auth.recover(em,appUrl());CLOUD.rest('solicitacoes',{method:'POST',body:{tipo:'senha',email:em,mensagem:rq.mensagem},prefer:'return=minimal'}).catch(()=>{});}
+        else await LDB.put('solic',Object.assign({at:Date.now()},rq));
+        b.innerHTML=`<h3>Pedido enviado</h3><p style="color:var(--ink-2)">${CLOUD.on?`Se houver uma conta com <b>${esc(em)}</b>, você recebe em instantes um e-mail com o link para criar a senha nova. Confira também a caixa de spam.`:`Recebemos o pedido para <b>${esc(em)}</b>. Você recebe uma senha provisória pelo WhatsApp ou e-mail cadastrado.`}</p><div class="acts">${CONFIG.contato.whatsapp?`<a class="btn" href="${esc(waLink('Olá! Pedi a redefinição da senha da conta '+em+' no site.'))}" target="_blank" rel="noopener">Falar pelo WhatsApp</a>`:''}<button class="btn primary" type="button" id="fgX">Entendi</button></div>`;b.querySelector('#fgX').onclick=close;}
+      catch(x){er.textContent=x.message;er.hidden=false;btn.disabled=false;}};});};
+$('#fIn').addEventListener('submit',async e=>{e.preventDefault();const er=$('#inErr');er.hidden=true;er.className='alert err';
+  const bt=$('#fIn button[type=submit]');bt.disabled=true;
+  try{const u=await login($('#inE').value,$('#inP').value,$('#inR').checked);USER=u;sessSet(u.email,$('#inR').checked);location.hash=u.admin?'adm':'empresas';route();}catch(x){er.textContent=x.message;er.hidden=false;}finally{bt.disabled=false;}});
+$('#fUp').addEventListener('submit',async e=>{e.preventDefault();const er=$('#upErr');er.hidden=true;er.className='alert err';
   const n=$('#upN').value.trim(),em=$('#upE').value.trim(),pw=$('#upP').value;
   const fail=t=>{er.textContent=t;er.hidden=false;};
   if(n.length<2) return fail('Informe seu nome.');
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) return fail('Informe um e-mail válido.');
   if(pw.length<8||!/[a-zA-Z]/.test(pw)||!/\d/.test(pw)) return fail('A senha precisa de pelo menos 8 caracteres, com letras e números.');
   if(!$('#upA').checked) return fail('Para criar a conta, aceite os termos de uso e a política de privacidade.');
-  try{const u=await signup(n,em,pw,$('#upT').value);USER=u;sessSet(u.email,true);location.hash='assinatura';route();toast(`Conta criada. Escolha o plano e cadastre o cartão para começar os ${CONFIG.trialDias} dias grátis.`);}catch(x){fail(x.message);}});
+  const tel=($('#upW')||{value:''}).value.trim();const bt=$('#fUp button[type=submit]');bt.disabled=true;
+  try{const u=await signup(n,em,pw,$('#upT').value,tel);USER=u;sessSet(u.email,true);location.hash=u.admin?'adm':'assinatura';route();if(!u.admin) toast(`Conta criada. Escolha o plano e cadastre o cartão para começar os ${CONFIG.trialDias} dias grátis.`);}
+  catch(x){if(x.info){er.className='alert info';er.textContent=x.message;er.hidden=false;setTab('in');$('#inE').value=em;$('#inErr').className='alert info';$('#inErr').textContent=x.message;$('#inErr').hidden=false;}else fail(x.message);}finally{bt.disabled=false;}});
 
 /* ================= assinatura ================= */
 let CYC=lsGet('cc-cyc','mensal')==='anual'?'anual':'mensal';
@@ -1908,7 +2106,7 @@ async function vEmpresas(){
   const lim=ps.plan?ps.plan.empresas:0;
   const card=c=>{const M=model(c),g=genState(c);const steps=['empresa','bal','map','vend','gastos'];
     const per=c.gen?`${ML(c.gen.win[0])} a ${ML(c.gen.win[1])}`:M.vm.length?`vendas de ${ML(M.vm[0])} a ${ML(M.vm[M.vm.length-1])}`:'relatórios ainda não enviados';
-    const pill=g==='ok'?'<span class="pill ok">Painel ativo</span>':g==='old'?'<span class="pill warn">Atualizar painel</span>':M.st.ready?'<span class="pill">Pronto para gerar</span>':'<span class="pill mute">Envio em andamento</span>';
+    const pill=c.bloqueado?'<span class="pill err">Painel bloqueado</span>':awaitingRelease(c)?'<span class="pill warn">Aguardando liberação</span>':g==='ok'?'<span class="pill ok">Painel ativo</span>':g==='old'?'<span class="pill warn">Atualizar painel</span>':M.st.ready?'<span class="pill">Pronto para gerar</span>':'<span class="pill mute">Envio em andamento</span>';
     return `<div class="co"><div class="top"><span class="av" style="background:${avBg(c.empresa.nome)}">${c.logo?`<img src="${c.logo}" alt="">`:esc(initials(c.empresa.nome))}</span><div style="min-width:0"><h3>${esc(c.empresa.nome||'Empresa sem nome')}</h3><p class="meta">${esc(per)}</p></div></div>
       <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">${pill}${c.sample?'<span class="pill mute">Exemplo</span>':''}</div>
       <div class="prog" title="Etapas do envio">${steps.map(s=>`<i class="${M.st[s]==='ok'?'ok':M.st[s]==='warn'?'warn':''}"></i>`).join('')}</div>
@@ -2271,6 +2469,7 @@ async function sGerar(C,M){
   if(!r.ok){B.innerHTML=`<div class="panel"><div class="hd"><div><h2>O painel ainda não pode ser gerado</h2><p>Corrija os pontos abaixo; as etapas indicadas mostram onde.</p></div></div><div class="bd"><ul class="msgs">${(r.MSG||[]).map(m=>`<li class="${m.l}"><b>${m.l}</b><span>${esc(m.t)}</span></li>`).join('')}</ul></div></div>`;await vRefreshNav();return;}
   const R=C.gen.RAW;
   B.innerHTML=`<div class="done"><span class="ok"><svg class="i" viewBox="0 0 24 24" style="width:24px;height:24px"><path d="M20 6 9 17l-5-5"/></svg></span><div><h2>Painel pronto</h2><p>${R.months.length} meses, de ${esc(R.months[0].label)}/${R.months[0].y} a ${esc(R.months[R.months.length-1].label)}/${R.months[R.months.length-1].y} · ${R.prods.length} ${M.agr==='familia'?'grupos':'produtos'} · ${R.acc.length} contas contábeis.${ps.plan&&M.vm.length>ps.plan.meses?` O plano ${ps.plan.nome} analisa os últimos ${ps.plan.meses} meses.`:''}</p></div><button class="btn primary lg" type="button" id="opG">Abrir painel</button></div>
+   ${awaitingRelease(C)?`<div class="alert info" style="margin-top:16px">O painel passa por uma conferência da equipe ${esc(CONFIG.marca)} antes de ser liberado. Você recebe acesso em breve; o envio dos próximos meses continua normalmente.</div>`:''}
    ${msgs.length?`<div class="panel" style="margin-top:16px"><div class="hd"><div><h2>Conferências</h2><p>Avisos não impedem o painel, mas vale conferir.</p></div></div><div class="bd"><ul class="msgs">${msgs.map(m=>`<li class="${m.l}"><b>${m.l}</b><span>${esc(m.t)}</span></li>`).join('')}</ul></div></div>`:''}`;
   $('#opG').onclick=()=>openPanel(C);
   await vRefreshNav();
@@ -2281,13 +2480,17 @@ async function vRefreshNav(){await renderNav();const steps=document.querySelecto
 /* ================= conta e ajuda ================= */
 function vConta(){
   $('#main').innerHTML=`<div class="ph"><div><h1>Minha conta</h1><p>${esc(USER.email)} · cliente desde ${new Date(USER.criado).toLocaleDateString('pt-BR')}</p></div></div>
-   <div class="grid2"><div class="panel"><div class="hd"><h2>Dados</h2></div><div class="bd" style="display:grid;gap:14px"><div class="f"><label for="cN">Nome</label><input id="cN" value="${esc(USER.nome)}"></div><button class="btn primary" type="button" id="cSave">Salvar</button></div></div>
+   <div class="grid2"><div class="panel"><div class="hd"><h2>Dados</h2></div><div class="bd" style="display:grid;gap:14px"><div class="f"><label for="cN">Nome</label><input id="cN" value="${esc(USER.nome)}"></div><div class="f"><label for="cW">WhatsApp</label><input id="cW" inputmode="tel" value="${esc(USER.telefone||'')}" placeholder="(00) 00000-0000"></div><button class="btn primary" type="button" id="cSave">Salvar</button></div></div>
    <div class="panel"><div class="hd"><h2>Trocar a senha</h2></div><div class="bd" style="display:grid;gap:14px"><div class="f"><label for="cP0">Senha atual</label><input id="cP0" type="password" autocomplete="current-password"></div><div class="f"><label for="cP1">Nova senha</label><input id="cP1" type="password" autocomplete="new-password"><small>Pelo menos 8 caracteres, com letras e números.</small></div><button class="btn" type="button" id="cPw">Trocar senha</button></div></div></div>
    <div class="panel" style="margin-top:16px"><div class="hd"><div><h2>Excluir conta</h2><p>Apaga a conta, as empresas, os relatórios enviados e os painéis. Não pode ser desfeito.</p></div><button class="btn" type="button" id="cDel" style="color:var(--err)">Excluir conta</button></div></div>
    ${!DB.ok()?`<div class="alert warn" style="margin-top:16px">Este navegador não permite guardar dados neste site; as informações ficam só enquanto a página estiver aberta.</div>`:''}`;
-  $('#cSave').onclick=async()=>{const n=$('#cN').value.trim();if(n.length<2){toast('Informe seu nome.');return;}USER.nome=n;await DB.put('users',USER);toast('Dados salvos.');renderNav();};
-  $('#cPw').onclick=async()=>{const a=$('#cP0').value,b=$('#cP1').value;if(USER.hash!==pwHash(a,USER.salt)){toast('A senha atual não confere.');return;}if(b.length<8||!/[a-zA-Z]/.test(b)||!/\d/.test(b)){toast('A nova senha precisa de 8 caracteres, com letras e números.');return;}USER.salt=uid();USER.hash=pwHash(b,USER.salt);await DB.put('users',USER);$('#cP0').value='';$('#cP1').value='';toast('Senha trocada.');};
-  $('#cDel').onclick=async()=>{if(!await confirmBox('Excluir conta','Todas as empresas e painéis desta conta serão apagados.','Excluir conta',true)) return;for(const c of await myCompanies()) await DB.del('companies',c.id);await DB.del('users',USER.email);sessClear();USER=null;location.href='index.html';};
+  $('#cSave').onclick=async()=>{const n=$('#cN').value.trim();if(n.length<2){toast('Informe seu nome.');return;}USER.nome=n;USER.telefone=$('#cW').value.trim();await DB.put('users',USER);toast('Dados salvos.');renderNav();};
+  $('#cPw').onclick=async()=>{const a=$('#cP0').value,b=$('#cP1').value;
+    if(b.length<8||!/[a-zA-Z]/.test(b)||!/\d/.test(b)){toast('A nova senha precisa de 8 caracteres, com letras e números.');return;}
+    if(CLOUD.on){try{await CLOUD.auth.signIn(USER.email,a,!!localStorage.getItem('cc-sb'));}catch(x){toast('A senha atual não confere.');return;}await CLOUD.auth.updatePassword(b);}
+    else{if(USER.hash!==pwHash(a,USER.salt)){toast('A senha atual não confere.');return;}USER.salt=uid();USER.hash=pwHash(b,USER.salt);await DB.put('users',USER);}
+    $('#cP0').value='';$('#cP1').value='';logEv('senha','Senha trocada pelo cliente');toast('Senha trocada.');};
+  $('#cDel').onclick=async()=>{if(!await confirmBox('Excluir conta','Todas as empresas e painéis desta conta serão apagados.','Excluir conta',true)) return;if(CLOUD.on){await DB.del('users');await logout();}else{for(const c of await myCompanies()) await DB.del('companies',c.id);await DB.del('users',USER.email);sessClear();USER=null;}location.href='index.html';};
 }
 function msgContador(){return `Olá! Vou acompanhar os resultados da empresa no painel Vértice e preciso destes relatórios, em Excel (.xlsx) ou CSV:
 
@@ -2325,14 +2528,417 @@ async function loadSample(){
   await save(C);toast('Exemplo carregado. Revise o plano de contas e gere o painel.');openCompany(C.id,'map');
 }
 
+/* ================= aviso do site e nova senha ================= */
+function avisoBar(){const old=$('#avisoBar');if(old) old.remove();const a=CONFIG.aviso;if(!a||!a.on||!a.texto||!USER) return;
+  const d=document.createElement('div');d.id='avisoBar';d.className='alert '+(a.tipo||'info');d.style.marginBottom='16px';d.textContent=a.texto;$('#main').prepend(d);}
+function newPasswordForm(){
+  $('#boot').hidden=true;$('#auth').hidden=false;$('#shell').hidden=true;
+  modal(`<h3>Crie a sua senha nova</h3><p style="color:var(--ink-2)">Use pelo menos 8 caracteres, com letras e números.</p>
+    <div class="f"><label for="npA">Senha nova</label><input id="npA" type="password" autocomplete="new-password"></div>
+    <div class="f"><label for="npB">Repita a senha</label><input id="npB" type="password" autocomplete="new-password"></div><p class="err" id="npErr" hidden></p>
+    <div class="acts"><button class="btn primary" id="npOk" type="button">Salvar e entrar</button></div>`,(b,close)=>{
+    b.querySelector('#npOk').onclick=async()=>{const x=b.querySelector('#npA').value,y=b.querySelector('#npB').value,er=b.querySelector('#npErr');er.hidden=true;
+      if(x.length<8||!/[a-zA-Z]/.test(x)||!/\d/.test(x)){er.textContent='A senha precisa de 8 caracteres, com letras e números.';er.hidden=false;return;}
+      if(x!==y){er.textContent='As duas senhas não são iguais.';er.hidden=false;return;}
+      try{await CLOUD.auth.updatePassword(x);await CLOUD.auth.me();USER=await loadMe();logEv('senha','Senha nova criada pelo link do e-mail');close();toast('Senha nova salva.');location.hash=USER.admin?'adm':'empresas';route();}
+      catch(e){er.textContent=e.message;er.hidden=false;}};});}
+
+const h0=()=>(location.hash||'').slice(1);
+/* ================= início ================= */
 /* ================= início ================= */
 (async()=>{
-  await DB.open();
-  const s=sessGet();if(s){USER=await DB.get('users',s.email)||null;}
+  await DB.open();await LDB.open();await loadSiteConfig();
+  const H=location.hash||'';
+  if(CLOUD.on&&/error_code=|error=/.test(H)&&!/access_token=/.test(H)){const p=new URLSearchParams(H.slice(1));history.replaceState(null,'','#entrar');setTimeout(()=>toast(/expired/.test(p.get('error_code')||'')?'O link expirou. Peça um novo em "Esqueceu a senha?".':(p.get('error_description')||'Link inválido.').replace(/\+/g,' ')),300);}
+  if(await authHash()) return;
+  USER=await restoreUser();
   $('#boot').hidden=true;
   if(!USER){const h=(location.hash||'').slice(1);showAuth(h==='cadastro'?'up':'in');return;}
+  if(h0()==='nova-senha') history.replaceState(null,'','#empresas');
   route();
 })();
+
+/* ================= administração do site =================
+   Visível só para os e-mails administradores. No banco on-line enxerga todos os clientes;
+   no modo local, apenas as contas criadas neste navegador. */
+const ADM=(()=>{
+  const q=k=>encodeURIComponent(k);
+  if(CLOUD.on) return {
+    async contas(){return (await CLOUD.rest('contas?select=*&order=criado.desc')).map(contaToUser);},
+    async setConta(u,patch){await CLOUD.rest('contas?id=eq.'+u.id,{method:'PATCH',body:patch,prefer:'return=minimal'});},
+    async empresas(){return (await CLOUD.rest('empresas?select=id,owner,nome,liberado,liberado_em,bloqueado,gerado_em,criado,atualizado,win:dados->gen->win,sample:dados->sample&order=atualizado.desc'))
+      .map(x=>({id:x.id,ownerId:x.owner,nome:x.nome||'Empresa sem nome',liberado:!!x.liberado,bloqueado:!!x.bloqueado,gerado:x.gerado_em?Date.parse(x.gerado_em):null,criado:Date.parse(x.criado),atualizado:Date.parse(x.atualizado),win:x.win||null,sample:!!x.sample,liberadoEm:x.liberado_em?Date.parse(x.liberado_em):null}));},
+    async empresa(id){const r=await CLOUD.rest('empresas?id=eq.'+q(id)+'&select=*');if(!r[0]) return null;const C=r[0].dados;C.id=r[0].id;C.liberado=r[0].liberado;C.bloqueado=r[0].bloqueado;return C;},
+    async setEmpresa(id,patch){const b=Object.assign({},patch);if(patch.liberado===true) b.liberado_em=new Date().toISOString();if(patch.liberado===false) b.liberado_em=null;
+      await CLOUD.rest('empresas?id=eq.'+q(id),{method:'PATCH',body:b,prefer:'return=minimal'});},
+    async delEmpresa(id){await CLOUD.rest('empresas?id=eq.'+q(id),{method:'DELETE'});},
+    async delConta(u){await CLOUD.rpc('admin_excluir_conta',{p_id:u.id});},
+    async senha(u,pw){await CLOUD.rpc('admin_definir_senha',{p_id:u.id,p_senha:pw});},
+    async linkSenha(email){await CLOUD.auth.recover(email,appUrl());},
+    async eventos(){return (await CLOUD.rest('eventos?select=*&order=at.desc&limit=1000')).map(e=>Object.assign(e,{at:Date.parse(e.at)}));},
+    async solic(){return (await CLOUD.rest('solicitacoes?select=*&order=at.desc&limit=1000')).map(e=>Object.assign(e,{at:Date.parse(e.at),resolvido_em:e.resolvido_em?Date.parse(e.resolvido_em):null}));},
+    async setSolic(id,patch){const b=Object.assign({},patch);if(b.status==='resolvida') b.resolvido_em=new Date().toISOString();if(b.status==='aberta') b.resolvido_em=null;
+      await CLOUD.rest('solicitacoes?id=eq.'+id,{method:'PATCH',body:b,prefer:'return=minimal'});},
+    async delSolic(id){await CLOUD.rest('solicitacoes?id=eq.'+id,{method:'DELETE'});},
+    async config(){const r=await CLOUD.rest('config?id=eq.1&select=data');return r[0]?r[0].data||{}:{};},
+    async setConfig(d){await CLOUD.rest('config?id=eq.1',{method:'PATCH',body:{data:d,atualizado:new Date().toISOString()},prefer:'return=minimal'});},
+    async admins(){return (await CLOUD.rest('admins?select=email')).map(x=>x.email);},
+    async log(email,tipo,det){try{await CLOUD.rest('eventos',{method:'POST',body:{conta:CLOUD.auth.uid(),email:email||USER.email,tipo,detalhe:String(det||'').slice(0,500)},prefer:'return=minimal'});}catch(e){}}};
+  const pullLanding=async()=>{let L=[];try{L=JSON.parse(lsGet('cc-contatos','[]'));}catch(e){}if(!L.length) return;lsSet('cc-contatos','[]');for(const x of L) await LDB.put('solic',Object.assign({status:'aberta'},x));};
+  return {
+    async contas(){return (await LDB.all('users')).map(u=>Object.assign({},u,{id:u.email,status:u.status||'ativa'})).sort((a,b)=>(b.criado||0)-(a.criado||0));},
+    async setConta(u,patch){const x=await LDB.get('users',u.email);if(!x) return;Object.assign(x,patch);await LDB.put('users',x);if(USER&&USER.email===x.email){const a=USER.admin;Object.assign(USER,patch);USER.admin=a;}},
+    async empresas(){return (await LDB.all('companies')).map(C=>({id:C.id,ownerId:C.owner,nome:C.empresa.nome||'Empresa sem nome',liberado:!!C.liberado,bloqueado:!!C.bloqueado,gerado:C.gen?C.gen.at:null,criado:C.criado,atualizado:((C.hist||[])[0]||{}).at||C.criado,win:C.gen?C.gen.win:null,sample:!!C.sample,liberadoEm:C.liberadoEm||null}));},
+    async empresa(id){return LDB.get('companies',id);},
+    async setEmpresa(id,patch){const C=await LDB.get('companies',id);if(!C) return;Object.assign(C,patch);if(patch.liberado===true) C.liberadoEm=Date.now();await LDB.put('companies',C);},
+    async delEmpresa(id){await LDB.del('companies',id);},
+    async delConta(u){for(const C of await LDB.all('companies')) if(C.owner===u.email) await LDB.del('companies',C.id);await LDB.del('users',u.email);},
+    async senha(u,pw){const x=await LDB.get('users',u.email);x.salt=uid();x.hash=pwHash(pw,x.salt);await LDB.put('users',x);},
+    async linkSenha(){throw new Error('O envio de link por e-mail funciona com o banco on-line. Use a senha provisória.');},
+    async eventos(){return (await LDB.all('eventos')).sort((a,b)=>b.at-a.at);},
+    async solic(){await pullLanding();return (await LDB.all('solic')).sort((a,b)=>b.at-a.at);},
+    async setSolic(id,patch){const x=await LDB.get('solic',id);if(!x) return;Object.assign(x,patch);if(patch.status==='resolvida') x.resolvido_em=Date.now();await LDB.put('solic',x);},
+    async delSolic(id){await LDB.del('solic',id);},
+    async config(){try{return JSON.parse(lsGet('cc-config','{}'));}catch(e){return {};}},
+    async setConfig(d){lsSet('cc-config',JSON.stringify(d));await LDB.put('config',{id:1,data:d});},
+    async admins(){return CONFIG.admins||[];},
+    async log(email,tipo,det){await LDB.put('eventos',{at:Date.now(),email:email||USER.email,tipo,detalhe:String(det||'')});}};
+})();
+
+/* ---------- dados em memória da administração ---------- */
+let ADMC={ts:0};
+async function admData(force){
+  if(force||!ADMC.ts||Date.now()-ADMC.ts>20000){const [contas,empresas,solic]=await Promise.all([ADM.contas(),ADM.empresas(),ADM.solic()]);ADMC={contas,empresas,solic,ts:Date.now()};}
+  return ADMC;}
+const admDirty=()=>{ADMC.ts=0;};
+const fmtD=t=>t?new Date(t).toLocaleDateString('pt-BR'):'—';
+const fmtDT=t=>t?new Date(t).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'}):'—';
+const dIn=t=>{if(!t) return '';const d=new Date(t);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
+const dOut=v=>{if(!v) return null;const [y,m,d]=v.split('-').map(Number);return new Date(y,m-1,d,23,59,0).getTime();};
+const waTo=(tel,msg)=>{const n=String(tel||'').replace(/\D/g,'');if(n.length<10) return '';return 'https://wa.me/'+(n.length<=11?'55':'')+n+(msg?'?text='+encodeURIComponent(msg):'');};
+const ownerOf=(D,e)=>D.contas.find(u=>u.id===e.ownerId);
+const mrrOf=u=>{const ps=planState(u);if(ps.status!=='ativa'||!ps.plan) return 0;return u.plano.ciclo==='anual'?ps.plan.preco*10/12:ps.plan.preco;};
+const painelAguarda=e=>!!(e.gerado&&!e.liberado&&!e.bloqueado&&CONFIG.liberacao==='manual');
+function pendencias(D){
+  return {pag:D.contas.filter(u=>u.plano&&u.plano.aguardando),pain:D.empresas.filter(painelAguarda),
+    senha:D.solic.filter(s=>s.tipo==='senha'&&s.status==='aberta'),contato:D.solic.filter(s=>['contato','suporte'].includes(s.tipo)&&s.status==='aberta')};}
+function stPill(u){const ps=planState(u);const m={sem:'mute',teste:'',expirado:'err',ativa:'ok',aguardando:'warn',suspensa:'err',cancelada:'mute',vencida:'err',bloqueada:'err'};
+  const l=ps.status==='teste'?`Teste · ${ps.left} dia${ps.left>1?'s':''}`:ps.label;
+  return `<span class="pill ${m[ps.status]||''}">${esc(l)}</span>`+(u.plano&&u.plano.aguardando&&ps.status!=='aguardando'?' <span class="pill warn">Pagamento a conferir</span>':'');}
+function planTxt(u){const p=u.plano;if(!p) return '—';const pl=planById(p.id||(p.aguardando&&p.aguardando.id));if(!pl) return '—';return pl.nome+(p.ciclo?' · '+p.ciclo:'');}
+function csv(name,head,rows){const e=v=>{v=v==null?'':String(v);return /[;"\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;};
+  download(name,'﻿'+[head,...rows].map(r=>r.map(e).join(';')).join('\n'),'text/csv;charset=utf-8');}
+function genPw(){const L='abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ',N='23456789';const a=new Uint8Array(10);crypto.getRandomValues(a);
+  let s=[...a].map((x,i)=>i===3||i===7?N[x%N.length]:L[x%L.length]).join('');return s;}
+function admHead(t,sub,acts){return `<div class="ph"><div><h1>${t}</h1><p>${sub||''}</p></div>${acts?`<div class="acts">${acts}</div>`:''}</div>`+
+  (CLOUD.on?'':`<div class="mode-b">${IINFO}<span><b>Modo local.</b> Aqui aparecem só as contas criadas neste navegador. Para administrar todos os clientes, ligue o banco on-line (veja o LEIA-ME).</span></div>`);}
+async function admRefresh(){admDirty();await renderNav();const v=ADMV[ROUTE];if(v) await v();}
+
+/* ---------- menu ---------- */
+const ADMI={adm:['Visão geral','<path d="M3 13h8V3H3zM13 21h8V11h-8zM3 21h8v-6H3zM13 3v6h8V3z"/>'],'adm-contas':['Assinantes','<circle cx="9" cy="8" r="4"/><path d="M2 21c0-4 3-7 7-7s7 3 7 7M16 4a4 4 0 0 1 0 8M22 21c0-3-2-5.5-4.5-6.5"/>'],
+  'adm-empresas':['Empresas e painéis','<path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/>'],'adm-lib':['Liberações','<path d="M20 6 9 17l-5-5"/>'],
+  'adm-senhas':['Senhas','<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>'],'adm-contatos':['Contatos do site','<path d="M21 12a9 9 0 0 1-13.4 7.9L3 21l1.2-4.4A9 9 0 1 1 21 12z"/>'],
+  'adm-site':['Configurações do site','<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 0 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 0 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 0 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 0 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>'],
+  'adm-log':['Atividade','<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>']};
+async function admNav(na){let P={pag:[],pain:[],senha:[],contato:[]};try{P=pendencias(await admData());}catch(e){}
+  const bd={'adm-lib':P.pag.length+P.pain.length,'adm-senhas':P.senha.length,'adm-contatos':P.contato.length};
+  na.innerHTML='<div class="grp">Administração</div>'+Object.entries(ADMI).map(([k,[t,ic]])=>`<a class="it" href="#${k}" aria-current="${ROUTE===k?'page':'false'}"><svg class="i" viewBox="0 0 24 24">${ic}</svg>${t}${bd[k]?`<span class="bdg">${bd[k]}</span>`:''}</a>`).join('');}
+
+/* ---------- visão geral ---------- */
+async function vAdm(){
+  const D=await admData(true),P=pendencias(D),now=Date.now();
+  const ativos=D.contas.filter(u=>planState(u).status==='ativa'),teste=D.contas.filter(u=>planState(u).status==='teste');
+  const mrr=ativos.reduce((t,u)=>t+mrrOf(u),0),novos30=D.contas.filter(u=>u.criado>now-30*DAY).length;
+  const acaba=teste.filter(u=>u.plano.fim-now<3*DAY).length,nPend=P.pag.length+P.pain.length+P.senha.length+P.contato.length;
+  const gerados=D.empresas.filter(e=>e.gerado).length;
+  const meses=[];const d0=new Date();for(let i=11;i>=0;i--){const d=new Date(d0.getFullYear(),d0.getMonth()-i,1);meses.push({y:d.getFullYear(),m:d.getMonth(),n:0});}
+  D.contas.forEach(u=>{const d=new Date(u.criado);const x=meses.find(k=>k.y===d.getFullYear()&&k.m===d.getMonth());if(x) x.n++;});
+  const mx=Math.max(1,...meses.map(x=>x.n));const MN=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+  let ev=[];try{ev=(await ADM.eventos()).slice(0,12);}catch(e){}
+  const pendL=[...P.pag.map(u=>({t:`Pagamento a conferir · ${u.nome||u.email}`,s:`${(planById(u.plano.aguardando.id)||{}).nome||''} ${u.plano.aguardando.ciclo}${u.plano.aguardando.trial?' · teste com cartão':''}`,h:'#adm-lib'})),
+    ...P.pain.map(e=>{const o=ownerOf(D,e);return {t:`Painel aguardando liberação · ${e.nome}`,s:o?o.email:'',h:'#adm-lib'};}),
+    ...P.senha.map(s=>({t:`Senha esquecida · ${s.email}`,s:fmtDT(s.at),h:'#adm-senhas'})),
+    ...P.contato.map(s=>({t:`Contato do site · ${s.nome||s.email}`,s:(s.mensagem||'').slice(0,80),h:'#adm-contatos'}))];
+  $('#main').innerHTML=admHead('Administração',`${CLOUD.on?'Banco on-line':'Modo local'} · atualizado agora`,'<button class="btn sm" type="button" id="aRf">Atualizar</button>')+`
+   <div class="adm-k">
+    <div class="kpi"><small>Contas</small><b>${D.contas.length}</b><em>+${novos30} nos últimos 30 dias</em></div>
+    <div class="kpi"><small>Assinantes ativos</small><b>${ativos.length}</b><em>${fmtBRL(mrr)} por mês (estimado)</em></div>
+    <div class="kpi"><small>Em teste grátis</small><b>${teste.length}</b><em>${acaba} terminam em até 3 dias</em></div>
+    <div class="kpi${nPend?' hot':''}"><small>Pendências</small><b>${nPend}</b><em>${P.pag.length} pagamento(s) · ${P.pain.length} painel(is) · ${P.senha.length} senha(s) · ${P.contato.length} contato(s)</em></div>
+    <div class="kpi"><small>Empresas</small><b>${D.empresas.length}</b><em>${gerados} com painel gerado</em></div>
+    <div class="kpi"><small>Conversão</small><b>${D.contas.length?pct(ativos.length/D.contas.length):'—'}</b><em>contas que viraram assinatura</em></div>
+   </div>
+   <div class="grid2" style="margin-top:16px">
+    <div class="panel"><div class="hd"><div><h2>Novas contas por mês</h2><p>Últimos 12 meses</p></div></div><div class="bd"><div class="chart">${meses.map(x=>`<div><b>${x.n||''}</b><i style="height:${Math.round(x.n/mx*110)+3}px"></i><span>${MN[x.m]}</span></div>`).join('')}</div></div></div>
+    <div class="panel"><div class="hd"><div><h2>Pendências</h2><p>O que espera por você</p></div></div><div class="bd">${pendL.length?`<div class="lst">${pendL.slice(0,8).map(x=>`<div class="it2"><div class="tx"><b>${esc(x.t)}</b><span>${esc(x.s)}</span></div><a class="btn sm" href="${x.h}">Resolver</a></div>`).join('')}</div>${pendL.length>8?`<p style="color:var(--ink-3);font-size:13px;margin-top:8px">e mais ${pendL.length-8}.</p>`:''}`:`<div class="empty" style="padding:20px"><span class="ill">${ICK}</span><p>Nada pendente.</p></div>`}</div></div>
+   </div>
+   <div class="panel" style="margin-top:16px"><div class="hd"><div><h2>Atividade recente</h2></div><a class="btn sm" href="#adm-log">Ver tudo</a></div><div class="bd tw">${ev.length?`<table class="t adm-t"><tbody>${ev.map(e=>`<tr><td style="white-space:nowrap;color:var(--ink-3)">${fmtDT(e.at)}</td><td>${esc(e.email||'')}</td><td><span class="pill mute">${esc(e.tipo)}</span></td><td>${esc(e.detalhe||'')}</td></tr>`).join('')}</tbody></table>`:'<p style="color:var(--ink-3)">Sem atividade registrada.</p>'}</div></div>`;
+  $('#aRf').onclick=()=>admRefresh();
+}
+
+/* ---------- assinantes ---------- */
+let ADMF={contas:'todos',q:'',emp:'todas',log:'',logq:'',sol:'abertas'};
+const FILTROS_C=[['todos','Todos'],['ativa','Ativos'],['teste','Em teste'],['conferir','A conferir'],['sem','Sem plano'],['expirado','Teste encerrado'],['parados','Suspensos e vencidos'],['bloqueada','Bloqueados']];
+function filtraConta(u,f){const s=planState(u).status;
+  return f==='todos'||(f==='conferir'?!!(u.plano&&u.plano.aguardando):f==='parados'?['suspensa','cancelada','vencida'].includes(s):s===f);}
+async function vAdmContas(){
+  const D=await admData();
+  const draw=()=>{const qq=normE(ADMF.q);const L=D.contas.filter(u=>filtraConta(u,ADMF.contas)&&(!qq||normE(u.nome+' '+u.email+' '+(u.telefone||'')).includes(qq)));
+    $('#aBody').innerHTML=L.length?`<table class="t adm-t"><thead><tr><th>Cliente</th><th>Plano</th><th>Situação</th><th class="r">Empresas</th><th>Cadastro</th><th>Último acesso</th></tr></thead><tbody>${L.map(u=>{const n=D.empresas.filter(e=>e.ownerId===u.id).length;
+      return `<tr class="click" data-u="${esc(u.id)}"><td><b>${esc(u.nome||'—')}</b>${u.admin||isAdminEmail(u.email)?' <span class="pill">admin</span>':''}<span class="sub2">${esc(u.email)}${u.telefone?' · '+esc(u.telefone):''}</span></td><td>${esc(planTxt(u))}</td><td>${stPill(u)}</td><td class="r">${n}</td><td>${fmtD(u.criado)}</td><td>${fmtD(u.ultimo)}</td></tr>`;}).join('')}</tbody></table>`:'<div class="empty" style="padding:28px"><p>Nenhum cliente neste filtro.</p></div>';
+    $('#aCount').textContent=`${L.length} de ${D.contas.length}`;
+    document.querySelectorAll('[data-u]').forEach(r=>r.onclick=()=>admConta(r.dataset.u));};
+  $('#main').innerHTML=admHead('Assinantes','Contas de clientes, planos e situação de cada assinatura.','<button class="btn sm" type="button" id="aCsv">Exportar planilha</button>')+`
+   <div class="adm-bar"><input class="srch" id="aQ" placeholder="Buscar por nome, e-mail ou telefone" value="${esc(ADMF.q)}"><span id="aCount" style="color:var(--ink-3);font-size:13px"></span></div>
+   <div class="filters" style="margin-bottom:12px">${FILTROS_C.map(([k,t])=>`<button type="button" data-f="${k}" aria-pressed="${ADMF.contas===k}">${t} (${D.contas.filter(u=>filtraConta(u,k)).length})</button>`).join('')}</div>
+   <div class="panel"><div class="bd tw" id="aBody" style="padding:0"></div></div>`;
+  $('#aQ').oninput=e=>{ADMF.q=e.target.value;draw();};
+  document.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{ADMF.contas=b.dataset.f;document.querySelectorAll('[data-f]').forEach(x=>x.setAttribute('aria-pressed',x===b));draw();});
+  $('#aCsv').onclick=()=>csv('assinantes_cifra_clara.csv',['Nome','E-mail','WhatsApp','Perfil','Plano','Ciclo','Situação','Empresas','Cadastro','Último acesso','Fim do teste','Válido até','Observações'],
+    D.contas.map(u=>{const p=u.plano||{};return [u.nome,u.email,u.telefone,u.tipo,(planById(p.id)||{}).nome||'',p.ciclo||'',planState(u).label,D.empresas.filter(e=>e.ownerId===u.id).length,fmtD(u.criado),fmtD(u.ultimo),p.status==='teste'?fmtD(p.fim):'',p.ate?fmtD(p.ate):'',u.obs||''];}));
+  draw();
+}
+
+/* ficha completa de um cliente */
+async function admConta(id){
+  const D=await admData();const u=D.contas.find(x=>x.id===id);if(!u){toast('Cliente não encontrado.');return;}
+  const emps=D.empresas.filter(e=>e.ownerId===u.id);const p=u.plano||{};const ps=planState(u);
+  let evs=[];try{evs=(await ADM.eventos()).filter(e=>normE(e.email)===normE(u.email)).slice(0,15);}catch(e){}
+  const wa=waTo(u.telefone,`Olá, ${(u.nome||'').split(' ')[0]}! Aqui é da ${CONFIG.marca}.`);
+  const ag=p.aguardando;
+  modal(`<div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap"><div><h3>${esc(u.nome||u.email)}</h3><p style="color:var(--ink-3);font-size:13.5px">${esc(u.email)}${u.telefone?' · '+esc(u.telefone):''}${u.tipo?' · '+esc(u.tipo):''} · cliente desde ${fmtD(u.criado)}</p></div><div>${stPill(u)}</div></div>
+   ${ag?`<div class="alert warn">Voltou da página de pagamento em ${fmtDT(ag.at)}: plano <b>${esc((planById(ag.id)||{}).nome||ag.id)}</b> (${esc(ag.ciclo)})${ag.trial?', teste com cartão':''}. Confira no gateway e libere.</div>`:''}
+   <div class="qa">
+    ${ag?'<button class="btn sm primary" type="button" data-a="libpag">Liberar pagamento</button><button class="btn sm" type="button" data-a="recpag">Recusar</button>':''}
+    ${ps.status!=='ativa'?'<button class="btn sm" type="button" data-a="ativar">Ativar assinatura</button>':''}
+    ${['teste','expirado'].includes(ps.status)?'<button class="btn sm" type="button" data-a="mais7">Estender teste +7 dias</button>':''}
+    <button class="btn sm" type="button" data-a="${u.status==='bloqueada'?'desbloq':'bloq'}">${u.status==='bloqueada'?'Desbloquear conta':'Bloquear conta'}</button>
+    ${CLOUD.on?'<button class="btn sm" type="button" data-a="link">Enviar link de nova senha</button>':''}
+    <button class="btn sm" type="button" data-a="senha">Senha provisória</button>
+    ${wa?`<a class="btn sm" href="${esc(wa)}" target="_blank" rel="noopener">WhatsApp</a>`:''}<a class="btn sm" href="mailto:${esc(u.email)}">E-mail</a>
+   </div>
+   <div class="adm-sec"><h4>Plano</h4>
+    <div class="g3f"><div class="f"><label for="xS">Situação</label><select id="xS">${[['','Sem plano'],['teste','Teste grátis'],['ativa','Ativa'],['suspensa','Suspensa'],['cancelada','Cancelada']].map(([k,t])=>`<option value="${k}"${(p.status||'')===k?' selected':''}>${t}</option>`).join('')}</select></div>
+     <div class="f"><label for="xP">Plano</label><select id="xP">${PLANS.map(x=>`<option value="${x.id}"${(p.id||(ag&&ag.id))===x.id?' selected':''}>${x.nome} · ${fmtBRL(x.preco)}</option>`).join('')}</select></div>
+     <div class="f"><label for="xC">Ciclo</label><select id="xC"><option value="mensal"${p.ciclo!=='anual'?' selected':''}>Mensal</option><option value="anual"${p.ciclo==='anual'?' selected':''}>Anual</option></select></div></div>
+    <div class="g3f"><div class="f"><label for="xF">Fim do teste</label><input id="xF" type="date" value="${p.status==='teste'?dIn(p.fim):''}"></div>
+     <div class="f"><label for="xA">Acesso válido até <span style="font-weight:500;color:var(--ink-3)">(opcional)</span></label><input id="xA" type="date" value="${dIn(p.ate)}"></div>
+     <label class="chk" style="align-self:end;padding-bottom:10px"><input type="checkbox" id="xK"${p.cartao?' checked':''}> Teste com cartão (vira assinatura ao fim)</label></div>
+    <div><button class="btn primary sm" type="button" id="xSave">Salvar plano</button></div></div>
+   <div class="adm-sec"><h4>Dados e observações</h4>
+    <div class="g2f"><div class="f"><label for="xN">Nome</label><input id="xN" value="${esc(u.nome||'')}"></div><div class="f"><label for="xW">WhatsApp</label><input id="xW" value="${esc(u.telefone||'')}"></div></div>
+    <div class="f"><label for="xO">Observações internas (o cliente não vê)</label><textarea id="xO">${esc(u.obs||'')}</textarea></div>
+    <div><button class="btn sm" type="button" id="xSaveD">Salvar dados</button></div></div>
+   <div class="adm-sec"><h4>Empresas (${emps.length})</h4>${emps.length?`<div class="lst">${emps.map(e=>`<div class="it2"><div class="tx"><b>${esc(e.nome)}</b><span>${e.win?esc(ML(e.win[0])+' a '+ML(e.win[1])):'sem painel'} · ${e.bloqueado?'bloqueado':e.liberado?'liberado':e.gerado?(CONFIG.liberacao==='manual'?'aguardando liberação':'aberto'):'sem painel'}</span></div><div class="qa">
+      ${e.gerado?`<button class="btn sm" type="button" data-op="${esc(e.id)}">Abrir</button>`:''}${e.gerado&&!e.liberado&&!e.bloqueado?`<button class="btn sm primary" type="button" data-lib="${esc(e.id)}">Liberar</button>`:''}<button class="btn sm" type="button" data-blq="${esc(e.id)}" data-v="${e.bloqueado?0:1}">${e.bloqueado?'Desbloquear':'Bloquear'}</button></div></div>`).join('')}</div>`:'<p style="color:var(--ink-3);font-size:13.5px">Nenhuma empresa cadastrada.</p>'}</div>
+   <div class="adm-sec"><h4>Histórico</h4>${evs.length?`<div class="tw"><table class="t adm-t"><tbody>${evs.map(e=>`<tr><td style="white-space:nowrap;color:var(--ink-3)">${fmtDT(e.at)}</td><td><span class="pill mute">${esc(e.tipo)}</span></td><td>${esc(e.detalhe||'')}</td></tr>`).join('')}</tbody></table></div>`:'<p style="color:var(--ink-3);font-size:13.5px">Sem registros.</p>'}</div>
+   <div class="acts" style="justify-content:space-between"><button class="btn sm" type="button" data-a="excluir" style="color:var(--err)">Excluir conta</button><button class="btn" data-close type="button">Fechar</button></div>`,(b,close)=>{
+    b.classList.add('wide');
+    const done=async(msg,det)=>{if(det) await ADM.log(u.email,'admin',det);admDirty();toast(msg);close();await admRefresh();admConta(id);};
+    const act={
+      libpag:async()=>{await ADM.setConta(u,{plano:planoFromPend(ag)});await resolveSolic('pagamento',u.email);await done('Pagamento liberado.','Pagamento liberado: '+ag.id+(ag.trial?' (teste com cartão)':''));},
+      recpag:async()=>{if(!await confirmBox('Recusar pagamento','O pedido sai da fila de conferência e o plano do cliente não muda.','Recusar')) return;const x=Object.assign({},p);delete x.aguardando;await ADM.setConta(u,{plano:Object.keys(x).length?x:null});await resolveSolic('pagamento',u.email);await done('Pedido recusado.','Pagamento recusado na conferência');},
+      ativar:()=>admLiberarAcesso(u),
+      mais7:async()=>{const base=Math.max(Date.now(),p.fim||0);await ADM.setConta(u,{plano:Object.assign({},p,{status:'teste',fim:base+7*DAY})});await done('Teste estendido por 7 dias.','Teste estendido até '+fmtD(base+7*DAY));},
+      bloq:async()=>{if(!await confirmBox('Bloquear conta',`${esc(u.email)} não poderá gerar nem abrir painéis até ser desbloqueado. Os dados ficam guardados.`,'Bloquear',true)) return;await ADM.setConta(u,{status:'bloqueada'});await done('Conta bloqueada.','Conta bloqueada');},
+      desbloq:async()=>{await ADM.setConta(u,{status:'ativa'});await done('Conta desbloqueada.','Conta desbloqueada');},
+      link:async()=>{await ADM.linkSenha(u.email);await ADM.log(u.email,'senha','Link de nova senha enviado pelo administrador');toast('Link de nova senha enviado para '+u.email+'.');},
+      senha:()=>admSenhaProv(u),
+      excluir:async()=>{if(!await confirmBox('Excluir conta',`A conta <b>${esc(u.email)}</b>, as ${emps.length} empresa(s) e os painéis serão apagados. Não pode ser desfeito.`,'Excluir',true)) return;await ADM.delConta(u);await ADM.log(u.email,'exclusao','Conta excluída pelo administrador');admDirty();toast('Conta excluída.');await admRefresh();}};
+    b.querySelectorAll('[data-a]').forEach(x=>x.onclick=async()=>{x.disabled=true;try{await act[x.dataset.a]();}catch(e){toast(e.message);}finally{x.disabled=false;}});
+    b.querySelector('#xSave').onclick=async()=>{const st=b.querySelector('#xS').value,pid=b.querySelector('#xP').value,cic=b.querySelector('#xC').value;
+      let np=null;if(st){np=Object.assign({},p,{id:pid,ciclo:cic,status:st});np.inicio=np.inicio||Date.now();
+        if(st==='teste'){np.fim=dOut(b.querySelector('#xF').value)||Math.max(Date.now(),p.fim||0)+CONFIG.trialDias*DAY;np.cartao=b.querySelector('#xK').checked;}
+        else if(st==='ativa'&&p.status!=='ativa'){np.fim=Date.now()+(cic==='anual'?365:30)*DAY;delete np.cartao;}
+        const ate=dOut(b.querySelector('#xA').value);if(ate) np.ate=ate;else delete np.ate;delete np.pend;}
+      else if(p.aguardando) np={aguardando:p.aguardando};
+      try{await ADM.setConta(u,{plano:np});await done('Plano salvo.',`Plano alterado: ${st?(planById(pid)||{}).nome+' · '+cic+' · '+st:'sem plano'}`);}catch(e){toast(e.message);}};
+    b.querySelector('#xSaveD').onclick=async()=>{try{await ADM.setConta(u,{nome:b.querySelector('#xN').value.trim(),telefone:b.querySelector('#xW').value.trim(),obs:b.querySelector('#xO').value});await done('Dados salvos.');}catch(e){toast(e.message);}};
+    b.querySelectorAll('[data-op]').forEach(x=>x.onclick=()=>{close();admOpenPanel(x.dataset.op);});
+    b.querySelectorAll('[data-lib]').forEach(x=>x.onclick=async()=>{await admSetEmp(x.dataset.lib,{liberado:true});close();admConta(id);});
+    b.querySelectorAll('[data-blq]').forEach(x=>x.onclick=async()=>{await admSetEmp(x.dataset.blq,{bloqueado:x.dataset.v==='1'});close();admConta(id);});
+  });
+}
+async function resolveSolic(tipo,email){const D=await admData();for(const s of D.solic.filter(s=>s.tipo===tipo&&normE(s.email)===normE(email)&&s.status==='aberta')) await ADM.setSolic(s.id,{status:'resolvida'});}
+/* liberar acesso manualmente (pagamento por PIX, boleto ou combinado) */
+async function admLiberarAcesso(u){
+  const D=await admData();
+  modal(`<h3>Liberar acesso</h3><p style="color:var(--ink-2)">Ativa a assinatura sem passar pela página de pagamento, por exemplo depois de um PIX ou boleto.</p>
+   ${u?'':`<div class="f"><label for="lU">Cliente</label><select id="lU">${D.contas.map(x=>`<option value="${esc(x.id)}">${esc((x.nome?x.nome+' · ':'')+x.email)}</option>`).join('')}</select></div>`}
+   <div class="g2f"><div class="f"><label for="lP">Plano</label><select id="lP">${PLANS.map(x=>`<option value="${x.id}"${u&&u.plano&&u.plano.id===x.id?' selected':''}>${x.nome}</option>`).join('')}</select></div>
+    <div class="f"><label for="lC">Ciclo</label><select id="lC"><option value="mensal">Mensal</option><option value="anual">Anual</option></select></div></div>
+   <div class="f"><label for="lA">Acesso válido até <span style="font-weight:500;color:var(--ink-3)">(em branco: sem data de corte)</span></label><input id="lA" type="date" value="${dIn(Date.now()+31*DAY)}"></div>
+   <div class="acts"><button class="btn" data-close type="button">Cancelar</button><button class="btn primary" type="button" id="lOk">Liberar acesso</button></div>`,(b,close)=>{
+    b.querySelector('#lOk').onclick=async()=>{const tu=u||D.contas.find(x=>x.id===b.querySelector('#lU').value);if(!tu) return;
+      const pid=b.querySelector('#lP').value,cic=b.querySelector('#lC').value,ate=dOut(b.querySelector('#lA').value);
+      const np={id:pid,ciclo:cic,status:'ativa',inicio:Date.now(),fim:Date.now()+(cic==='anual'?365:30)*DAY,manual:true};if(ate) np.ate=ate;
+      try{await ADM.setConta(tu,{plano:np});await resolveSolic('pagamento',tu.email);await ADM.log(tu.email,'admin',`Acesso liberado manualmente: ${(planById(pid)||{}).nome} · ${cic}${ate?' até '+fmtD(ate):''}`);
+        admDirty();close();toast('Acesso liberado para '+tu.email+'.');await admRefresh();}catch(e){toast(e.message);}};});
+}
+/* senha provisória */
+function admSenhaProv(u,solId){
+  const pw=genPw();
+  modal(`<h3>Senha provisória</h3><p style="color:var(--ink-2)">Define uma senha nova para <b>${esc(u.email)}</b>. Envie ao cliente e peça para trocar em Minha conta.</p>
+   <div class="f"><label for="spP">Senha</label><input id="spP" value="${pw}" class="mono"><small>Pelo menos 8 caracteres, com letras e números.</small></div>
+   <div class="acts"><button class="btn" data-close type="button">Cancelar</button><button class="btn primary" type="button" id="spOk">Definir senha</button></div>`,(b,close)=>{
+    b.querySelector('#spOk').onclick=async()=>{const v=b.querySelector('#spP').value.trim();if(v.length<8||!/[a-zA-Z]/.test(v)||!/\d/.test(v)){toast('Use 8 caracteres ou mais, com letras e números.');return;}
+      try{await ADM.senha(u,v);await ADM.log(u.email,'senha','Senha provisória definida pelo administrador');if(solId) await ADM.setSolic(solId,{status:'resolvida'});else await resolveSolic('senha',u.email);admDirty();}catch(e){toast(e.message);return;}
+      const msg=`Olá, ${(u.nome||'').split(' ')[0]||'tudo bem'}! Sua senha provisória do Vértice (${CONFIG.marca}) é: ${v}\nEntre em ${appUrl()} com o e-mail ${u.email} e troque a senha em Minha conta.`;
+      const wa=waTo(u.telefone,msg);
+      b.innerHTML=`<h3>Senha definida</h3><p style="color:var(--ink-2)">Envie ao cliente:</p><div class="pwbox">${esc(v)}</div><textarea class="copy" readonly style="min-height:96px">${esc(msg)}</textarea>
+        <div class="acts"><button class="btn" type="button" id="spCp">Copiar mensagem</button>${wa?`<a class="btn" href="${esc(wa)}" target="_blank" rel="noopener">Enviar pelo WhatsApp</a>`:''}<a class="btn" href="mailto:${esc(u.email)}?subject=${encodeURIComponent('Sua senha provisória')}&body=${encodeURIComponent(msg)}">Enviar por e-mail</a><button class="btn primary" type="button" id="spX">Concluir</button></div>`;
+      b.querySelector('#spCp').onclick=e=>copyText(msg,e.currentTarget);b.querySelector('#spX').onclick=async()=>{close();await admRefresh();};};});
+}
+
+/* ---------- empresas e painéis ---------- */
+async function admSetEmp(id,patch){try{await ADM.setEmpresa(id,patch);const D=await admData();const e=D.empresas.find(x=>x.id===id);const o=e&&ownerOf(D,e);
+  await ADM.log(o?o.email:'', 'painel',(patch.liberado===true?'Painel liberado: ':patch.bloqueado===true?'Painel bloqueado: ':patch.bloqueado===false?'Painel desbloqueado: ':'Painel alterado: ')+(e?e.nome:id));
+  admDirty();toast(patch.liberado===true?'Painel liberado.':patch.bloqueado===true?'Painel bloqueado.':'Painel desbloqueado.');await admRefresh();}catch(x){toast(x.message);}}
+const FILTROS_E=[['todas','Todas'],['aguarda','Aguardando liberação'],['liberadas','Liberadas'],['bloqueadas','Bloqueadas'],['sem','Sem painel']];
+function filtraEmp(e,f){return f==='todas'||(f==='aguarda'?painelAguarda(e):f==='liberadas'?(e.gerado&&!e.bloqueado&&(e.liberado||CONFIG.liberacao!=='manual')):f==='bloqueadas'?e.bloqueado:!e.gerado);}
+function empSit(e){return e.bloqueado?'<span class="pill err">Bloqueado</span>':!e.gerado?'<span class="pill mute">Sem painel</span>':painelAguarda(e)?'<span class="pill warn">Aguardando liberação</span>':'<span class="pill ok">Liberado</span>';}
+async function vAdmEmpresas(){
+  const D=await admData();const nAg=D.empresas.filter(painelAguarda).length;
+  const draw=()=>{const qq=normE(ADMF.eq||'');const L=D.empresas.filter(e=>filtraEmp(e,ADMF.emp)&&(!qq||normE(e.nome+' '+((ownerOf(D,e)||{}).email||'')).includes(qq)));
+    $('#aBody').innerHTML=L.length?`<table class="t adm-t"><thead><tr><th>Empresa</th><th>Cliente</th><th>Período do painel</th><th>Gerado em</th><th>Situação</th><th class="r">Ações</th></tr></thead><tbody>${L.map(e=>{const o=ownerOf(D,e);
+      return `<tr><td><b>${esc(e.nome)}</b>${e.sample?' <span class="pill mute">exemplo</span>':''}</td><td>${o?`<a href="#" data-u="${esc(o.id)}">${esc(o.nome||o.email)}</a><span class="sub2">${esc(o.email)}</span>`:'—'}</td><td>${e.win?esc(ML(e.win[0])+' a '+ML(e.win[1])):'—'}</td><td>${fmtDT(e.gerado)}</td><td>${empSit(e)}</td>
+       <td><div class="acts2">${e.gerado?`<button class="btn sm" type="button" data-op="${esc(e.id)}">Abrir</button>`:''}${e.gerado&&!e.liberado&&!e.bloqueado?`<button class="btn sm primary" type="button" data-lib="${esc(e.id)}">Liberar</button>`:''}${e.liberado&&!e.bloqueado?`<button class="btn sm" type="button" data-unlib="${esc(e.id)}">Revogar</button>`:''}<button class="btn sm" type="button" data-blq="${esc(e.id)}" data-v="${e.bloqueado?0:1}">${e.bloqueado?'Desbloquear':'Bloquear'}</button><button class="btn sm" type="button" data-del="${esc(e.id)}" title="Excluir" style="color:var(--err)">Excluir</button></div></td></tr>`;}).join('')}</tbody></table>`:'<div class="empty" style="padding:28px"><p>Nenhuma empresa neste filtro.</p></div>';
+    bindEmp($('#aBody'),D);};
+  $('#main').innerHTML=admHead('Empresas e painéis',`Liberação de painéis: <b>${CONFIG.liberacao==='manual'?'manual (cada painel novo espera você liberar)':'automática'}</b> · <a href="#adm-site">mudar</a>`,nAg?`<button class="btn sm primary" type="button" id="aLibAll">Liberar todos os ${nAg} aguardando</button>`:'')+`
+   <div class="adm-bar"><input class="srch" id="aQ" placeholder="Buscar empresa ou cliente" value="${esc(ADMF.eq||'')}"></div>
+   <div class="filters" style="margin-bottom:12px">${FILTROS_E.map(([k,t])=>`<button type="button" data-f="${k}" aria-pressed="${ADMF.emp===k}">${t} (${D.empresas.filter(e=>filtraEmp(e,k)).length})</button>`).join('')}</div>
+   <div class="panel"><div class="bd tw" id="aBody" style="padding:0"></div></div>`;
+  $('#aQ').oninput=e=>{ADMF.eq=e.target.value;draw();};
+  document.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{ADMF.emp=b.dataset.f;document.querySelectorAll('[data-f]').forEach(x=>x.setAttribute('aria-pressed',x===b));draw();});
+  const la=$('#aLibAll');if(la) la.onclick=async()=>{if(!await confirmBox('Liberar painéis',`Liberar os ${nAg} painéis que aguardam conferência?`,'Liberar todos')) return;
+    for(const e of D.empresas.filter(painelAguarda)){await ADM.setEmpresa(e.id,{liberado:true});const o=ownerOf(D,e);await ADM.log(o?o.email:'','painel','Painel liberado: '+e.nome);}admDirty();toast('Painéis liberados.');await admRefresh();};
+  draw();
+}
+function bindEmp(root,D){
+  root.querySelectorAll('[data-u]').forEach(a=>a.onclick=e=>{e.preventDefault();admConta(a.dataset.u);});
+  root.querySelectorAll('[data-op]').forEach(x=>x.onclick=()=>admOpenPanel(x.dataset.op));
+  root.querySelectorAll('[data-lib]').forEach(x=>x.onclick=()=>admSetEmp(x.dataset.lib,{liberado:true}));
+  root.querySelectorAll('[data-unlib]').forEach(x=>x.onclick=()=>admSetEmp(x.dataset.unlib,{liberado:false}));
+  root.querySelectorAll('[data-blq]').forEach(x=>x.onclick=()=>admSetEmp(x.dataset.blq,{bloqueado:x.dataset.v==='1'}));
+  root.querySelectorAll('[data-del]').forEach(x=>x.onclick=async()=>{const e=D.empresas.find(k=>k.id===x.dataset.del);
+    if(!await confirmBox('Excluir empresa',`A empresa <b>${esc(e.nome)}</b>, os relatórios e o painel serão apagados. Não pode ser desfeito.`,'Excluir',true)) return;
+    try{await ADM.delEmpresa(e.id);const o=ownerOf(D,e);await ADM.log(o?o.email:'','exclusao','Empresa excluída pelo administrador: '+e.nome);admDirty();toast('Empresa excluída.');await admRefresh();}catch(z){toast(z.message);}});
+}
+async function admOpenPanel(id){
+  const C=await ADM.empresa(id);if(!C||!C.gen){toast('Esta empresa ainda não tem painel gerado.');return;}
+  const html=SITEPANEL.make(tpl(),{RAW:C.gen.RAW,USERS:C.gen.USERS},C.logo,{hide:[],lockMsg:'',embedded:true,auto:{u:I.norm(C.owner||'').replace(/\s+/g,''),p:C.secret}});
+  $('#ovT').textContent=(C.empresa.nome||'Empresa')+' · visão do administrador';$('#ovF').srcdoc=html;$('#ov').hidden=false;document.body.style.overflow='hidden';
+  $('#ovN').onclick=()=>{try{const u=URL.createObjectURL(new Blob([html],{type:'text/html'}));const a=document.createElement('a');a.href=u;a.target='_blank';a.rel='noopener';document.body.appendChild(a);a.click();a.remove();}catch(e){toast('Não foi possível abrir outra aba.');}};
+}
+
+/* ---------- liberações ---------- */
+async function vAdmLib(){
+  const D=await admData(true),P=pendencias(D);
+  $('#main').innerHTML=admHead('Liberações','Pagamentos para conferir, painéis aguardando e liberação manual de acesso.','<button class="btn sm primary" type="button" id="aMan">Liberar acesso manualmente</button>')+`
+   <div class="panel"><div class="hd"><div><h2>Pagamentos a conferir (${P.pag.length})</h2><p>Ativação da assinatura: <b>${CONFIG.ativacao==='manual'?'manual (confere e libera aqui)':'automática no retorno do pagamento'}</b> · <a href="#adm-site">mudar</a></p></div></div><div class="bd">
+    ${P.pag.length?`<div class="lst">${P.pag.map(u=>{const a=u.plano.aguardando;return `<div class="it2"><div class="tx"><b>${esc(u.nome||u.email)} · ${esc((planById(a.id)||{}).nome||a.id)} ${esc(a.ciclo)}${a.trial?' · teste com cartão':''}</b><span>${esc(u.email)} · voltou do pagamento em ${fmtDT(a.at)}</span></div><div class="qa"><button class="btn sm" type="button" data-u="${esc(u.id)}">Ver cliente</button><button class="btn sm primary" type="button" data-lp="${esc(u.id)}">Liberar</button></div></div>`;}).join('')}</div>`:'<p style="color:var(--ink-3)">Nenhum pagamento esperando conferência.</p>'}</div></div>
+   <div class="panel" style="margin-top:16px"><div class="hd"><div><h2>Painéis aguardando liberação (${P.pain.length})</h2><p>Liberação de painéis: <b>${CONFIG.liberacao==='manual'?'manual':'automática'}</b> · <a href="#adm-site">mudar</a></p></div></div><div class="bd" id="aPain">
+    ${P.pain.length?`<div class="lst">${P.pain.map(e=>{const o=ownerOf(D,e);return `<div class="it2"><div class="tx"><b>${esc(e.nome)}</b><span>${o?esc(o.email)+' · ':''}${e.win?esc(ML(e.win[0])+' a '+ML(e.win[1]))+' · ':''}gerado em ${fmtDT(e.gerado)}</span></div><div class="qa"><button class="btn sm" type="button" data-op="${esc(e.id)}">Abrir para conferir</button><button class="btn sm" type="button" data-blq="${esc(e.id)}" data-v="1">Bloquear</button><button class="btn sm primary" type="button" data-lib="${esc(e.id)}">Liberar</button></div></div>`;}).join('')}</div>`:'<p style="color:var(--ink-3)">Nenhum painel aguardando.</p>'}</div></div>`;
+  $('#aMan').onclick=()=>admLiberarAcesso(null);
+  document.querySelectorAll('[data-u]').forEach(b=>b.onclick=()=>admConta(b.dataset.u));
+  document.querySelectorAll('[data-lp]').forEach(b=>b.onclick=async()=>{const u=D.contas.find(x=>x.id===b.dataset.lp);const a=u.plano.aguardando;b.disabled=true;
+    try{await ADM.setConta(u,{plano:planoFromPend(a)});await resolveSolic('pagamento',u.email);await ADM.log(u.email,'admin','Pagamento liberado: '+a.id+(a.trial?' (teste com cartão)':''));admDirty();toast('Pagamento liberado.');await admRefresh();}catch(e){toast(e.message);b.disabled=false;}});
+  bindEmp($('#aPain'),D);
+}
+
+/* ---------- senhas ---------- */
+async function vAdmSenhas(){
+  const D=await admData(true);const L=D.solic.filter(s=>s.tipo==='senha');const ab=L.filter(s=>s.status==='aberta'),rs=L.filter(s=>s.status!=='aberta').slice(0,30);
+  const conta=e=>D.contas.find(u=>normE(u.email)===normE(e));
+  const row=s=>{const u=conta(s.email);return `<div class="it2"><div class="tx"><b>${esc(s.email)}</b><span>${fmtDT(s.at)} · ${u?esc(u.nome||'cliente'):'nenhuma conta com este e-mail'}${s.status!=='aberta'?' · resolvida '+fmtD(s.resolvido_em):''}</span></div><div class="qa">
+    ${u&&CLOUD.on?`<button class="btn sm" type="button" data-lk="${esc(s.email)}">Reenviar link</button>`:''}${u?`<button class="btn sm primary" type="button" data-sp="${esc(u.id)}" data-sid="${esc(s.id)}">Senha provisória</button>`:''}
+    ${s.status==='aberta'?`<button class="btn sm" type="button" data-ok="${esc(s.id)}">Marcar resolvida</button>`:''}<button class="btn sm" type="button" data-rm="${esc(s.id)}" style="color:var(--err)">Excluir</button></div></div>`;};
+  $('#main').innerHTML=admHead('Senhas',CLOUD.on?'Quem pede "Recuperar a senha" recebe um link por e-mail na hora. Aqui você acompanha os pedidos e, se o cliente não receber o e-mail, define uma senha provisória.':'No modo local não há envio de e-mail: defina uma senha provisória e envie ao cliente pelo WhatsApp.','<button class="btn sm" type="button" id="aAny">Redefinir senha de um cliente</button>')+`
+   <div class="panel"><div class="hd"><h2>Pedidos abertos (${ab.length})</h2></div><div class="bd">${ab.length?`<div class="lst">${ab.map(row).join('')}</div>`:'<p style="color:var(--ink-3)">Nenhum pedido aberto.</p>'}</div></div>
+   ${rs.length?`<div class="panel" style="margin-top:16px"><div class="hd"><h2>Resolvidos recentemente</h2></div><div class="bd"><div class="lst">${rs.map(row).join('')}</div></div></div>`:''}`;
+  $('#aAny').onclick=()=>modal(`<h3>Redefinir senha</h3><div class="f"><label for="rsU">Cliente</label><select id="rsU">${D.contas.map(x=>`<option value="${esc(x.id)}">${esc((x.nome?x.nome+' · ':'')+x.email)}</option>`).join('')}</select></div>
+     <div class="acts"><button class="btn" data-close type="button">Cancelar</button>${CLOUD.on?'<button class="btn" type="button" id="rsL">Enviar link por e-mail</button>':''}<button class="btn primary" type="button" id="rsP">Senha provisória</button></div>`,(b,close)=>{
+     const cur=()=>D.contas.find(x=>x.id===b.querySelector('#rsU').value);
+     const l=b.querySelector('#rsL');if(l) l.onclick=async()=>{const u=cur();try{await ADM.linkSenha(u.email);await ADM.log(u.email,'senha','Link de nova senha enviado pelo administrador');close();toast('Link enviado para '+u.email+'.');}catch(e){toast(e.message);}};
+     b.querySelector('#rsP').onclick=()=>{const u=cur();close();admSenhaProv(u);};});
+  document.querySelectorAll('[data-lk]').forEach(b=>b.onclick=async()=>{try{await ADM.linkSenha(b.dataset.lk);await ADM.log(b.dataset.lk,'senha','Link de nova senha reenviado pelo administrador');toast('Link enviado.');}catch(e){toast(e.message);}});
+  document.querySelectorAll('[data-sp]').forEach(b=>b.onclick=()=>admSenhaProv(D.contas.find(u=>u.id===b.dataset.sp),solIdOf(b.dataset.sid)));
+  bindSolic();
+}
+const solIdOf=v=>/^\d+$/.test(String(v))?+v:v;
+function bindSolic(){
+  document.querySelectorAll('[data-ok]').forEach(b=>b.onclick=async()=>{await ADM.setSolic(solIdOf(b.dataset.ok),{status:'resolvida'});admDirty();await admRefresh();});
+  document.querySelectorAll('[data-reopen]').forEach(b=>b.onclick=async()=>{await ADM.setSolic(solIdOf(b.dataset.reopen),{status:'aberta'});admDirty();await admRefresh();});
+  document.querySelectorAll('[data-rm]').forEach(b=>b.onclick=async()=>{if(!await confirmBox('Excluir pedido','O registro será apagado.','Excluir',true)) return;await ADM.delSolic(solIdOf(b.dataset.rm));admDirty();await admRefresh();});
+}
+
+/* ---------- contatos do site ---------- */
+async function vAdmContatos(){
+  const D=await admData(true);const all=D.solic.filter(s=>['contato','suporte'].includes(s.tipo));
+  const L=all.filter(s=>ADMF.sol==='abertas'?s.status==='aberta':ADMF.sol==='resolvidas'?s.status!=='aberta':true);
+  $('#main').innerHTML=admHead('Contatos do site','Mensagens enviadas pelo formulário "Fale com a Cifra Clara".','<button class="btn sm" type="button" id="aCsv">Exportar planilha</button>')+`
+   <div class="filters" style="margin-bottom:12px">${[['abertas','Abertos'],['resolvidas','Respondidos'],['todos','Todos']].map(([k,t])=>`<button type="button" data-sf="${k}" aria-pressed="${ADMF.sol===k}">${t}</button>`).join('')}</div>
+   ${L.length?`<div class="lst">${L.map(s=>{const wa=waTo(s.telefone,`Olá, ${(s.nome||'').split(' ')[0]}! Aqui é da ${CONFIG.marca}. Recebemos sua mensagem pelo site.`);
+     return `<div class="it2" style="align-items:flex-start"><div class="tx"><b>${esc(s.nome||'Sem nome')}${s.empresa?' · '+esc(s.empresa):''}</b><span>${fmtDT(s.at)}${s.cidade?' · '+esc(s.cidade):''}${s.telefone?' · '+esc(s.telefone):''}${s.email?' · '+esc(s.email):''}</span><p style="margin-top:8px;color:var(--ink-2);white-space:pre-wrap">${esc(s.mensagem||'')}</p></div>
+      <div class="qa">${wa?`<a class="btn sm primary" href="${esc(wa)}" target="_blank" rel="noopener">Responder no WhatsApp</a>`:''}${s.email?`<a class="btn sm" href="mailto:${esc(s.email)}">E-mail</a>`:''}${s.status==='aberta'?`<button class="btn sm" type="button" data-ok="${esc(s.id)}">Marcar respondido</button>`:`<button class="btn sm" type="button" data-reopen="${esc(s.id)}">Reabrir</button>`}<button class="btn sm" type="button" data-rm="${esc(s.id)}" style="color:var(--err)">Excluir</button></div></div>`;}).join('')}</div>`:'<div class="panel"><div class="empty" style="padding:28px"><p>Nenhuma mensagem neste filtro.</p></div></div>'}`;
+  document.querySelectorAll('[data-sf]').forEach(b=>b.onclick=()=>{ADMF.sol=b.dataset.sf;vAdmContatos();});
+  $('#aCsv').onclick=()=>csv('contatos_site.csv',['Data','Nome','Empresa','Cidade','WhatsApp','E-mail','Mensagem','Situação'],all.map(s=>[fmtDT(s.at),s.nome,s.empresa,s.cidade,s.telefone,s.email,s.mensagem,s.status]));
+  bindSolic();
+}
+
+/* ---------- configurações do site ---------- */
+async function vAdmSite(){
+  const d=await ADM.config();let admins=[];try{admins=await ADM.admins();}catch(e){}
+  const c=Object.assign({},CONFIG.contato,d.contato||{}),lk=d.links||{},pl=d.planos||{},av=d.aviso||{};
+  const L=(id,cy)=>esc(((lk[id]||{})[cy])||payLink(id,cy)||'');
+  const sel=(id,v,opts)=>`<select id="${id}">${opts.map(([k,t])=>`<option value="${k}"${v===k?' selected':''}>${t}</option>`).join('')}</select>`;
+  $('#main').innerHTML=admHead('Configurações do site','Valem para o site e a área do cliente assim que você salvar.','<button class="btn sm" type="button" id="aBk">Baixar cópia de segurança</button>')+`
+   <div class="grid2">
+    <div class="panel"><div class="hd"><h2>Contato</h2></div><div class="bd" style="display:grid;gap:12px">
+      <div class="f"><label for="sE">E-mail de atendimento</label><input id="sE" type="email" value="${esc(c.email||'')}"></div>
+      <div class="f"><label for="sW">WhatsApp</label><input id="sW" value="${esc(c.whatsapp||'')}" placeholder="(49) 99999-9999"></div>
+      <div class="f"><label for="sC">Atendimento (cidade ou região)</label><input id="sC" value="${esc(c.cidade||'')}" placeholder="Santa Catarina · atendimento on-line em todo o Brasil"></div></div></div>
+    <div class="panel"><div class="hd"><h2>Regras</h2></div><div class="bd" style="display:grid;gap:12px">
+      <div class="f"><label for="sT">Dias de teste grátis</label><input id="sT" type="number" min="1" max="60" value="${esc(d.trialDias||CONFIG.trialDias)}"></div>
+      <div class="f"><label for="sA">Ativação da assinatura</label>${sel('sA',d.ativacao||CONFIG.ativacao,[['auto','Automática quando o cliente volta do pagamento'],['manual','Manual: confiro no gateway e libero']])}</div>
+      <div class="f"><label for="sL">Liberação de painéis</label>${sel('sL',d.liberacao||CONFIG.liberacao,[['manual','Manual: cada painel novo espera a minha liberação'],['auto','Automática: o cliente abre assim que gera']])}</div>
+      <div class="f"><label for="sR">Novos cadastros</label>${sel('sR',d.cadastro||CONFIG.cadastro,[['aberto','Abertos'],['fechado','Fechados (só administradores)']])}</div></div></div>
+   </div>
+   <div class="panel" style="margin-top:16px"><div class="hd"><div><h2>Planos</h2><p>Preço mensal (o anual vale 10 mensalidades), número de empresas e meses analisados.</p></div></div><div class="bd tw"><table class="t"><thead><tr><th>Plano</th><th>Preço mensal (R$)</th><th>Empresas</th><th>Meses de histórico</th></tr></thead><tbody>
+     ${PLANS.map(p=>{const o=pl[p.id]||{};return `<tr><td><b>${p.nome}</b></td><td><input type="number" min="1" data-pp="${p.id}" value="${o.preco||p.preco}"></td><td><input type="number" min="1" data-pe="${p.id}" value="${o.empresas||p.empresas}"></td><td><input type="number" min="1" max="24" data-pm="${p.id}" value="${o.meses||p.meses}"></td></tr>`;}).join('')}</tbody></table></div></div>
+   <div class="panel" style="margin-top:16px"><div class="hd"><div><h2>Links de pagamento</h2><p>Assinaturas recorrentes criadas no gateway, com 7 dias de teste. URL de retorno: <code>${esc(appUrl())}#pagamento-confirmado</code></p></div></div><div class="bd" style="display:grid;gap:12px">
+     ${PLANS.map(p=>`<div class="g2f"><div class="f"><label>${p.nome} · mensal</label><input data-lk="${p.id}:mensal" value="${L(p.id,'mensal')}" placeholder="https://"></div><div class="f"><label>${p.nome} · anual</label><input data-lk="${p.id}:anual" value="${L(p.id,'anual')}" placeholder="https://"></div></div>`).join('')}</div></div>
+   <div class="panel" style="margin-top:16px"><div class="hd"><div><h2>Aviso no site</h2><p>Faixa exibida no topo da página inicial e da área do cliente.</p></div></div><div class="bd" style="display:grid;gap:12px">
+     <label class="chk"><input type="checkbox" id="sVo"${av.on?' checked':''}> Mostrar aviso</label>
+     <div class="f"><label for="sVt">Texto</label><input id="sVt" value="${esc(av.texto||'')}" maxlength="220" placeholder="Ex.: Atendimento em recesso de 24/12 a 02/01."></div>
+     <div class="f"><label for="sVk">Tipo</label>${sel('sVk',av.tipo||'info',[['info','Informativo'],['warn','Atenção']])}</div></div></div>
+   <div class="panel" style="margin-top:16px"><div class="hd"><div><h2>Administradores</h2><p>${CLOUD.on?'No banco on-line, a lista fica na tabela "admins" do Supabase.':'No modo local, a lista fica em CONFIG.admins.'}</p></div></div><div class="bd">${admins.map(a=>`<span class="pill" style="margin:0 6px 6px 0">${esc(a)}</span>`).join('')||'—'}</div></div>
+   <div style="display:flex;justify-content:flex-end;margin-top:16px;position:sticky;bottom:12px"><button class="btn primary lg" type="button" id="sSave">Salvar configurações</button></div>`;
+  $('#sSave').onclick=async()=>{const v=id=>$('#'+id).value.trim();
+    const nd={contato:{email:v('sE'),whatsapp:v('sW'),cidade:v('sC')},trialDias:Math.max(1,Math.min(60,+v('sT')||7)),ativacao:v('sA'),liberacao:v('sL'),cadastro:v('sR'),
+      aviso:{on:$('#sVo').checked,texto:v('sVt'),tipo:v('sVk')},planos:{},links:{}};
+    PLANS.forEach(p=>{nd.planos[p.id]={preco:+document.querySelector(`[data-pp="${p.id}"]`).value||p.preco,empresas:+document.querySelector(`[data-pe="${p.id}"]`).value||p.empresas,meses:Math.min(24,+document.querySelector(`[data-pm="${p.id}"]`).value||p.meses)};nd.links[p.id]={mensal:'',anual:''};});
+    let bad=false;document.querySelectorAll('[data-lk]').forEach(i=>{const [id,cy]=i.dataset.lk.split(':');const x=i.value.trim();if(x&&!/^https:\/\//.test(x)) bad=true;nd.links[id][cy]=x;});
+    if(bad){toast('Os links de pagamento precisam começar com https://');return;}
+    try{await ADM.setConfig(nd);lsSet('cc-config',JSON.stringify(nd));applySiteConfig(nd);await ADM.log(USER.email,'admin','Configurações do site salvas');toast('Configurações salvas.');await admRefresh();}catch(e){toast(e.message);}};
+  $('#aBk').onclick=async()=>{const [contas,empresas,solic,eventos]=await Promise.all([ADM.contas(),ADM.empresas(),ADM.solic(),ADM.eventos()]);
+    download('cifra_clara_backup_'+dIn(Date.now())+'.json',JSON.stringify({gerado:new Date().toISOString(),config:d,contas:contas.map(u=>{const x=Object.assign({},u);delete x.hash;delete x.salt;return x;}),empresas,solicitacoes:solic,eventos},null,1),'application/json');};
+}
+
+/* ---------- atividade ---------- */
+async function vAdmLog(){
+  let L=[];try{L=await ADM.eventos();}catch(e){}
+  const tipos=[...new Set(L.map(e=>e.tipo))].sort();
+  const draw=()=>{const qq=normE(ADMF.logq);const F=L.filter(e=>(!ADMF.log||e.tipo===ADMF.log)&&(!qq||normE(e.email+' '+e.detalhe).includes(qq)));
+    $('#aBody').innerHTML=F.length?`<table class="t adm-t"><thead><tr><th>Quando</th><th>Cliente</th><th>Tipo</th><th>Detalhe</th></tr></thead><tbody>${F.slice(0,400).map(e=>`<tr><td style="white-space:nowrap;color:var(--ink-3)">${fmtDT(e.at)}</td><td>${esc(e.email||'')}</td><td><span class="pill mute">${esc(e.tipo)}</span></td><td>${esc(e.detalhe||'')}</td></tr>`).join('')}</tbody></table>`:'<div class="empty" style="padding:28px"><p>Nenhum registro.</p></div>';};
+  $('#main').innerHTML=admHead('Atividade','Cadastros, entradas, pagamentos, painéis gerados e ações da administração.','<button class="btn sm" type="button" id="aCsv">Exportar planilha</button>')+`
+   <div class="adm-bar"><input class="srch" id="aQ" placeholder="Buscar por e-mail ou detalhe" value="${esc(ADMF.logq)}"><select id="aT" style="border:1px solid var(--line);border-radius:10px;padding:9px 12px;background:var(--surface)"><option value="">Todos os tipos</option>${tipos.map(t=>`<option${ADMF.log===t?' selected':''}>${esc(t)}</option>`).join('')}</select></div>
+   <div class="panel"><div class="bd tw" id="aBody" style="padding:0"></div></div>`;
+  $('#aQ').oninput=e=>{ADMF.logq=e.target.value;draw();};$('#aT').onchange=e=>{ADMF.log=e.target.value;draw();};
+  $('#aCsv').onclick=()=>csv('atividade_cifra_clara.csv',['Quando','Cliente','Tipo','Detalhe'],L.map(e=>[fmtDT(e.at),e.email,e.tipo,e.detalhe]));
+  draw();
+}
+const ADMV={adm:vAdm,'adm-contas':vAdmContas,'adm-empresas':vAdmEmpresas,'adm-lib':vAdmLib,'adm-senhas':vAdmSenhas,'adm-contatos':vAdmContatos,'adm-site':vAdmSite,'adm-log':vAdmLog};
 
 </script>
 
