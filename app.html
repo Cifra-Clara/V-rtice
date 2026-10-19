@@ -315,7 +315,7 @@ textarea.copy{width:100%;min-height:200px;border:1px solid var(--line);border-ra
         <p style="font-size:13px;color:var(--ink-3)">Esqueceu a senha? <a href="#" id="forgot">Saiba como recuperar</a></p>
       </form>
       <form id="fUp" class="card-a" novalidate hidden>
-        <div><h2>Crie sua conta</h2><p class="sub">Teste grátis por 14 dias, sem cartão.</p></div>
+        <div><h2>Crie sua conta</h2><p class="sub">Teste grátis por 7 dias. Nada é cobrado durante o teste.</p></div>
         <div class="f"><label for="upN">Seu nome</label><input id="upN" autocomplete="name" required></div>
         <div class="f"><label for="upE">E-mail</label><input id="upE" type="email" autocomplete="email" required></div>
         <div class="f"><label for="upP">Senha</label><input id="upP" type="password" autocomplete="new-password" minlength="8" required><small>Pelo menos 8 caracteres, com letras e números.</small></div>
@@ -1549,7 +1549,9 @@ const CONFIG={
   marca:'Cifra Clara',
   produto:'Vértice',
   slogan:'Inteligência de margem e lucro',
-  trialDias:14,
+  trialDias:7,
+  /* o teste grátis exige cartão: começa pelo link de pagamento do plano, configurado no gateway com 7 dias grátis */
+  trialCartao:true,
   /* deixe em branco para ocultar; preencha antes de publicar */
   contato:{email:'luizcorti669@gmail.com',whatsapp:'(49) 99123-8750',cidade:''},
   /* Pagamento: cole aqui o link de pagamento recorrente (assinatura) de cada plano, criado no painel do gateway
@@ -1650,33 +1652,39 @@ const DAY=864e5;
 function planState(u){
   const p=u&&u.plano;if(!p) return {plan:null,status:'sem',label:'Sem plano'};
   const plan=planById(p.id);const left=Math.ceil((p.fim-Date.now())/DAY);
-  if(p.status==='teste') return {plan,status:left>0?'teste':'expirado',left,label:left>0?`Teste grátis · ${left} dia${left>1?'s':''}`:'Teste encerrado'};
+  if(p.status==='teste'&&p.cartao&&left<=0) return {plan,status:'ativa',label:'Assinatura ativa'};
+  if(p.status==='teste') return {plan,status:left>0?'teste':'expirado',left,cartao:!!p.cartao,label:left>0?`Teste grátis · ${left} dia${left>1?'s':''}`:'Teste encerrado'};
   return {plan,status:'ativa',label:'Assinatura ativa'};}
+const dataBR=t=>new Date(t).toLocaleDateString('pt-BR');
 const canUse=u=>['teste','ativa'].includes(planState(u).status);
 /* Pagamento por link do gateway (Mercado Pago, Asaas, Stripe…): o cliente paga na página segura do gateway,
    que devolve para app.html#pagamento-confirmado; nesse retorno a assinatura escolhida é ativada.
    Sem link configurado: atendimento pelo WhatsApp. CONFIG.demo=true ativa sem cobrança (demonstração). */
 function openExternal(url){const a=document.createElement('a');a.href=url;a.target='_blank';a.rel='noopener';document.body.appendChild(a);a.click();a.remove();}
-async function checkout(plan,ciclo){
+async function checkout(plan,ciclo,trial){
   const link=payLink(plan.id,ciclo);
   if(link){
     let url=link;if(/stripe\.com/.test(link)) url+=(link.includes('?')?'&':'?')+'prefilled_email='+encodeURIComponent(USER.email)+'&client_reference_id='+encodeURIComponent(plan.id+'-'+ciclo);
-    USER.plano=Object.assign({},USER.plano||{},{pend:{id:plan.id,ciclo,at:Date.now()}});await DB.put('users',USER);
+    USER.plano=Object.assign({},USER.plano||{},{pend:{id:plan.id,ciclo,trial:!!trial,at:Date.now()}});await DB.put('users',USER);
     openExternal(url);
-    modal(`<h3>Finalize o pagamento</h3><p style="color:var(--ink-2)">A página de pagamento do plano <b>${esc(plan.nome)}</b> (${ciclo}) foi aberta em outra aba. Depois de pagar, você volta para cá e a assinatura é ativada automaticamente.</p>
+    modal((trial?`<h3>Cadastre o cartão</h3><p style="color:var(--ink-2)">A página segura de pagamento do plano <b>${esc(plan.nome)}</b> foi aberta em outra aba. Cadastre o cartão: nada é cobrado nos primeiros ${CONFIG.trialDias} dias. Depois disso, você volta para cá e o teste começa na hora.</p>`:`<h3>Finalize o pagamento</h3><p style="color:var(--ink-2)">A página de pagamento do plano <b>${esc(plan.nome)}</b> (${ciclo}) foi aberta em outra aba. Depois de pagar, você volta para cá e a assinatura é ativada automaticamente.</p>`)+`
       <p style="color:var(--ink-3);font-size:13.5px">A página não abriu? <a href="${esc(url)}" target="_blank" rel="noopener">Abrir o pagamento</a>.${CONFIG.contato.whatsapp?` Dúvidas: <a href="${esc(waLink('Olá! Tenho uma dúvida sobre o pagamento do plano '+plan.nome+'.'))}" target="_blank" rel="noopener">WhatsApp ${esc(CONFIG.contato.whatsapp)}</a>.`:''}</p>
       <div class="acts"><button class="btn primary" data-close type="button">Entendi</button></div>`);
     return false;}
+  if(CONFIG.demo&&trial){USER.plano={id:plan.id,ciclo,status:'teste',inicio:Date.now(),fim:Date.now()+CONFIG.trialDias*DAY,cartao:true,demo:true};await DB.put('users',USER);return true;}
   if(CONFIG.demo){USER.plano={id:plan.id,ciclo,status:'ativa',inicio:Date.now(),fim:Date.now()+(ciclo==='anual'?365:30)*DAY,demo:true};await DB.put('users',USER);return true;}
-  const msg=`Olá! Quero assinar o plano ${plan.nome} (${ciclo}) do Vértice. Meu e-mail de cadastro é ${USER.email}.`;
-  modal(`<h3>Assinar o plano ${esc(plan.nome)}</h3><p style="color:var(--ink-2)">Fale com a equipe ${esc(CONFIG.marca)} para concluir a assinatura. Seu teste grátis continua valendo enquanto isso.</p>
+  const msg=trial?`Olá! Quero começar o teste grátis de ${CONFIG.trialDias} dias do plano ${plan.nome} (${ciclo}) do Vértice. Meu e-mail de cadastro é ${USER.email}.`:`Olá! Quero assinar o plano ${plan.nome} (${ciclo}) do Vértice. Meu e-mail de cadastro é ${USER.email}.`;
+  modal(`<h3>${trial?'Começar o teste do plano ':'Assinar o plano '}${esc(plan.nome)}</h3><p style="color:var(--ink-2)">${trial?`O teste grátis de ${CONFIG.trialDias} dias começa com o cadastro do cartão. Fale com a equipe ${esc(CONFIG.marca)} para receber o link seguro de cadastro.`:`Fale com a equipe ${esc(CONFIG.marca)} para concluir a assinatura.`}</p>
     <div style="display:grid;gap:8px">${CONFIG.contato.whatsapp?`<a class="btn primary" href="${esc(waLink(msg))}" target="_blank" rel="noopener">Chamar no WhatsApp ${esc(CONFIG.contato.whatsapp)}</a>`:''}${CONFIG.contato.email?`<div class="cp" style="display:flex;justify-content:space-between;align-items:center;gap:8px;border:1px solid var(--line);border-radius:10px;padding:10px 12px"><span>${esc(CONFIG.contato.email)}</span><button class="btn sm" type="button" id="cpE">Copiar e-mail</button></div>`:''}</div>
     <div class="acts"><button class="btn" data-close type="button">Fechar</button></div>`,b=>{const c=b.querySelector('#cpE');if(c) c.onclick=e=>copyText(CONFIG.contato.email,e.currentTarget);});
   return false;}
 async function confirmPayment(){
   const pd=USER&&USER.plano&&USER.plano.pend;
   if(!pd){toast('Nenhum pagamento pendente nesta conta.');return;}
-  const plan=planById(pd.id);USER.plano={id:pd.id,ciclo:pd.ciclo,status:'ativa',inicio:Date.now(),fim:Date.now()+(pd.ciclo==='anual'?365:30)*DAY,pagoEm:Date.now()};
+  const plan=planById(pd.id);
+  if(pd.trial){USER.plano={id:pd.id,ciclo:pd.ciclo,status:'teste',inicio:Date.now(),fim:Date.now()+CONFIG.trialDias*DAY,cartao:true};
+    await DB.put('users',USER);toast(`Cartão cadastrado. Teste grátis do plano ${plan?plan.nome:''} iniciado: ${CONFIG.trialDias} dias sem cobrança.`);return;}
+  USER.plano={id:pd.id,ciclo:pd.ciclo,status:'ativa',inicio:Date.now(),fim:Date.now()+(pd.ciclo==='anual'?365:30)*DAY,pagoEm:Date.now()};
   await DB.put('users',USER);toast(`Pagamento recebido. Assinatura do plano ${plan?plan.nome:''} ativada.`);
 }
 
@@ -1824,7 +1832,7 @@ async function renderNav(){
   $('#navCos').querySelectorAll('[data-co]').forEach(a=>a.onclick=e=>{e.preventDefault();openCompany(a.dataset.co);});
   const ps=planState(USER);
   let ph='';if(ps.status==='sem') ph=`<b>Escolha um plano</b><span>Teste grátis por ${CONFIG.trialDias} dias.</span><a href="#assinatura">Ver planos</a>`;
-  else if(ps.status==='teste') ph=`<b>${ps.plan.nome} · teste grátis</b><span>${ps.left} de ${CONFIG.trialDias} dias restantes</span><div class="bar"><i style="width:${Math.max(4,100-ps.left/CONFIG.trialDias*100)}%"></i></div><a href="#assinatura">Ativar assinatura</a>`;
+  else if(ps.status==='teste') ph=`<b>${ps.plan.nome} · teste grátis</b><span>${ps.left} de ${CONFIG.trialDias} dias restantes</span><div class="bar"><i style="width:${Math.max(4,100-ps.left/CONFIG.trialDias*100)}%"></i></div><a href="#assinatura">${ps.cartao?'Ver assinatura':'Ativar assinatura'}</a>`;
   else if(ps.status==='expirado') ph=`<b>Teste encerrado</b><span>Ative a assinatura para continuar.</span><a href="#assinatura">Ativar agora</a>`;
   else ph=`<b>Plano ${ps.plan.nome}</b><span>${cos.length} de ${ps.plan.empresas} empresa${ps.plan.empresas>1?'s':''}</span>`;
   $('#navPlan').innerHTML=ph;
@@ -1849,7 +1857,7 @@ $('#fUp').addEventListener('submit',async e=>{e.preventDefault();const er=$('#up
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) return fail('Informe um e-mail válido.');
   if(pw.length<8||!/[a-zA-Z]/.test(pw)||!/\d/.test(pw)) return fail('A senha precisa de pelo menos 8 caracteres, com letras e números.');
   if(!$('#upA').checked) return fail('Para criar a conta, aceite os termos de uso e a política de privacidade.');
-  try{const u=await signup(n,em,pw,$('#upT').value);USER=u;sessSet(u.email,true);location.hash='assinatura';route();toast('Conta criada. Escolha o plano para começar o teste grátis.');}catch(x){fail(x.message);}});
+  try{const u=await signup(n,em,pw,$('#upT').value);USER=u;sessSet(u.email,true);location.hash='assinatura';route();toast(`Conta criada. Escolha o plano e cadastre o cartão para começar os ${CONFIG.trialDias} dias grátis.`);}catch(x){fail(x.message);}});
 
 /* ================= assinatura ================= */
 let CYC=lsGet('cc-cyc','mensal')==='anual'?'anual':'mensal';
@@ -1857,8 +1865,8 @@ async function vAssinatura(){
   const ps=planState(USER),cos=await myCompanies();const pre=lsGet('cc-plan','profissional');
   const cur=ps.plan?ps.plan.id:null;
   let top='';
-  if(ps.status==='sem') top=`<div class="tip">${IINFO}<span>Escolha um plano para começar. Os primeiros <b>${CONFIG.trialDias} dias são grátis</b> e não pedem cartão. Você pode trocar de plano depois.</span></div>`;
-  else if(ps.status==='teste') top=`<div class="tip">${IINFO}<span>Você está no teste grátis do plano <b>${ps.plan.nome}</b>: faltam ${ps.left} dia${ps.left>1?'s':''}. Para continuar depois disso, ative a assinatura.</span></div>`;
+  if(ps.status==='sem') top=`<div class="tip">${IINFO}<span>Escolha um plano para começar. Os primeiros <b>${CONFIG.trialDias} dias são grátis</b>. Para começar, cadastre o cartão na página segura de pagamento: nada é cobrado no teste e você pode cancelar antes do fim dele sem pagar nada.</span></div>`;
+  else if(ps.status==='teste') top=ps.cartao?`<div class="tip">${IINFO}<span>Você está no teste grátis do plano <b>${ps.plan.nome}</b>: faltam ${ps.left} dia${ps.left>1?'s':''}. A primeira cobrança é feita em <b>${dataBR(USER.plano.fim)}</b> no cartão cadastrado. Para cancelar antes disso, fale com a gente${CONFIG.contato.whatsapp?` pelo <a href="${esc(waLink('Olá! Quero cancelar meu teste do Vértice. E-mail: '+USER.email))}" target="_blank" rel="noopener">WhatsApp</a>`:''}.</span></div>`:`<div class="tip">${IINFO}<span>Você está no teste grátis do plano <b>${ps.plan.nome}</b>: faltam ${ps.left} dia${ps.left>1?'s':''}. Para continuar depois disso, ative a assinatura.</span></div>`;
   else if(ps.status==='expirado') top=`<div class="alert warn">O teste grátis terminou. Seus dados estão guardados; ative a assinatura para voltar a gerar e abrir os painéis.</div>`;
   else top=`<div class="alert ok">Assinatura ativa no plano <b>${ps.plan.nome}</b> (${USER.plano.ciclo==='anual'?'anual':'mensal'}).</div>`;
   $('#main').innerHTML=`<div class="ph"><div><h1>Assinatura</h1><p>Planos com atualização mensal ilimitada e conferências automáticas.</p></div><div class="cyc" role="group" aria-label="Ciclo"><button type="button" data-cyc="mensal" aria-pressed="${CYC==='mensal'}">Mensal</button><button type="button" data-cyc="anual" aria-pressed="${CYC==='anual'}">Anual<em>2 meses grátis</em></button></div></div>
@@ -1876,11 +1884,15 @@ function planBtn(p,ps,cos){
   if(cos.length>p.empresas) return `<button class="btn" disabled type="button">Você tem ${cos.length} empresas</button>`;
   if(ps.status==='sem') return `<button class="btn${p.destaque?' primary':''}" type="button" data-pl="${p.id}" data-act="teste">Começar teste de ${CONFIG.trialDias} dias</button>`;
   if(cur&&ps.status==='ativa') return `<button class="btn" disabled type="button">Plano atual</button>`;
+  if(cur&&ps.status==='teste'&&ps.cartao) return `<button class="btn" disabled type="button">Em teste · 1ª cobrança em ${dataBR(USER.plano.fim)}</button>`;
   if(cur) return `<button class="btn primary" type="button" data-pl="${p.id}" data-act="assinar">Ativar assinatura</button>`;
-  if(ps.status==='teste') return `<div style="display:grid;gap:6px;margin-top:auto"><button class="btn" type="button" data-pl="${p.id}" data-act="assinar">Assinar este plano</button><button class="btn ghost sm" type="button" data-pl="${p.id}" data-act="trocar">Mudar o teste para este plano</button></div>`;
+  if(ps.status==='teste') return `<div style="display:grid;gap:6px;margin-top:auto"><button class="btn" type="button" data-pl="${p.id}" data-act="assinar">Assinar este plano</button>${ps.cartao?'':`<button class="btn ghost sm" type="button" data-pl="${p.id}" data-act="trocar">Mudar o teste para este plano</button>`}</div>`;
   return `<button class="btn" type="button" data-pl="${p.id}" data-act="assinar">Assinar este plano</button>`;
 }
 async function choosePlan(p,act){
+  if(act==='teste'&&CONFIG.trialCartao){
+    const ok=await confirmBox(`Teste grátis do plano ${p.nome}`,`${CONFIG.trialDias} dias grátis. Para começar, cadastre o cartão de crédito na página segura de pagamento. Nada é cobrado durante o teste; depois dele, a assinatura custa ${fmtBRL(CYC==='anual'?p.preco*10:p.preco)} por ${CYC==='anual'?'ano':'mês'}. Cancele antes do fim do teste e não paga nada.`,payLink(p.id,CYC)?'Cadastrar cartão':'Continuar');
+    if(!ok) return;if(await checkout(p,CYC,true)){lsSet('cc-plan',p.id);toast(`Teste grátis do plano ${p.nome} iniciado.`);const cos=await myCompanies();go(cos.length?'empresas':'nova');}return;}
   if(act==='teste'||act==='trocar'){const ini=USER.plano&&USER.plano.status==='teste'?USER.plano.inicio:Date.now();
     USER.plano={id:p.id,ciclo:CYC,status:'teste',inicio:ini,fim:ini+CONFIG.trialDias*DAY};await DB.put('users',USER);lsSet('cc-plan',p.id);
     toast(act==='teste'?`Teste grátis do plano ${p.nome} iniciado.`:`Plano alterado para ${p.nome}.`);
