@@ -705,6 +705,7 @@ function applySiteConfig(d){if(!d||typeof d!=='object') return;
   if(d.links) ['essencial','profissional','escritorio'].forEach(k=>{if(d.links[k]) Object.assign(CONFIG.pagamento.links[k],d.links[k]);});
   if(+d.trialDias>0) CONFIG.trialDias=+d.trialDias;
   ['ativacao','liberacao','cadastro'].forEach(k=>{if(d[k]) CONFIG[k]=d[k];});
+  if(Array.isArray(d.cupons)) CONFIG.cupons=d.cupons;
   CONFIG.aviso=d.aviso||null;
   if(d.planos) PLANS.forEach(p=>{const o=d.planos[p.id];if(!o) return;['preco','empresas','meses'].forEach(k=>{if(+o[k]>0) p[k]=+o[k];});
     p.itens=p.itens.map(t=>t.replace(/^(\d+) empresas?$/,()=>p.empresas===1?'1 empresa':p.empresas+' empresas').replace(/^Até \d+ empresas$/,()=>'Até '+p.empresas+' empresas').replace(/^Até \d+ meses de histórico$/,()=>'Até '+p.meses+' meses de histórico'));});

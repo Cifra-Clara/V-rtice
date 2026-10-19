@@ -362,12 +362,14 @@ textarea.copy{width:100%;min-height:200px;border:1px solid var(--line);border-ra
   <div class="mtop"><button type="button" id="navB" aria-label="Abrir menu"><svg class="i" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><a class="brand" href="#empresas"><i class="mk"></i>Cifra Clara</a></div>
   <nav class="nav" id="nav" aria-label="Menu">
     <a class="brand" href="#empresas"><i class="mk"></i><span>Cifra Clara<small>Vértice · área do cliente</small></span></a>
-    <a class="it" href="#empresas" data-r="empresas"><svg class="i" viewBox="0 0 24 24"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/></svg>Empresas</a>
-    <a class="it" href="#assinatura" data-r="assinatura"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/></svg>Assinatura</a>
-    <a class="it" href="#conta" data-r="conta"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>Minha conta</a>
-    <a class="it" href="#ajuda" data-r="ajuda"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6V14M12 17h.01"/></svg>Relatórios necessários</a>
     <div id="navAdm" hidden></div>
-    <div class="grp">Suas empresas</div>
+    <div id="navCli">
+      <a class="it" href="#empresas" data-r="empresas"><svg class="i" viewBox="0 0 24 24"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/></svg>Empresas</a>
+      <a class="it" href="#assinatura" data-r="assinatura"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/></svg>Assinatura</a>
+      <a class="it" href="#conta" data-r="conta"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>Minha conta</a>
+      <a class="it" href="#ajuda" data-r="ajuda"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6V14M12 17h.01"/></svg>Relatórios necessários</a>
+    </div>
+    <div class="grp" id="grpCos">Suas empresas</div>
     <div class="cos" id="navCos"></div>
     <div class="plan" id="navPlan"></div>
     <div class="me" id="navMe"></div>
@@ -1695,6 +1697,7 @@ function applySiteConfig(d){if(!d||typeof d!=='object') return;
   if(d.links) ['essencial','profissional','escritorio'].forEach(k=>{if(d.links[k]) Object.assign(CONFIG.pagamento.links[k],d.links[k]);});
   if(+d.trialDias>0) CONFIG.trialDias=+d.trialDias;
   ['ativacao','liberacao','cadastro'].forEach(k=>{if(d[k]) CONFIG[k]=d[k];});
+  if(Array.isArray(d.cupons)) CONFIG.cupons=d.cupons;
   CONFIG.aviso=d.aviso||null;
   if(d.planos) PLANS.forEach(p=>{const o=d.planos[p.id];if(!o) return;['preco','empresas','meses'].forEach(k=>{if(+o[k]>0) p[k]=+o[k];});
     p.itens=p.itens.map(t=>t.replace(/^(\d+) empresas?$/,()=>p.empresas===1?'1 empresa':p.empresas+' empresas').replace(/^Até \d+ empresas$/,()=>'Até '+p.empresas+' empresas').replace(/^Até \d+ meses de histórico$/,()=>'Até '+p.meses+' meses de histórico'));});
@@ -2000,7 +2003,8 @@ async function authHash(){const H=location.hash||'';if(!CLOUD.on||!/access_token
   if(t==='recovery'){newPasswordForm();return true;}USER=await restoreUser();return false;}
 async function route(){
   if(await authHash()) return;
-  const h=(location.hash||'').slice(1);
+  const hRaw=(location.hash||'').slice(1);
+  const h=hRaw.split('?')[0];
   if(!USER){if(h==='pagamento-confirmado') lsSet('cc-payret','1');showAuth(h==='cadastro'?'up':'in');return;}
   if(lsGet('cc-payret','')==='1'){lsSet('cc-payret','');await confirmPayment();}
   $('#auth').hidden=true;$('#shell').hidden=false;$('#nav').classList.remove('on');
@@ -2017,19 +2021,26 @@ async function myCompanies(){return (await DB.all('companies')).filter(c=>c.owne
 async function renderNav(){
   document.querySelectorAll('#nav a.it').forEach(a=>a.setAttribute('aria-current',a.dataset.r===ROUTE||(ROUTE==='nova'&&a.dataset.r==='empresas')?'page':'false'));
   const cos=await myCompanies();
-  $('#navCos').innerHTML=cos.length?cos.map(c=>{const g=genState(c);return `<a href="#" data-co="${c.id}" aria-current="${ROUTE==='empresa'&&CUR&&CUR.id===c.id?'page':'false'}"><i class="st ${g==='ok'?'ok':g==='old'?'warn':''}"></i><span>${esc(c.empresa.nome||'Empresa sem nome')}</span></a>`;}).join(''):'<span style="padding:6px 12px;font-size:12.5px;color:var(--on-deep-2)">Nenhuma empresa ainda</span>';
+  const grp=document.querySelector('#nav .grp:has(+ #navCos),#nav .grp');/* o grupo "Suas empresas" é o primeiro ou único .grp antes de navCos */
+  const grpCos=[...document.querySelectorAll('#nav .grp')].find(g=>g.nextElementSibling&&g.nextElementSibling.id==='navCos');
+  if(grpCos) grpCos.style.display=cos.length?'':'none';
+  $('#navCos').innerHTML=cos.length?cos.map(c=>{const g=genState(c);return `<a href="#" data-co="${c.id}" aria-current="${ROUTE==='empresa'&&CUR&&CUR.id===c.id?'page':'false'}"><i class="st ${g==='ok'?'ok':g==='old'?'warn':''}"></i><span>${esc(c.empresa.nome||'Empresa sem nome')}</span></a>`;}).join(''):(USER.admin?'':'<span style="padding:6px 12px;font-size:12.5px;color:var(--on-deep-2)">Nenhuma empresa ainda</span>');
   $('#navCos').querySelectorAll('[data-co]').forEach(a=>a.onclick=e=>{e.preventDefault();openCompany(a.dataset.co);});
   const ps=planState(USER);
   let ph='';if(USER.admin&&!USER.plano) ph=`<b>Administrador</b><span>Acesso completo a todas as funções.</span><a href="#adm">Administração</a>`;else if(ps.status==='sem') ph=`<b>Escolha um plano</b><span>Teste grátis por ${CONFIG.trialDias} dias.</span><a href="#assinatura">Ver planos</a>`;
   else if(ps.status==='teste') ph=`<b>${ps.plan.nome} · teste grátis</b><span>${ps.left} de ${CONFIG.trialDias} dias restantes</span><div class="bar"><i style="width:${Math.max(4,100-ps.left/CONFIG.trialDias*100)}%"></i></div><a href="#assinatura">${ps.cartao?'Ver assinatura':'Ativar assinatura'}</a>`;
   else if(ps.status==='expirado') ph=`<b>Teste encerrado</b><span>Ative a assinatura para continuar.</span><a href="#assinatura">Ativar agora</a>`;
-  else if(ps.admin) ph=`<b>Administrador</b><span>Acesso completo · gerador liberado</span><a href="#adm">Administração</a>`;
+  else if(ps.admin){const emAdm=ROUTE.startsWith('adm');ph=emAdm?'':`<b>Modo administrador</b><span>Acesso completo liberado</span><a href="#adm">Abrir painel de administração</a>`;}
   else if(['aguardando','suspensa','cancelada','vencida','bloqueada'].includes(ps.status)) ph=`<b>${esc(ps.label)}</b><span>${ps.status==='aguardando'?'Liberamos assim que conferirmos o pagamento.':'Fale com a nossa equipe para regularizar.'}</span><a href="#assinatura">Ver assinatura</a>`;
   else ph=`<b>Plano ${ps.plan.nome}</b><span>${cos.length} de ${ps.plan.empresas} empresa${ps.plan.empresas>1?'s':''}</span>`;
   $('#navPlan').innerHTML=ph;
   $('#navMe').innerHTML=`<span class="av">${esc(initials(USER.nome))}</span><div><b>${esc(USER.nome)}</b><span>${esc(USER.email)}</span></div><button type="button" id="outB" title="Sair" aria-label="Sair"><svg class="i" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg></button>`;
   $('#outB').onclick=async()=>{await logout();location.hash='entrar';route();};
   const na=$('#navAdm');if(na){na.hidden=!USER.admin;if(USER.admin) await admNav(na);}
+  const nc=$('#navCli');
+  if(USER.admin&&nc&&!nc.dataset.moved){nc.dataset.moved='1';
+    const g=document.createElement('div');g.className='grp';g.textContent='Área do cliente';g.style.marginTop='6px';
+    nc.parentNode.appendChild(g);nc.parentNode.appendChild(nc);}
 }
 $('#navB').onclick=()=>$('#nav').classList.toggle('on');
 async function openCompany(id,step){CUR=await DB.get('companies',id);STEP=step||(CUR&&CUR.gen?'geral':'empresa');if(location.hash==='#empresa') route();else location.hash='empresa';}
@@ -2062,12 +2073,20 @@ $('#fUp').addEventListener('submit',async e=>{e.preventDefault();const er=$('#up
   if(pw.length<8||!/[a-zA-Z]/.test(pw)||!/\d/.test(pw)) return fail('A senha precisa de pelo menos 8 caracteres, com letras e números.');
   if(!$('#upA').checked) return fail('Para criar a conta, aceite os termos de uso e a política de privacidade.');
   const tel=($('#upW')||{value:''}).value.trim();const bt=$('#fUp button[type=submit]');bt.disabled=true;
-  try{const u=await signup(n,em,pw,$('#upT').value,tel);USER=u;sessSet(u.email,true);location.hash=u.admin?'adm':'assinatura';route();if(!u.admin) toast(`Conta criada. Escolha o plano e cadastre o cartão para começar os ${CONFIG.trialDias} dias grátis.`);}
+  try{const u=await signup(n,em,pw,$('#upT').value,tel);const q=(location.hash||'').split('?')[1];USER=u;sessSet(u.email,true);location.hash=u.admin?'adm':('assinatura'+(q?'?'+q:''));route();if(!u.admin) toast(`Conta criada. Escolha o plano e cadastre o cartão para começar os ${CONFIG.trialDias} dias grátis.`);}
   catch(x){if(x.info){er.className='alert info';er.textContent=x.message;er.hidden=false;setTab('in');$('#inE').value=em;$('#inErr').className='alert info';$('#inErr').textContent=x.message;$('#inErr').hidden=false;}else fail(x.message);}finally{bt.disabled=false;}});
 
 /* ================= assinatura ================= */
 let CYC=lsGet('cc-cyc','mensal')==='anual'?'anual':'mensal';
+let CUP=null;/* cupom aplicado */
+function cupoDaUrl(){const h=location.hash||'';const m=h.match(/[?&]cupom=([A-Z0-9_-]+)/i);if(m){lsSet('cc-cup',m[1].toUpperCase());history.replaceState(null,'',h.replace(/([?&])cupom=[A-Z0-9_-]+/i,'').replace(/\?$/,'').replace('?&','?'));}}
+function findCup(cod){cod=String(cod||'').toUpperCase();if(!cod) return null;const list=(CONFIG.cupons||[]);const c=list.find(x=>String(x.codigo).toUpperCase()===cod);if(!c) return null;
+  if(c.ate&&c.ate<Date.now()) return null;if(c.max&&(c.usos||0)>=c.max) return null;return c;}
+function aplicaCup(preco,cup,planoId){if(!cup) return preco;if(cup.planos&&!cup.planos.includes(planoId)) return preco;
+  return cup.tipo==='pct'?Math.round(preco*(1-cup.valor/100)):Math.max(0,preco-cup.valor);}
 async function vAssinatura(){
+  cupoDaUrl();
+  const codStored=lsGet('cc-cup','');if(codStored&&!CUP) CUP=findCup(codStored);
   const ps=planState(USER),cos=await myCompanies();const pre=lsGet('cc-plan','profissional');
   const cur=ps.plan?ps.plan.id:null;
   let top='';
@@ -2080,11 +2099,13 @@ async function vAssinatura(){
    ${CONFIG.demo?`<div class="demo-b">${IINFO}<span>Ambiente de demonstração: a assinatura é ativada sem cobrança.</span></div>`:''}
    ${USER.plano&&USER.plano.pend&&USER.plano.status!=='ativa'?`<div class="alert info" style="margin-bottom:14px">Pagamento do plano <b>${esc((planById(USER.plano.pend.id)||{}).nome||'')}</b> iniciado em ${new Date(USER.plano.pend.at).toLocaleDateString('pt-BR')}. Ao concluir no gateway, você volta para cá com a assinatura ativa.</div>`:''}
    ${top}
-   <div class="plans">${PLANS.map(p=>{const isCur=cur===p.id;const sel=isCur||(!cur&&pre===p.id);return `<div class="plan${sel?' sel':''}">${isCur?'<span class="pill cur">Plano atual</span>':''}<h3>${p.nome}</h3><p class="para">${esc(p.para)}</p><div class="pr"><b>${fmtBRL(precoMes(p,CYC))}</b><span>/mês${CYC==='anual'?' · '+fmtBRL(p.preco*10)+' por ano':''}</span></div><ul>${p.itens.map(x=>`<li>${ICK}<span>${esc(x)}</span></li>`).join('')}</ul>
+   <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px"><div class="f" style="display:flex;gap:8px;align-items:center"><label for="cupF" style="margin:0">Cupom:</label><input id="cupF" placeholder="CÓDIGO" value="${esc(CUP?CUP.codigo:'')}" style="text-transform:uppercase;max-width:160px;padding:7px 10px;border:1px solid var(--line);border-radius:9px;background:var(--surface);font-weight:600;letter-spacing:.02em"><button class="btn sm" type="button" id="cupB">${CUP?'Trocar':'Aplicar'}</button>${CUP?`<span class="pill ok">${esc(CUP.codigo)}: ${CUP.tipo==='pct'?CUP.valor+'% off':fmtBRL(CUP.valor)+' off'}${CUP.ciclos?' por '+CUP.ciclos+(CUP.ciclos==1?' cobrança':' cobranças'):''}</span>`:''}</div></div>
+   <div class="plans">${PLANS.map(p=>{const isCur=cur===p.id;const sel=isCur||(!cur&&pre===p.id);const pMes=precoMes(p,CYC);const pDes=aplicaCup(pMes,CUP,p.id);return `<div class="plan${sel?' sel':''}">${isCur?'<span class="pill cur">Plano atual</span>':''}<h3>${p.nome}</h3><p class="para">${esc(p.para)}</p><div class="pr">${pDes!==pMes?`<del style="color:var(--ink-3);font-size:16px;margin-right:6px;font-weight:600">${fmtBRL(pMes)}</del>`:''}<b style="${pDes!==pMes?'color:var(--ok)':''}">${fmtBRL(pDes)}</b><span>/mês${CYC==='anual'?' · '+fmtBRL(p.preco*10)+' por ano':''}</span></div><ul>${p.itens.map(x=>`<li>${ICK}<span>${esc(x)}</span></li>`).join('')}</ul>
      ${planBtn(p,ps,cos)}</div>`;}).join('')}</div>
    <p style="margin-top:16px;color:var(--ink-3);font-size:13px">Mais de 15 empresas? O plano Sob medida é contratado com a equipe ${esc(CONFIG.marca)}.</p>`;
   document.querySelectorAll('[data-cyc]').forEach(b=>b.onclick=()=>{CYC=b.dataset.cyc;lsSet('cc-cyc',CYC);vAssinatura();});
   document.querySelectorAll('[data-pl]').forEach(b=>b.onclick=()=>choosePlan(planById(b.dataset.pl),b.dataset.act));
+  const cb=$('#cupB');if(cb) cb.onclick=()=>{const v=$('#cupF').value.trim().toUpperCase();if(!v){CUP=null;lsSet('cc-cup','');vAssinatura();return;}const c=findCup(v);if(!c){toast('Cupom inválido ou expirado.');return;}CUP=c;lsSet('cc-cup',v);toast('Cupom '+v+' aplicado.');vAssinatura();};
 }
 function planBtn(p,ps,cos){
   const cur=ps.plan&&ps.plan.id===p.id;
@@ -2647,14 +2668,23 @@ function admHead(t,sub,acts){return `<div class="ph"><div><h1>${t}</h1><p>${sub|
 async function admRefresh(){admDirty();await renderNav();const v=ADMV[ROUTE];if(v) await v();}
 
 /* ---------- menu ---------- */
-const ADMI={adm:['Visão geral','<path d="M3 13h8V3H3zM13 21h8V11h-8zM3 21h8v-6H3zM13 3v6h8V3z"/>'],'adm-contas':['Assinantes','<circle cx="9" cy="8" r="4"/><path d="M2 21c0-4 3-7 7-7s7 3 7 7M16 4a4 4 0 0 1 0 8M22 21c0-3-2-5.5-4.5-6.5"/>'],
-  'adm-empresas':['Empresas e painéis','<path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/>'],'adm-lib':['Liberações','<path d="M20 6 9 17l-5-5"/>'],
-  'adm-senhas':['Senhas','<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>'],'adm-contatos':['Contatos do site','<path d="M21 12a9 9 0 0 1-13.4 7.9L3 21l1.2-4.4A9 9 0 1 1 21 12z"/>'],
-  'adm-site':['Configurações do site','<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 0 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 0 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 0 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 0 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>'],
-  'adm-log':['Atividade','<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>']};
+const ICN={casa:'<path d="M3 13h8V3H3zM13 21h8V11h-8zM3 21h8v-6H3zM13 3v6h8V3z"/>',pessoa:'<circle cx="9" cy="8" r="4"/><path d="M2 21c0-4 3-7 7-7s7 3 7 7M16 4a4 4 0 0 1 0 8M22 21c0-3-2-5.5-4.5-6.5"/>',pred:'<path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/>',ok:'<path d="M20 6 9 17l-5-5"/>',cad:'<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',chat:'<path d="M21 12a9 9 0 0 1-13.4 7.9L3 21l1.2-4.4A9 9 0 1 1 21 12z"/>',cfg:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15c-.3.7 0 1.5.6 1.9l.4.3-1.8 1.8-.4-.4a1.5 1.5 0 0 0-1.9.6 1.5 1.5 0 0 0-.9 1.4V22h-2.5v-.4a1.5 1.5 0 0 0-1-1.4 1.5 1.5 0 0 0-1.8-.6l-.4.4-1.8-1.8.4-.4c.6-.4.9-1.2.6-1.9a1.5 1.5 0 0 0-1.4-.9H2v-2.5h.4a1.5 1.5 0 0 0 1.4-.9 1.5 1.5 0 0 0-.6-1.9l-.4-.3 1.8-1.8.4.4a1.5 1.5 0 0 0 1.9.6 1.5 1.5 0 0 0 .9-1.4V2h2.5v.4c0 .7.4 1.2 1 1.4a1.5 1.5 0 0 0 1.9-.6l.3-.4 1.8 1.8-.4.4a1.5 1.5 0 0 0-.6 1.9c.2.6.8 1 1.4 1H22v2.5h-.4a1.5 1.5 0 0 0-1.4.9z"/>',log:'<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>',dinh:'<circle cx="12" cy="12" r="9"/><path d="M15 9h-3.5a2 2 0 0 0 0 4h3a2 2 0 0 1 0 4H10M12 7v2m0 8v2"/>',cup:'<path d="M3 10V7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v3a2 2 0 0 0 0 4v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3a2 2 0 0 0 0-4z"/><path d="M9 9h.01M15 15h.01M9 15l6-6"/>',send:'<path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/>',bar:'<path d="M3 3v18h18M8 17V9m5 8V5m5 12v-6"/>'};
+const ADMI={
+  adm:['Visão geral',ICN.casa],
+  'adm-contas':['Assinantes',ICN.pessoa],
+  'adm-empresas':['Empresas e painéis',ICN.pred],
+  'adm-lib':['Liberações',ICN.ok],
+  'adm-financeiro':['Financeiro',ICN.dinh],
+  'adm-msg':['Mensagens em massa',ICN.send],
+  'adm-cupons':['Cupons de desconto',ICN.cup],
+  'adm-senhas':['Senhas',ICN.cad],
+  'adm-contatos':['Contatos do site',ICN.chat],
+  'adm-site':['Configurações do site',ICN.cfg],
+  'adm-log':['Atividade',ICN.log]};
+const ADMG=[['Painel',['adm']],['Clientes',['adm-contas','adm-empresas','adm-lib']],['Negócio',['adm-financeiro','adm-msg','adm-cupons']],['Suporte',['adm-senhas','adm-contatos']],['Sistema',['adm-site','adm-log']]];
 async function admNav(na){let P={pag:[],pain:[],senha:[],contato:[]};try{P=pendencias(await admData());}catch(e){}
   const bd={'adm-lib':P.pag.length+P.pain.length,'adm-senhas':P.senha.length,'adm-contatos':P.contato.length};
-  na.innerHTML='<div class="grp">Administração</div>'+Object.entries(ADMI).map(([k,[t,ic]])=>`<a class="it" href="#${k}" aria-current="${ROUTE===k?'page':'false'}"><svg class="i" viewBox="0 0 24 24">${ic}</svg>${t}${bd[k]?`<span class="bdg">${bd[k]}</span>`:''}</a>`).join('');}
+  na.innerHTML=ADMG.map(([t,ks])=>`<div class="grp">${t}</div>`+ks.map(k=>{const [n,ic]=ADMI[k];return `<a class="it" href="#${k}" aria-current="${ROUTE===k?'page':'false'}"><svg class="i" viewBox="0 0 24 24">${ic}</svg>${n}${bd[k]?`<span class="bdg">${bd[k]}</span>`:''}</a>`;}).join('')).join('');}
 
 /* ---------- visão geral ---------- */
 async function vAdm(){
@@ -2673,8 +2703,11 @@ async function vAdm(){
     ...P.contato.map(s=>({t:`Contato do site · ${s.nome||s.email}`,s:(s.mensagem||'').slice(0,80),h:'#adm-contatos'}))];
   $('#main').innerHTML=admHead('Administração',`${CLOUD.on?'Banco on-line':'Modo local'} · atualizado agora`,'<button class="btn sm" type="button" id="aRf">Atualizar</button>')+`
    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px">
-     <a class="btn primary sm" href="#empresas" style="display:inline-flex;align-items:center;gap:6px"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Gerar painel (acesso gratuito)</a>
-     <button class="btn sm" type="button" id="aPr">Alterar preços dos planos</button>
+     <a class="btn primary sm" href="#empresas" style="display:inline-flex;align-items:center;gap:6px"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Gerar painel</a>
+     <button class="btn sm" type="button" id="aPr">Alterar preços</button>
+     <a class="btn sm" href="#adm-msg">Enviar mensagem em massa</a>
+     <a class="btn sm" href="#adm-cupons">Criar cupom</a>
+     <a class="btn sm" href="#adm-financeiro">Relatório financeiro</a>
      <a class="btn sm" href="#adm-site">Configurações do site</a>
    </div>
    <div class="adm-k">
@@ -2707,11 +2740,12 @@ async function vAdmContas(){
     $('#aCount').textContent=`${L.length} de ${D.contas.length}`;
     document.querySelectorAll('[data-u]').forEach(r=>r.onclick=()=>admConta(r.dataset.u));};
   $('#main').innerHTML=admHead('Assinantes','Contas de clientes, planos e situação de cada assinatura.','<button class="btn sm" type="button" id="aCsv">Exportar planilha</button>')+`
-   <div class="adm-bar"><input class="srch" id="aQ" placeholder="Buscar por nome, e-mail ou telefone" value="${esc(ADMF.q)}"><span id="aCount" style="color:var(--ink-3);font-size:13px"></span></div>
+   <div class="adm-bar"><input class="srch" id="aQ" placeholder="Buscar por nome, e-mail ou telefone" value="${esc(ADMF.q)}"><div class="qa"><button class="btn sm" type="button" id="aMsg">Enviar mensagem em massa</button><span id="aCount" style="color:var(--ink-3);font-size:13px"></span></div></div>
    <div class="filters" style="margin-bottom:12px">${FILTROS_C.map(([k,t])=>`<button type="button" data-f="${k}" aria-pressed="${ADMF.contas===k}">${t} (${D.contas.filter(u=>filtraConta(u,k)).length})</button>`).join('')}</div>
    <div class="panel"><div class="bd tw" id="aBody" style="padding:0"></div></div>`;
   $('#aQ').oninput=e=>{ADMF.q=e.target.value;draw();};
   document.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{ADMF.contas=b.dataset.f;document.querySelectorAll('[data-f]').forEach(x=>x.setAttribute('aria-pressed',x===b));draw();});
+  $('#aMsg').onclick=()=>{location.hash='adm-msg';};
   $('#aCsv').onclick=()=>csv('assinantes_cifra_clara.csv',['Nome','E-mail','WhatsApp','Perfil','Plano','Ciclo','Situação','Empresas','Cadastro','Último acesso','Fim do teste','Válido até','Observações'],
     D.contas.map(u=>{const p=u.plano||{};return [u.nome,u.email,u.telefone,u.tipo,(planById(p.id)||{}).nome||'',p.ciclo||'',planState(u).label,D.empresas.filter(e=>e.ownerId===u.id).length,fmtD(u.criado),fmtD(u.ultimo),p.status==='teste'?fmtD(p.fim):'',p.ate?fmtD(p.ate):'',u.obs||''];}));
   draw();
@@ -2968,7 +3002,129 @@ async function admPrecos(){
       PLANS.forEach(p=>{nd.planos[p.id]=Object.assign({},pl[p.id]||{},{preco:+b.querySelector(`[data-pp="${p.id}"]`).value||p.preco,empresas:+b.querySelector(`[data-pe="${p.id}"]`).value||p.empresas,meses:Math.min(24,+b.querySelector(`[data-pm="${p.id}"]`).value||p.meses)});});
       try{await ADM.setConfig(nd);lsSet('cc-config',JSON.stringify(nd));applySiteConfig(nd);await ADM.log(USER.email,'admin','Preços dos planos atualizados pelo painel de administração');close();toast('Preços atualizados. O site já mostra os novos valores.');await admRefresh();}catch(e){toast(e.message);}};});
 }
-const ADMV={adm:vAdm,'adm-contas':vAdmContas,'adm-empresas':vAdmEmpresas,'adm-lib':vAdmLib,'adm-senhas':vAdmSenhas,'adm-contatos':vAdmContatos,'adm-site':vAdmSite,'adm-log':vAdmLog};
+/* ================= Financeiro ================= */
+async function vAdmFin(){
+  const D=await admData(true);const now=Date.now();const DAY=864e5;
+  const ativos=D.contas.filter(u=>planState(u).status==='ativa'),teste=D.contas.filter(u=>planState(u).status==='teste');
+  const mrr=ativos.reduce((t,u)=>t+mrrOf(u),0),arr=mrr*12;
+  const porPlano={};PLANS.forEach(p=>porPlano[p.id]={n:0,r:0});
+  ativos.forEach(u=>{const p=porPlano[u.plano.id];if(p){p.n++;p.r+=mrrOf(u);}});
+  const encerradas=D.contas.filter(u=>['cancelada','vencida','expirado'].includes(planState(u).status)).length;
+  const churn=(ativos.length+encerradas)?encerradas/(ativos.length+encerradas):0;
+  const ltv=churn>0?mrr/ativos.length/churn:0;
+  /* receita mensal: assinaturas ativas em cada mês dos últimos 12 */
+  const meses=[];const d0=new Date();for(let i=11;i>=0;i--){const d=new Date(d0.getFullYear(),d0.getMonth()-i,1);meses.push({y:d.getFullYear(),m:d.getMonth(),r:0,n:0});}
+  D.contas.forEach(u=>{const p=u.plano;if(!p||!p.id||!p.inicio) return;const pl=planById(p.id);if(!pl) return;
+    const inicio=new Date(p.inicio),fim=p.status==='ativa'?new Date(now):p.fim?new Date(p.fim):new Date(now);
+    const vmes=p.ciclo==='anual'?pl.preco*10/12:pl.preco;
+    meses.forEach(k=>{const kd=new Date(k.y,k.m,15);if(kd>=new Date(inicio.getFullYear(),inicio.getMonth(),1)&&kd<=fim&&p.status!=='teste'){k.r+=vmes;k.n++;}});});
+  const mx=Math.max(1,...meses.map(x=>x.r));const MN=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+  const prevista=mrr+teste.filter(u=>u.plano.cartao).reduce((t,u)=>t+mrrOf({plano:Object.assign({},u.plano,{status:'ativa'})}),0);
+  const terminam=teste.filter(u=>u.plano.fim-now<7*DAY&&u.plano.cartao).length;
+  $('#main').innerHTML=admHead('Financeiro','Receita, assinaturas e indicadores da operação.','<button class="btn sm" type="button" id="aCsv">Exportar planilha</button>')+`
+   <div class="adm-k">
+    <div class="kpi"><small>Receita mensal (MRR)</small><b>${fmtBRL(mrr)}</b><em>${ativos.length} assinante${ativos.length!==1?'s':''} ativo${ativos.length!==1?'s':''}</em></div>
+    <div class="kpi"><small>Receita anualizada (ARR)</small><b>${fmtBRL(arr)}</b><em>projeção a 12 meses</em></div>
+    <div class="kpi"><small>Receita prevista do próximo mês</small><b>${fmtBRL(prevista)}</b><em>inclui ${terminam} teste(s) que viram assinatura em até 7 dias</em></div>
+    <div class="kpi"><small>Ticket médio</small><b>${fmtBRL(ativos.length?mrr/ativos.length:0)}</b><em>por assinante</em></div>
+    <div class="kpi"><small>Churn estimado</small><b>${pct(churn)}</b><em>${encerradas} encerramento(s) no total</em></div>
+    <div class="kpi"><small>Valor estimado por cliente (LTV)</small><b>${isFinite(ltv)&&ltv>0?fmtBRL(ltv):'—'}</b><em>MRR ÷ churn</em></div>
+   </div>
+   <div class="grid2" style="margin-top:16px">
+    <div class="panel"><div class="hd"><div><h2>Receita mensal</h2><p>Últimos 12 meses</p></div></div><div class="bd"><div class="chart">${meses.map(x=>`<div><b>${x.r?fmtBRL(x.r).replace('R$ ',''):''}</b><i style="height:${Math.round(x.r/mx*110)+3}px" title="${x.n} assinante(s)"></i><span>${MN[x.m]}</span></div>`).join('')}</div></div></div>
+    <div class="panel"><div class="hd"><div><h2>Receita por plano</h2></div></div><div class="bd tw"><table class="t"><thead><tr><th>Plano</th><th class="r">Assinantes</th><th class="r">MRR</th><th class="r">Participação</th></tr></thead><tbody>${PLANS.map(p=>{const o=porPlano[p.id];return `<tr><td><b>${p.nome}</b><span class="sub2">${fmtBRL(p.preco)} / mês</span></td><td class="r">${o.n}</td><td class="r">${fmtBRL(o.r)}</td><td class="r">${mrr?pct(o.r/mrr):'—'}</td></tr>`;}).join('')}<tr style="font-weight:700;background:var(--surface-2)"><td>Total</td><td class="r">${ativos.length}</td><td class="r">${fmtBRL(mrr)}</td><td class="r">100%</td></tr></tbody></table></div></div>
+   </div>
+   <div class="panel" style="margin-top:16px"><div class="hd"><div><h2>Testes com cartão</h2><p>Quando cada teste vira cobrança no cartão</p></div></div><div class="bd tw">${teste.length?`<table class="t adm-t"><thead><tr><th>Cliente</th><th>Plano</th><th>Dia da 1ª cobrança</th><th>Valor</th><th>Dias restantes</th></tr></thead><tbody>${teste.sort((a,b)=>a.plano.fim-b.plano.fim).map(u=>{const left=Math.ceil((u.plano.fim-now)/DAY);const pl=planById(u.plano.id);const v=u.plano.ciclo==='anual'?pl.preco*10:pl.preco;return `<tr class="click" data-u="${esc(u.id)}"><td><b>${esc(u.nome||'—')}</b><span class="sub2">${esc(u.email)}</span></td><td>${esc(pl.nome)} · ${esc(u.plano.ciclo)}${u.plano.cartao?'':' <span class="pill mute">sem cartão</span>'}</td><td>${fmtD(u.plano.fim)}</td><td>${fmtBRL(v)}</td><td><span class="pill ${left<3?'warn':''}">${left}d</span></td></tr>`;}).join('')}</tbody></table>`:'<p style="color:var(--ink-3)">Nenhum cliente em teste no momento.</p>'}</div></div>`;
+  document.querySelectorAll('[data-u]').forEach(r=>r.onclick=()=>admConta(r.dataset.u));
+  $('#aCsv').onclick=()=>csv('financeiro_cifra_clara.csv',['Mês','Assinantes ativos','Receita'],meses.map(x=>[`${String(x.m+1).padStart(2,'0')}/${x.y}`,x.n,x.r.toFixed(2)]));
+}
+
+/* ================= Mensagens em massa ================= */
+async function vAdmMsg(){
+  const D=await admData();
+  const grupos=[
+    ['todos','Todos os clientes',u=>true],
+    ['teste','Em teste grátis',u=>planState(u).status==='teste'],
+    ['teste_acaba','Testes que terminam em 3 dias',u=>{const ps=planState(u);return ps.status==='teste'&&ps.left<=3;}],
+    ['ativos','Assinantes ativos',u=>planState(u).status==='ativa'],
+    ['essencial','Assinantes do Essencial',u=>u.plano&&u.plano.id==='essencial'&&planState(u).status==='ativa'],
+    ['profissional','Assinantes do Profissional',u=>u.plano&&u.plano.id==='profissional'&&planState(u).status==='ativa'],
+    ['escritorio','Assinantes do Escritório',u=>u.plano&&u.plano.id==='escritorio'&&planState(u).status==='ativa'],
+    ['sem_plano','Nunca assinaram',u=>planState(u).status==='sem'],
+    ['encerrados','Encerraram',u=>['cancelada','vencida','expirado','suspensa'].includes(planState(u).status)]];
+  const MSG=lsGet('cc-msgT','Olá, {primeiroNome}!\n\nSou o Luiz Fernando, da Cifra Clara. Como posso ajudar?');
+  const g0=lsGet('cc-msgG','todos');
+  const draw=()=>{const g=grupos.find(x=>x[0]===$('#mG').value);const alvos=D.contas.filter(g[2]);
+    const canal=$('#mCh').value;const texto=$('#mT').value;const amostra=alvos.slice(0,10);
+    const prepara=u=>texto.replace(/\{primeiroNome\}/g,(u.nome||'').split(' ')[0]||'').replace(/\{nome\}/g,u.nome||'').replace(/\{email\}/g,u.email).replace(/\{plano\}/g,(planById((u.plano||{}).id)||{}).nome||'');
+    const comContato=alvos.filter(u=>canal==='wa'?u.telefone:u.email);const sem=alvos.length-comContato.length;
+    $('#mInfo').innerHTML=`<b>${alvos.length}</b> cliente${alvos.length!==1?'s':''} no grupo${sem?`, <b style="color:var(--warn)">${sem} sem ${canal==='wa'?'WhatsApp':'e-mail'}</b>`:''}.${alvos.length>comContato.length?` A mensagem só é enviada a quem tem o canal preenchido.`:''}`;
+    $('#mPrev').innerHTML=amostra.length?amostra.map(u=>`<div class="it2" style="align-items:flex-start"><div class="tx"><b>${esc(u.nome||u.email)}</b><span>${esc(u.email)}${u.telefone?' · '+esc(u.telefone):''}</span><p style="margin-top:6px;color:var(--ink-2);white-space:pre-wrap">${esc(prepara(u))}</p></div></div>`).join(''):'<p style="color:var(--ink-3)">Nenhum cliente neste grupo.</p>';
+    lsSet('cc-msgG',g[0]);lsSet('cc-msgT',texto);};
+  $('#main').innerHTML=admHead('Mensagens em massa','Prepare uma mensagem para enviar a um grupo de clientes. O site abre o WhatsApp ou o e-mail de um por um; cada envio é confirmado por você.')+`
+   <div class="grid2">
+    <div class="panel"><div class="hd"><h2>Mensagem</h2></div><div class="bd" style="display:grid;gap:12px">
+     <div class="g2f"><div class="f"><label for="mG">Enviar para</label><select id="mG">${grupos.map(g=>`<option value="${g[0]}"${g[0]===g0?' selected':''}>${g[1]}</option>`).join('')}</select></div>
+      <div class="f"><label for="mCh">Canal</label><select id="mCh"><option value="wa">WhatsApp</option><option value="email">E-mail</option></select></div></div>
+     <div class="f"><label for="mS">Assunto <span style="color:var(--ink-3);font-weight:500">(só e-mail)</span></label><input id="mS" value="${esc(lsGet('cc-msgS','Novidades do Vértice'))}"></div>
+     <div class="f"><label for="mT">Texto</label><textarea id="mT" style="min-height:200px">${esc(MSG)}</textarea><small>Marcadores: {primeiroNome} {nome} {email} {plano}</small></div>
+     <div class="qa"><button class="btn primary" type="button" id="mGo">Começar envio</button><button class="btn" type="button" id="mTest">Enviar de teste para mim</button></div>
+    </div></div>
+    <div class="panel"><div class="hd"><h2>Prévia</h2><span id="mInfo" style="color:var(--ink-3);font-size:13px"></span></div><div class="bd lst" id="mPrev" style="max-height:620px;overflow:auto"></div></div>
+   </div>`;
+  ['#mG','#mCh','#mT'].forEach(s=>$(s).oninput=draw);$('#mG').onchange=draw;$('#mCh').onchange=draw;$('#mS').oninput=e=>lsSet('cc-msgS',e.target.value);
+  const prepara=(u,texto)=>texto.replace(/\{primeiroNome\}/g,(u.nome||'').split(' ')[0]||'').replace(/\{nome\}/g,u.nome||'').replace(/\{email\}/g,u.email).replace(/\{plano\}/g,(planById((u.plano||{}).id)||{}).nome||'');
+  $('#mTest').onclick=()=>{const u={nome:USER.nome,email:USER.email,telefone:CONFIG.contato.whatsapp,plano:{id:'profissional'}};const t=prepara(u,$('#mT').value);
+    if($('#mCh').value==='wa'){window.open(waTo(CONFIG.contato.whatsapp,t)||'',' _blank','noopener');}
+    else window.open('mailto:'+USER.email+'?subject='+encodeURIComponent($('#mS').value)+'&body='+encodeURIComponent(t),'_blank','noopener');};
+  $('#mGo').onclick=()=>{const g=grupos.find(x=>x[0]===$('#mG').value);const canal=$('#mCh').value;const assunto=$('#mS').value;const texto=$('#mT').value;
+    const alvos=D.contas.filter(g[2]).filter(u=>canal==='wa'?u.telefone:u.email);
+    if(!alvos.length){toast('Nenhum cliente deste grupo tem '+(canal==='wa'?'WhatsApp':'e-mail')+' cadastrado.');return;}
+    let i=0;const next=()=>{if(i>=alvos.length){toast('Envios concluídos.');return;}const u=alvos[i];const t=prepara(u,texto);
+      modal(`<h3>Enviar para ${esc(u.nome||u.email)}</h3><p style="color:var(--ink-3)">${i+1} de ${alvos.length} · ${esc(u.email)}${u.telefone?' · '+esc(u.telefone):''}</p><textarea class="copy" readonly style="min-height:140px">${esc(t)}</textarea>
+       <div class="acts" style="justify-content:space-between"><div class="qa"><button class="btn sm" data-close type="button" id="mSk">Pular</button><button class="btn sm" type="button" id="mAb">Parar</button></div><button class="btn primary" type="button" id="mOk">${canal==='wa'?'Abrir WhatsApp e marcar como enviado':'Abrir e-mail e marcar como enviado'}</button></div>`,(b,close)=>{
+        b.classList.add('wide');
+        b.querySelector('#mAb').onclick=()=>{close();i=alvos.length;toast('Envio pausado.');};
+        b.querySelector('#mSk').onclick=()=>{i++;close();next();};
+        b.querySelector('#mOk').onclick=async()=>{if(canal==='wa') window.open(waTo(u.telefone,t),'_blank','noopener');else window.open('mailto:'+u.email+'?subject='+encodeURIComponent(assunto)+'&body='+encodeURIComponent(t),'_blank','noopener');
+          await ADM.log(u.email,'mensagem',`Envio em massa (${canal}): ${g[1]}`);admDirty();i++;close();setTimeout(next,250);};});};
+    next();};
+  draw();
+}
+
+/* ================= Cupons de desconto ================= */
+async function vAdmCupons(){
+  const d=await ADM.config();const cup=d.cupons||[];
+  const draw=lst=>$('#aBody').innerHTML=lst.length?`<table class="t adm-t"><thead><tr><th>Código</th><th>Desconto</th><th>Planos</th><th>Limite</th><th>Usos</th><th>Até</th><th class="r">Ações</th></tr></thead><tbody>${lst.map((c,i)=>`<tr><td><b class="mono">${esc(c.codigo)}</b></td><td>${c.tipo==='pct'?c.valor+'%':fmtBRL(c.valor)}${c.ciclos?' · ciclos: '+c.ciclos:''}</td><td>${(c.planos||['todos']).join(', ')}</td><td>${c.max||'∞'}</td><td>${c.usos||0}</td><td>${c.ate?fmtD(c.ate):'∞'}</td><td><div class="acts2"><button class="btn sm" type="button" data-cl="${i}">Copiar link</button><button class="btn sm" type="button" data-ed="${i}">Editar</button><button class="btn sm" type="button" data-rm="${i}" style="color:var(--err)">Excluir</button></div></td></tr>`).join('')}</tbody></table>`:'<div class="empty" style="padding:28px"><p>Nenhum cupom criado.</p></div>';
+  $('#main').innerHTML=admHead('Cupons de desconto','Códigos que o cliente aplica na página de assinatura. Compartilhe o link direto para já abrir com o cupom.','<button class="btn sm primary" type="button" id="aNew">Novo cupom</button>')+`
+   <div class="panel"><div class="bd tw" id="aBody" style="padding:0"></div></div>`;
+  const salvar=async arr=>{const nd=Object.assign({},d,{cupons:arr});await ADM.setConfig(nd);applySiteConfig(nd);lsSet('cc-config',JSON.stringify(nd));toast('Cupons salvos.');};
+  const edita=(c,idx)=>modal(`<h3>${idx==null?'Novo cupom':'Editar cupom'}</h3>
+   <div class="g2f"><div class="f"><label for="cC">Código</label><input id="cC" value="${esc((c||{}).codigo||'')}" placeholder="BEMVINDO10" style="text-transform:uppercase;font-weight:600"></div>
+    <div class="f"><label for="cT">Tipo</label><select id="cT"><option value="pct"${(c||{}).tipo==='pct'?' selected':''}>Percentual (%)</option><option value="rs"${(c||{}).tipo==='rs'?' selected':''}>Valor fixo (R$)</option></select></div></div>
+   <div class="g2f"><div class="f"><label for="cV">Valor</label><input id="cV" type="number" min="1" value="${(c||{}).valor||10}"></div>
+    <div class="f"><label for="cCy">Ciclos de desconto</label><select id="cCy"><option value="1"${(c||{}).ciclos==1?' selected':''}>1 cobrança</option><option value="3"${(c||{}).ciclos==3?' selected':''}>3 cobranças</option><option value="12"${(c||{}).ciclos==12?' selected':''}>12 cobranças</option><option value=""${!(c||{}).ciclos?' selected':''}>Sempre</option></select></div></div>
+   <div class="g2f"><div class="f"><label for="cM">Limite de usos</label><input id="cM" type="number" min="0" value="${(c||{}).max||''}" placeholder="Em branco: sem limite"></div>
+    <div class="f"><label for="cA">Válido até</label><input id="cA" type="date" value="${dIn((c||{}).ate)}"></div></div>
+   <div class="f"><label>Planos aceitos</label><div style="display:flex;gap:12px;flex-wrap:wrap">${PLANS.map(p=>`<label class="chk"><input type="checkbox" data-pl="${p.id}" ${!(c||{}).planos||((c||{}).planos||[]).includes(p.id)?'checked':''}> ${esc(p.nome)}</label>`).join('')}</div></div>
+   <div class="acts"><button class="btn" data-close type="button">Cancelar</button><button class="btn primary" type="button" id="cOk">Salvar</button></div>`,(b,close)=>{
+    b.classList.add('wide');
+    b.querySelector('#cC').oninput=e=>{e.target.value=e.target.value.toUpperCase().replace(/[^A-Z0-9_-]/g,'').slice(0,24);};
+    b.querySelector('#cOk').onclick=async()=>{const cod=b.querySelector('#cC').value.trim();if(cod.length<3){toast('Código muito curto.');return;}
+      const tipo=b.querySelector('#cT').value,valor=+b.querySelector('#cV').value||0;if(valor<=0){toast('Informe o valor do desconto.');return;}
+      if(tipo==='pct'&&valor>100){toast('Percentual não pode passar de 100.');return;}
+      const planos=[...b.querySelectorAll('[data-pl]:checked')].map(x=>x.dataset.pl);
+      const novo={codigo:cod,tipo,valor,ciclos:+b.querySelector('#cCy').value||0,max:+b.querySelector('#cM').value||0,ate:dOut(b.querySelector('#cA').value)||0,planos,usos:(c||{}).usos||0};
+      const arr=cup.slice();if(idx==null){if(arr.some(x=>x.codigo===cod)){toast('Já existe cupom com este código.');return;}arr.push(novo);}else arr[idx]=novo;
+      await salvar(arr);await ADM.log(USER.email,'admin',`Cupom ${idx==null?'criado':'alterado'}: ${cod}`);close();vAdmCupons();};});
+  $('#aNew').onclick=()=>edita(null,null);
+  draw(cup);
+  document.querySelectorAll('[data-ed]').forEach(b=>b.onclick=()=>edita(cup[+b.dataset.ed],+b.dataset.ed));
+  document.querySelectorAll('[data-rm]').forEach(b=>b.onclick=async()=>{if(!await confirmBox('Excluir cupom','O código deixa de valer; quem já usou mantém o desconto no gateway.','Excluir',true)) return;const arr=cup.slice();arr.splice(+b.dataset.rm,1);await salvar(arr);vAdmCupons();});
+  document.querySelectorAll('[data-cl]').forEach(b=>b.onclick=e=>{const c=cup[+b.dataset.cl];const u=appUrl()+'#assinatura?cupom='+encodeURIComponent(c.codigo);copyText(u,e.currentTarget);});
+}
+
+const ADMV={adm:vAdm,'adm-contas':vAdmContas,'adm-empresas':vAdmEmpresas,'adm-lib':vAdmLib,'adm-senhas':vAdmSenhas,'adm-contatos':vAdmContatos,'adm-site':vAdmSite,'adm-log':vAdmLog,'adm-financeiro':vAdmFin,'adm-msg':vAdmMsg,'adm-cupons':vAdmCupons};
 
 </script>
 
