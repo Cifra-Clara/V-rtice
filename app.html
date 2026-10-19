@@ -101,6 +101,10 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .f{display:grid;gap:6px}
 .f label{font-size:13px;font-weight:650;color:var(--ink-2)}
 .f input,.f select,.f textarea{width:100%;border:1px solid var(--line);background:var(--surface);border-radius:11px;padding:11px 13px;font-size:15px;outline:none;transition:border-color .15s,box-shadow .15s}
+.pwBar{margin-top:6px}
+.pwBar{display:grid;gap:4px}
+.pwBar i{display:block;height:4px;border-radius:4px;background:var(--line);transition:width .3s,background .3s}
+.pwBar span{font-size:12px;font-weight:600}
 .f input:focus,.f select:focus,.f textarea:focus{border-color:var(--brand);box-shadow:0 0 0 3px color-mix(in srgb,var(--brand) 18%,transparent)}
 .f small{color:var(--ink-3);font-size:12.5px}
 .f .err{color:var(--err);font-size:12.5px}
@@ -346,7 +350,7 @@ textarea.copy{width:100%;min-height:200px;border:1px solid var(--line);border-ra
         <div><h2>Crie sua conta</h2><p class="sub">Teste grátis por 7 dias. Nada é cobrado durante o teste.</p></div>
         <div class="f"><label for="upN">Seu nome</label><input id="upN" autocomplete="name" required></div>
         <div class="f"><label for="upE">E-mail</label><input id="upE" type="email" autocomplete="email" required></div>
-        <div class="f"><label for="upP">Senha</label><input id="upP" type="password" autocomplete="new-password" minlength="8" required><small>Pelo menos 8 caracteres, com letras e números.</small></div>
+        <div class="f"><label for="upP">Senha</label><input id="upP" type="password" autocomplete="new-password" minlength="10" required><small>Pelo menos 10 caracteres, com letras maiúsculas, minúsculas e números.</small><div class="pwBar" id="pwBar" hidden><i></i><span></span></div></div>
         <div class="f"><label for="upW">WhatsApp <span style="font-weight:500;color:var(--ink-3)">(opcional)</span></label><input id="upW" inputmode="tel" autocomplete="tel" placeholder="(00) 00000-0000"></div>
         <div class="f"><label for="upT">Você é</label><select id="upT"><option value="empresa">Dono ou gestor de empresa</option><option value="contador">Contador ou escritório de contabilidade</option><option value="consultor">Consultor financeiro</option></select></div>
         <label class="chk"><input type="checkbox" id="upA"> <span>Li e aceito os <a href="legal.html#termos" target="_blank" rel="noopener">termos de uso</a> e a <a href="legal.html#privacidade" target="_blank" rel="noopener">política de privacidade</a>.</span></label>
@@ -1772,13 +1776,15 @@ const DB=CLOUD.on?CDB:LDB;
 window.addEventListener('unhandledrejection',e=>{const m=e.reason&&e.reason.message;if(m) toast(m);});
 
 /* ---------------- autenticação ---------------- */
-function pwHash(pw,salt){let h=salt+'|'+pw;for(let i=0;i<2500;i++) h=PARSE.sha256(h+'|'+salt);return 'cc1$'+h;}
+function pwHash(pw,salt,ver){ver=ver||2;const n=ver===2?25000:2500;let h=salt+'|'+pw;for(let i=0;i<n;i++) h=PARSE.sha256(h+'|'+salt);return 'cc'+ver+'$'+h;}
+/* valida senha gerada antes (versão 1) e nova (versão 2) */
+function pwVerify(pw,salt,hash){if(!hash) return false;const v=hash.startsWith('cc1$')?1:2;return pwHash(pw,salt,v)===hash;}
 const normE=e=>String(e||'').trim().toLowerCase();
 const isAdminEmail=e=>(CONFIG.admins||[]).map(normE).includes(normE(e));
 const appUrl=()=>location.origin+location.pathname;
 let USER=null;
 function sessGet(){try{const s=JSON.parse(sessionStorage.getItem('cc-sess')||localStorage.getItem('cc-sess')||'null');if(s&&s.exp>Date.now()) return s;}catch(e){}return null;}
-function sessSet(email,remember){if(CLOUD.on) return;const s=JSON.stringify({email,exp:Date.now()+(remember?30:1)*864e5});try{(remember?localStorage:sessionStorage).setItem('cc-sess',s);}catch(e){}}
+function sessSet(email,remember){if(CLOUD.on) return;const s=JSON.stringify({email,exp:Date.now()+(remember?7*864e5:6*3600e3),ren:Date.now()});try{(remember?localStorage:sessionStorage).setItem('cc-sess',s);}catch(e){}}
 function sessClear(){try{localStorage.removeItem('cc-sess');sessionStorage.removeItem('cc-sess');}catch(e){}}
 const contaToUser=r=>({id:r.id,email:r.email,nome:r.nome||'',tipo:r.tipo||'',telefone:r.telefone||'',plano:r.plano||null,status:r.status||'ativa',obs:r.obs||'',criado:Date.parse(r.criado),ultimo:r.ultimo_acesso?Date.parse(r.ultimo_acesso):null});
 async function loadMe(){
@@ -1787,6 +1793,32 @@ async function loadMe(){
 async function logEv(tipo,detalhe,u){u=u||USER;if(!u) return;
   try{if(CLOUD.on) await CLOUD.rest('eventos',{method:'POST',body:{conta:CLOUD.auth.uid(),email:u.email,tipo,detalhe:String(detalhe||'').slice(0,500)},prefer:'return=minimal'});
     else await LDB.put('eventos',{at:Date.now(),email:u.email,tipo,detalhe:String(detalhe||'')});}catch(e){}}
+/* Avalia a força da senha. Devolve mensagem de erro ou vazio se estiver forte o bastante. */
+function senhaFraca(pw){
+  if(!pw||pw.length<10) return 'A senha precisa de pelo menos 10 caracteres.';
+  if(!/[a-z]/.test(pw)) return 'A senha precisa ter pelo menos uma letra minúscula.';
+  if(!/[A-Z]/.test(pw)) return 'A senha precisa ter pelo menos uma letra maiúscula.';
+  if(!/\d/.test(pw)) return 'A senha precisa ter pelo menos um número.';
+  const fracas=['12345678','123456789','1234567890','senha1234','password','qwerty','abc123','admin123','mudar123','123mudar'];
+  if(fracas.some(f=>pw.toLowerCase().includes(f))) return 'Essa senha é muito comum. Escolha uma mais difícil de adivinhar.';
+  /* evita sequências de 4+ repetições */
+  if(/(.)\1{3,}/.test(pw)) return 'Evite repetições de 4 ou mais caracteres iguais.';
+  return '';
+}
+
+/* ---------------- limite de tentativas de login (anti força-bruta) ----------------
+   Guardado em localStorage: cada e-mail acumula tentativas erradas; depois de 5 em 15 min, bloqueia por 10 min. */
+function loginAttempts(email,fail){
+  const K='cc-tent';email=normE(email);const now=Date.now();
+  let T={};try{T=JSON.parse(localStorage.getItem(K)||'{}');}catch(e){}
+  const r=T[email]||{n:0,at:0,blk:0};
+  if(fail===undefined){
+    if(r.blk>now) return {blocked:true,wait:Math.ceil((r.blk-now)/60000)};return {blocked:false};}
+  if(fail){r.n=now-r.at<15*60000?r.n+1:1;r.at=now;if(r.n>=5){r.blk=now+10*60000;r.n=0;}}
+  else{delete T[email];}
+  if(fail) T[email]=r;try{localStorage.setItem(K,JSON.stringify(T));}catch(e){}
+  return r;
+}
 async function signup(nome,email,pw,tipo,tel){
   email=normE(email);
   if(CLOUD.on){const r=await CLOUD.auth.signUp(email,pw,{nome:nome.trim(),tipo,telefone:tel||''},appUrl());
@@ -1797,9 +1829,13 @@ async function signup(nome,email,pw,tipo,tel){
   const salt=uid();const u={email,nome:nome.trim(),tipo,telefone:tel||'',salt,hash:pwHash(pw,salt),criado:Date.now(),plano:null,status:'ativa'};
   await DB.put('users',u);u.admin=isAdminEmail(email);await logEv('cadastro','Conta criada',u);return u;}
 async function login(email,pw,remember){
+  /* rate limiting local: 5 tentativas por e-mail em 15 min, bloqueio de 10 min */
+  const chk=loginAttempts(email);if(chk.blocked) throw new Error(`Muitas tentativas incorretas. Aguarde ${chk.wait} min e tente de novo.`);
   if(CLOUD.on){await CLOUD.auth.signIn(normE(email),pw,remember);await CLOUD.auth.me();const u=await loadMe();
     CLOUD.rest('contas?id=eq.'+u.id,{method:'PATCH',body:{ultimo_acesso:new Date().toISOString()},prefer:'return=minimal'}).catch(()=>{});logEv('login','Entrou no site',u);return u;}
-  const u=await DB.get('users',normE(email));if(!u||u.hash!==pwHash(pw,u.salt)) throw new Error('E-mail ou senha incorretos.');
+  const u=await DB.get('users',normE(email));if(!u||!pwVerify(pw,u.salt,u.hash)){loginAttempts(email,true);logEv('login_falha','Tentativa de login com senha errada',{email:normE(email)});throw new Error('E-mail ou senha incorretos.');}
+  if(u.hash&&u.hash.startsWith('cc1$')){u.hash=pwHash(pw,u.salt,2);await DB.put('users',u);}
+  loginAttempts(email,false);
   u.ultimo=Date.now();await DB.put('users',u);u.admin=isAdminEmail(u.email);logEv('login','Entrou no site',u);return u;}
 async function restoreUser(){
   if(CLOUD.on){if(!CLOUD.auth.restore()) return null;try{await CLOUD.auth.me();return await loadMe();}catch(e){await CLOUD.auth.signOut();return null;}}
@@ -2027,10 +2063,10 @@ async function renderNav(){
   $('#navCos').innerHTML=cos.length?cos.map(c=>{const g=genState(c);return `<a href="#" data-co="${c.id}" aria-current="${ROUTE==='empresa'&&CUR&&CUR.id===c.id?'page':'false'}"><i class="st ${g==='ok'?'ok':g==='old'?'warn':''}"></i><span>${esc(c.empresa.nome||'Empresa sem nome')}</span></a>`;}).join(''):(USER.admin?'':'<span style="padding:6px 12px;font-size:12.5px;color:var(--on-deep-2)">Nenhuma empresa ainda</span>');
   $('#navCos').querySelectorAll('[data-co]').forEach(a=>a.onclick=e=>{e.preventDefault();openCompany(a.dataset.co);});
   const ps=planState(USER);
-  let ph='';if(USER.admin&&!USER.plano) ph=`<b>Administrador</b><span>Acesso completo a todas as funções.</span><a href="#adm">Administração</a>`;else if(ps.status==='sem') ph=`<b>Escolha um plano</b><span>Teste grátis por ${CONFIG.trialDias} dias.</span><a href="#assinatura">Ver planos</a>`;
+  let ph='';if(USER.admin) ph='';/* escondido: menu em cima já cobre */ else if(ps.status==='sem') ph=`<b>Escolha um plano</b><span>Teste grátis por ${CONFIG.trialDias} dias.</span><a href="#assinatura">Ver planos</a>`;
   else if(ps.status==='teste') ph=`<b>${ps.plan.nome} · teste grátis</b><span>${ps.left} de ${CONFIG.trialDias} dias restantes</span><div class="bar"><i style="width:${Math.max(4,100-ps.left/CONFIG.trialDias*100)}%"></i></div><a href="#assinatura">${ps.cartao?'Ver assinatura':'Ativar assinatura'}</a>`;
   else if(ps.status==='expirado') ph=`<b>Teste encerrado</b><span>Ative a assinatura para continuar.</span><a href="#assinatura">Ativar agora</a>`;
-  else if(ps.admin){const emAdm=ROUTE.startsWith('adm');ph=emAdm?'':`<b>Modo administrador</b><span>Acesso completo liberado</span><a href="#adm">Abrir painel de administração</a>`;}
+  else if(ps.admin) ph='';/* quadro escondido para admin — menu de administração já cobre */
   else if(['aguardando','suspensa','cancelada','vencida','bloqueada'].includes(ps.status)) ph=`<b>${esc(ps.label)}</b><span>${ps.status==='aguardando'?'Liberamos assim que conferirmos o pagamento.':'Fale com a nossa equipe para regularizar.'}</span><a href="#assinatura">Ver assinatura</a>`;
   else ph=`<b>Plano ${ps.plan.nome}</b><span>${cos.length} de ${ps.plan.empresas} empresa${ps.plan.empresas>1?'s':''}</span>`;
   $('#navPlan').innerHTML=ph;
@@ -2065,12 +2101,13 @@ $('#forgot').onclick=e=>{e.preventDefault();
 $('#fIn').addEventListener('submit',async e=>{e.preventDefault();const er=$('#inErr');er.hidden=true;er.className='alert err';
   const bt=$('#fIn button[type=submit]');bt.disabled=true;
   try{const u=await login($('#inE').value,$('#inP').value,$('#inR').checked);USER=u;sessSet(u.email,$('#inR').checked);location.hash=u.admin?'adm':'empresas';route();}catch(x){er.textContent=x.message;er.hidden=false;}finally{bt.disabled=false;}});
+const pwInp=$('#upP');if(pwInp){pwInp.addEventListener('input',()=>{const pw=pwInp.value,bar=$('#pwBar');if(!bar) return;if(!pw){bar.hidden=true;return;}bar.hidden=false;let n=0;if(pw.length>=10) n++;if(/[a-z]/.test(pw)&&/[A-Z]/.test(pw)) n++;if(/\d/.test(pw)) n++;if(/[^\w\s]/.test(pw)) n++;if(pw.length>=14) n++;const nivel=['Muito fraca','Fraca','Razoável','Boa','Forte','Excelente'][n]||'Muito fraca';const cor=['#DC2626','#EA580C','#F59E0B','#22C55E','#16A34A','#0D9488'][n]||'#DC2626';bar.querySelector('i').style.cssText=`width:${(n/5)*100}%;background:${cor}`;bar.querySelector('span').textContent=nivel;bar.querySelector('span').style.color=cor;});}
 $('#fUp').addEventListener('submit',async e=>{e.preventDefault();const er=$('#upErr');er.hidden=true;er.className='alert err';
   const n=$('#upN').value.trim(),em=$('#upE').value.trim(),pw=$('#upP').value;
   const fail=t=>{er.textContent=t;er.hidden=false;};
   if(n.length<2) return fail('Informe seu nome.');
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) return fail('Informe um e-mail válido.');
-  if(pw.length<8||!/[a-zA-Z]/.test(pw)||!/\d/.test(pw)) return fail('A senha precisa de pelo menos 8 caracteres, com letras e números.');
+  const pwErr=senhaFraca(pw);if(pwErr) return fail(pwErr);
   if(!$('#upA').checked) return fail('Para criar a conta, aceite os termos de uso e a política de privacidade.');
   const tel=($('#upW')||{value:''}).value.trim();const bt=$('#fUp button[type=submit]');bt.disabled=true;
   try{const u=await signup(n,em,pw,$('#upT').value,tel);const q=(location.hash||'').split('?')[1];USER=u;sessSet(u.email,true);location.hash=u.admin?'adm':('assinatura'+(q?'?'+q:''));route();if(!u.admin) toast(`Conta criada. Escolha o plano e cadastre o cartão para começar os ${CONFIG.trialDias} dias grátis.`);}
@@ -2519,9 +2556,9 @@ function vConta(){
    ${!DB.ok()?`<div class="alert warn" style="margin-top:16px">Este navegador não permite guardar dados neste site; as informações ficam só enquanto a página estiver aberta.</div>`:''}`;
   $('#cSave').onclick=async()=>{const n=$('#cN').value.trim();if(n.length<2){toast('Informe seu nome.');return;}USER.nome=n;USER.telefone=$('#cW').value.trim();await DB.put('users',USER);toast('Dados salvos.');renderNav();};
   $('#cPw').onclick=async()=>{const a=$('#cP0').value,b=$('#cP1').value;
-    if(b.length<8||!/[a-zA-Z]/.test(b)||!/\d/.test(b)){toast('A nova senha precisa de 8 caracteres, com letras e números.');return;}
+    const err=senhaFraca(b);if(err){toast(err);return;}
     if(CLOUD.on){try{await CLOUD.auth.signIn(USER.email,a,!!localStorage.getItem('cc-sb'));}catch(x){toast('A senha atual não confere.');return;}await CLOUD.auth.updatePassword(b);}
-    else{if(USER.hash!==pwHash(a,USER.salt)){toast('A senha atual não confere.');return;}USER.salt=uid();USER.hash=pwHash(b,USER.salt);await DB.put('users',USER);}
+    else{if(!pwVerify(a,USER.salt,USER.hash)){toast('A senha atual não confere.');return;}USER.salt=uid();USER.hash=pwHash(b,USER.salt,2);await DB.put('users',USER);}
     $('#cP0').value='';$('#cP1').value='';logEv('senha','Senha trocada pelo cliente');toast('Senha trocada.');};
   $('#cDel').onclick=async()=>{if(!await confirmBox('Excluir conta','Todas as empresas e painéis desta conta serão apagados.','Excluir conta',true)) return;if(CLOUD.on){await DB.del('users');await logout();}else{for(const c of await myCompanies()) await DB.del('companies',c.id);await DB.del('users',USER.email);sessClear();USER=null;}location.href='index.html';};
 }
@@ -2626,7 +2663,7 @@ const ADM=(()=>{
     async setEmpresa(id,patch){const C=await LDB.get('companies',id);if(!C) return;Object.assign(C,patch);if(patch.liberado===true) C.liberadoEm=Date.now();await LDB.put('companies',C);},
     async delEmpresa(id){await LDB.del('companies',id);},
     async delConta(u){for(const C of await LDB.all('companies')) if(C.owner===u.email) await LDB.del('companies',C.id);await LDB.del('users',u.email);},
-    async senha(u,pw){const x=await LDB.get('users',u.email);x.salt=uid();x.hash=pwHash(pw,x.salt);await LDB.put('users',x);},
+    async senha(u,pw){const x=await LDB.get('users',u.email);x.salt=uid();x.hash=pwHash(pw,x.salt,2);await LDB.put('users',x);},
     async linkSenha(){throw new Error('O envio de link por e-mail funciona com o banco on-line. Use a senha provisória.');},
     async eventos(){return (await LDB.all('eventos')).sort((a,b)=>b.at-a.at);},
     async solic(){await pullLanding();return (await LDB.all('solic')).sort((a,b)=>b.at-a.at);},
@@ -2661,8 +2698,10 @@ function stPill(u){const ps=planState(u);const m={sem:'mute',teste:'',expirado:'
 function planTxt(u){const p=u.plano;if(!p) return '—';const pl=planById(p.id||(p.aguardando&&p.aguardando.id));if(!pl) return '—';return pl.nome+(p.ciclo?' · '+p.ciclo:'');}
 function csv(name,head,rows){const e=v=>{v=v==null?'':String(v);return /[;"\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;};
   download(name,'﻿'+[head,...rows].map(r=>r.map(e).join(';')).join('\n'),'text/csv;charset=utf-8');}
-function genPw(){const L='abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ',N='23456789';const a=new Uint8Array(10);crypto.getRandomValues(a);
-  let s=[...a].map((x,i)=>i===3||i===7?N[x%N.length]:L[x%L.length]).join('');return s;}
+function genPw(){const l='abcdefghjkmnpqrstuvwxyz',U='ABCDEFGHJKLMNPQRSTUVWXYZ',N='23456789';const a=new Uint8Array(12);crypto.getRandomValues(a);
+  const pos=[0,2,4,6,8,10],mai=[1,3,5],num=[7,9,11];
+  let s=new Array(12);pos.forEach(i=>s[i]=l[a[i]%l.length]);mai.forEach(i=>s[i]=U[a[i]%U.length]);num.forEach(i=>s[i]=N[a[i]%N.length]);
+  return s.join('');}
 function admHead(t,sub,acts){return `<div class="ph"><div><h1>${t}</h1><p>${sub||''}</p></div>${acts?`<div class="acts">${acts}</div>`:''}</div>`+
   (CLOUD.on?'':`<div class="mode-b">${IINFO}<span><b>Modo local.</b> Aqui aparecem só as contas criadas neste navegador. Para administrar todos os clientes, ligue o banco on-line (veja o LEIA-ME).</span></div>`);}
 async function admRefresh(){admDirty();await renderNav();const v=ADMV[ROUTE];if(v) await v();}
@@ -2833,7 +2872,7 @@ function admSenhaProv(u,solId){
   modal(`<h3>Senha provisória</h3><p style="color:var(--ink-2)">Define uma senha nova para <b>${esc(u.email)}</b>. Envie ao cliente e peça para trocar em Minha conta.</p>
    <div class="f"><label for="spP">Senha</label><input id="spP" value="${pw}" class="mono"><small>Pelo menos 8 caracteres, com letras e números.</small></div>
    <div class="acts"><button class="btn" data-close type="button">Cancelar</button><button class="btn primary" type="button" id="spOk">Definir senha</button></div>`,(b,close)=>{
-    b.querySelector('#spOk').onclick=async()=>{const v=b.querySelector('#spP').value.trim();if(v.length<8||!/[a-zA-Z]/.test(v)||!/\d/.test(v)){toast('Use 8 caracteres ou mais, com letras e números.');return;}
+    b.querySelector('#spOk').onclick=async()=>{const v=b.querySelector('#spP').value.trim();const err=senhaFraca(v);if(err){toast(err);return;}
       try{await ADM.senha(u,v);await ADM.log(u.email,'senha','Senha provisória definida pelo administrador');if(solId) await ADM.setSolic(solId,{status:'resolvida'});else await resolveSolic('senha',u.email);admDirty();}catch(e){toast(e.message);return;}
       const msg=`Olá, ${(u.nome||'').split(' ')[0]||'tudo bem'}! Sua senha provisória do Vértice (${CONFIG.marca}) é: ${v}\nEntre em ${appUrl()} com o e-mail ${u.email} e troque a senha em Minha conta.`;
       const wa=waTo(u.telefone,msg);
