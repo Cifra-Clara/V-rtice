@@ -350,7 +350,7 @@ textarea.copy{width:100%;min-height:200px;border:1px solid var(--line);border-ra
         <p style="font-size:13px;color:var(--ink-3)">Esqueceu a senha? <a href="#" id="forgot">Recuperar a senha</a></p>
       </form>
       <form id="fUp" class="card-a" novalidate hidden>
-        <div><h2>Crie sua conta</h2><p class="sub">Teste grátis por 7 dias. Nada é cobrado durante o teste.</p></div>
+        <div><h2>Crie sua conta</h2><p class="sub">Crie a conta e fale com a gente pelo WhatsApp ou por e-mail para assinar.</p></div>
         <div class="f"><label for="upN">Seu nome</label><input id="upN" autocomplete="name" required></div>
         <div class="f"><label for="upE">E-mail</label><input id="upE" type="email" autocomplete="email" required></div>
         <div class="f"><label for="upP">Senha</label><input id="upP" type="password" autocomplete="new-password" minlength="10" required><small>Pelo menos 10 caracteres, com letras maiúsculas, minúsculas e números.</small><div class="pwBar" id="pwBar" hidden><i></i><span></span></div></div>
@@ -2626,22 +2626,15 @@ const canUse=u=>!!(u&&u.admin)||['teste','ativa'].includes(planState(u).status);
    que devolve para app.html#pagamento-confirmado; nesse retorno a assinatura escolhida é ativada.
    Sem link configurado: atendimento pelo WhatsApp. CONFIG.demo=true ativa sem cobrança (demonstração). */
 function openExternal(url){const a=document.createElement('a');a.href=url;a.target='_blank';a.rel='noopener';document.body.appendChild(a);a.click();a.remove();}
-async function checkout(plan,ciclo,trial){
-  const link=payLink(plan.id,ciclo);
-  if(link){
-    let url=link;if(/stripe\.com/.test(link)) url+=(link.includes('?')?'&':'?')+'prefilled_email='+encodeURIComponent(USER.email)+'&client_reference_id='+encodeURIComponent(plan.id+'-'+ciclo);
-    USER.plano=Object.assign({},USER.plano||{},{pend:{id:plan.id,ciclo,trial:!!trial,at:Date.now()}});await DB.put('users',USER);
-    openExternal(url);
-    modal((trial?`<h3>Cadastre o cartão</h3><p style="color:var(--ink-2)">A página segura de pagamento do plano <b>${esc(plan.nome)}</b> foi aberta em outra aba. Cadastre o cartão: nada é cobrado nos primeiros ${CONFIG.trialDias} dias. Depois disso, você volta para cá e o teste começa na hora.</p>`:`<h3>Finalize o pagamento</h3><p style="color:var(--ink-2)">A página de pagamento do plano <b>${esc(plan.nome)}</b> (${ciclo}) foi aberta em outra aba. Depois de pagar, você volta para cá e a assinatura é ativada automaticamente.</p>`)+`
-      <p style="color:var(--ink-3);font-size:13.5px">A página não abriu? <a href="${esc(url)}" target="_blank" rel="noopener">Abrir o pagamento</a>.${CONFIG.contato.whatsapp?` Dúvidas: <a href="${esc(waLink('Olá! Tenho uma dúvida sobre o pagamento do plano '+plan.nome+'.'))}" target="_blank" rel="noopener">WhatsApp ${esc(CONFIG.contato.whatsapp)}</a>.`:''}</p>
-      <div class="acts"><button class="btn primary" data-close type="button">Entendi</button></div>`);
-    return false;}
-  if(CONFIG.demo&&trial){USER.plano={id:plan.id,ciclo,status:'teste',inicio:Date.now(),fim:Date.now()+CONFIG.trialDias*DAY,cartao:true,demo:true};await DB.put('users',USER);return true;}
-  if(CONFIG.demo){USER.plano={id:plan.id,ciclo,status:'ativa',inicio:Date.now(),fim:Date.now()+(ciclo==='anual'?365:30)*DAY,demo:true};await DB.put('users',USER);return true;}
-  const msg=trial?`Olá! Quero começar o teste grátis de ${CONFIG.trialDias} dias do plano ${plan.nome} (${ciclo}) do Vértice. Meu e-mail de cadastro é ${USER.email}.`:`Olá! Quero assinar o plano ${plan.nome} (${ciclo}) do Vértice. Meu e-mail de cadastro é ${USER.email}.`;
-  modal(`<h3>${trial?'Começar o teste do plano ':'Assinar o plano '}${esc(plan.nome)}</h3><p style="color:var(--ink-2)">${trial?`O teste grátis de ${CONFIG.trialDias} dias começa com o cadastro do cartão. Fale com a equipe ${esc(CONFIG.marca)} para receber o link seguro de cadastro.`:`Fale com a equipe ${esc(CONFIG.marca)} para concluir a assinatura.`}</p>
-    <div style="display:grid;gap:8px">${CONFIG.contato.whatsapp?`<a class="btn primary" href="${esc(waLink(msg))}" target="_blank" rel="noopener">Chamar no WhatsApp ${esc(CONFIG.contato.whatsapp)}</a>`:''}${CONFIG.contato.email?`<div class="cp" style="display:flex;justify-content:space-between;align-items:center;gap:8px;border:1px solid var(--line);border-radius:10px;padding:10px 12px"><span>${esc(CONFIG.contato.email)}</span><button class="btn sm" type="button" id="cpE">Copiar e-mail</button></div>`:''}</div>
-    <div class="acts"><button class="btn" data-close type="button">Fechar</button></div>`,b=>{const c=b.querySelector('#cpE');if(c) c.onclick=e=>copyText(CONFIG.contato.email,e.currentTarget);});
+async function checkout(plan,ciclo){
+  const val=ciclo==='anual'?fmtBRL(plan.preco*10)+' por ano':fmtBRL(plan.preco)+' por mês';
+  const msg=`Olá! Quero assinar o plano ${plan.nome} (${ciclo}, ${val}) do Vértice. Meu e-mail de cadastro é ${USER.email}.`;
+  const ml=CONFIG.contato.email?'mailto:'+CONFIG.contato.email+'?subject='+encodeURIComponent('Assinatura do plano '+plan.nome+' · Vértice')+'&body='+encodeURIComponent(msg):'';
+  const line=(l,v,u,t,id)=>`<div class="cp" style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;border:1px solid var(--line);border-radius:10px;padding:10px 12px"><span><small style="display:block;color:var(--ink-3);font-weight:500">${l}</small>${esc(v)}</span><span style="display:flex;gap:6px">${u?`<a class="btn sm primary" href="${esc(u)}" target="_blank" rel="noopener">${t}</a>`:''}<button class="btn sm" type="button" id="${id}">Copiar</button></span></div>`;
+  modal(`<h3>Assinar o plano ${esc(plan.nome)}</h3><p style="color:var(--ink-2)">${val}${ciclo==='anual'?' (equivale a 10 mensalidades)':''}. Fale com a equipe ${esc(CONFIG.marca)} pelo WhatsApp ou por e-mail: combinamos o pagamento e liberamos o acesso nesta conta.</p>
+    <div style="display:grid;gap:8px">${CONFIG.contato.whatsapp?line('WhatsApp',CONFIG.contato.whatsapp,waLink(msg),'Chamar no WhatsApp','cpW'):''}${CONFIG.contato.email?line('E-mail',CONFIG.contato.email,ml,'Enviar e-mail','cpE'):''}</div>
+    <div class="acts"><button class="btn" data-close type="button">Fechar</button></div>`,b=>{const w=b.querySelector('#cpW');if(w) w.onclick=e=>copyText(CONFIG.contato.whatsapp,e.currentTarget);const c=b.querySelector('#cpE');if(c) c.onclick=e=>copyText(CONFIG.contato.email,e.currentTarget);});
+  logEv('contato',`Interesse em assinar: ${plan.nome} (${ciclo})`);
   return false;}
 async function confirmPayment(){
   const pd=USER&&USER.plano&&USER.plano.pend;
@@ -2900,7 +2893,7 @@ async function renderNav(){
   $('#navCos').innerHTML=cos.length?cos.map(c=>{const g=genState(c);return `<a href="#" data-co="${c.id}" aria-current="${ROUTE==='empresa'&&CUR&&CUR.id===c.id?'page':'false'}"><i class="st ${g==='ok'?'ok':g==='old'?'warn':''}"></i><span>${esc(c.empresa.nome||'Empresa sem nome')}</span></a>`;}).join(''):(USER.admin?'':'<span style="padding:6px 12px;font-size:12.5px;color:var(--on-deep-2)">Nenhuma empresa ainda</span>');
   $('#navCos').querySelectorAll('[data-co]').forEach(a=>a.onclick=e=>{e.preventDefault();openCompany(a.dataset.co);});
   const ps=planState(USER);
-  let ph='';if(USER.admin) ph='';/* escondido: menu em cima já cobre */ else if(ps.status==='sem') ph=`<b>Escolha um plano</b><span>Teste grátis por ${CONFIG.trialDias} dias.</span><a href="#assinatura">Ver planos</a>`;
+  let ph='';if(USER.admin) ph='';/* escondido: menu em cima já cobre */ else if(ps.status==='sem') ph=`<b>Escolha um plano</b><span>Assine pelo WhatsApp ou por e-mail.</span><a href="#assinatura">Ver planos</a>`;
   else if(ps.status==='teste') ph=`<b>${ps.plan.nome} · teste grátis</b><span>${ps.left} de ${CONFIG.trialDias} dias restantes</span><div class="bar"><i style="width:${Math.max(4,100-ps.left/CONFIG.trialDias*100)}%"></i></div><a href="#assinatura">${ps.cartao?'Ver assinatura':'Ativar assinatura'}</a>`;
   else if(ps.status==='expirado') ph=`<b>Teste encerrado</b><span>Ative a assinatura para continuar.</span><a href="#assinatura">Ativar agora</a>`;
   else if(ps.admin) ph='';/* quadro escondido para admin — menu de administração já cobre */
@@ -2945,7 +2938,7 @@ $('#fUp').addEventListener('submit',async e=>{e.preventDefault();const er=$('#up
   const pwErr=senhaFraca(pw);if(pwErr) return fail(pwErr);
   if(!$('#upA').checked) return fail('Para criar a conta, aceite os termos de uso e a política de privacidade.');
   const tel=($('#upW')||{value:''}).value.trim();const bt=$('#fUp button[type=submit]');bt.disabled=true;
-  try{const u=await signup(n,em,pw,$('#upT').value,tel);const q=(location.hash||'').split('?')[1];USER=u;sessSet(u.email,true);location.hash=u.admin?'adm':('assinatura'+(q?'?'+q:''));route();if(!u.admin) toast(`Conta criada. Escolha o plano e cadastre o cartão para começar os ${CONFIG.trialDias} dias grátis.`);}
+  try{const u=await signup(n,em,pw,$('#upT').value,tel);const q=(location.hash||'').split('?')[1];USER=u;sessSet(u.email,true);location.hash=u.admin?'adm':('assinatura'+(q?'?'+q:''));route();if(!u.admin) toast('Conta criada. Escolha o plano e fale com a gente para assinar.');}
   catch(x){if(x.info){er.className='alert info';er.textContent=x.message;er.hidden=false;setTab('in');$('#inE').value=em;$('#inErr').className='alert info';$('#inErr').textContent=x.message;$('#inErr').hidden=false;}else fail(x.message);}finally{bt.disabled=false;}});
 
 /* ================= assinatura ================= */
@@ -2962,45 +2955,31 @@ async function vAssinatura(){
   const ps=planState(USER),cos=await myCompanies();const pre=lsGet('cc-plan','profissional');
   const cur=ps.plan?ps.plan.id:null;
   let top='';
-  if(ps.status==='sem') top=`<div class="tip">${IINFO}<span>Escolha um plano para começar. Os primeiros <b>${CONFIG.trialDias} dias são grátis</b>. Para começar, cadastre o cartão na página segura de pagamento: nada é cobrado no teste e você pode cancelar antes do fim dele sem pagar nada.</span></div>`;
-  else if(ps.status==='teste') top=ps.cartao?`<div class="tip">${IINFO}<span>Você está no teste grátis do plano <b>${ps.plan.nome}</b>: faltam ${ps.left} dia${ps.left>1?'s':''}. A primeira cobrança é feita em <b>${dataBR(USER.plano.fim)}</b> no cartão cadastrado. Para cancelar antes disso, fale com a gente${CONFIG.contato.whatsapp?` pelo <a href="${esc(waLink('Olá! Quero cancelar meu teste do Vértice. E-mail: '+USER.email))}" target="_blank" rel="noopener">WhatsApp</a>`:''}.</span></div>`:`<div class="tip">${IINFO}<span>Você está no teste grátis do plano <b>${ps.plan.nome}</b>: faltam ${ps.left} dia${ps.left>1?'s':''}. Para continuar depois disso, ative a assinatura.</span></div>`;
-  else if(ps.status==='expirado') top=`<div class="alert warn">O teste grátis terminou. Seus dados estão guardados; ative a assinatura para voltar a gerar e abrir os painéis.</div>`;
+  if(ps.status==='sem') top=`<div class="tip">${IINFO}<span>Escolha o plano e fale com a gente pelo <b>WhatsApp</b> ou por <b>e-mail</b>. Combinamos o pagamento e liberamos o acesso nesta conta (${esc(USER.email)}).</span></div>`;
+  else if(ps.status==='teste') top=`<div class="tip">${IINFO}<span>Você está no período de teste do plano <b>${ps.plan.nome}</b>: falta${ps.left>1?'m':''} ${ps.left} dia${ps.left>1?'s':''}. Para continuar depois do teste, fale com a gente e assine o plano.</span></div>`;
+  else if(ps.status==='expirado') top=`<div class="alert warn">O período de teste terminou. Seus dados estão guardados; fale com a gente para assinar e voltar a gerar e abrir os painéis.</div>`;
   else if(ps.admin) top=`<div class="alert info">Você está entrando como administrador. Acesso completo liberado, sem assinatura. Esta página é a visão do cliente.</div>`;
   else top=`<div class="alert ok">Assinatura ativa no plano <b>${ps.plan.nome}</b> (${(USER.plano&&USER.plano.ciclo)==='anual'?'anual':'mensal'}).</div>`;
   $('#main').innerHTML=`<div class="ph"><div><h1>Assinatura</h1><p>Planos com atualização mensal ilimitada e conferências automáticas.</p></div><div class="cyc" role="group" aria-label="Ciclo"><button type="button" data-cyc="mensal" aria-pressed="${CYC==='mensal'}">Mensal</button><button type="button" data-cyc="anual" aria-pressed="${CYC==='anual'}">Anual<em>2 meses grátis</em></button></div></div>
    ${CONFIG.demo?`<div class="demo-b">${IINFO}<span>Ambiente de demonstração: a assinatura é ativada sem cobrança.</span></div>`:''}
-   ${USER.plano&&USER.plano.pend&&USER.plano.status!=='ativa'?`<div class="alert info" style="margin-bottom:14px">Pagamento do plano <b>${esc((planById(USER.plano.pend.id)||{}).nome||'')}</b> iniciado em ${new Date(USER.plano.pend.at).toLocaleDateString('pt-BR')}. Ao concluir no gateway, você volta para cá com a assinatura ativa.</div>`:''}
    ${top}
    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px"><div class="f" style="display:flex;gap:8px;align-items:center"><label for="cupF" style="margin:0">Cupom:</label><input id="cupF" placeholder="CÓDIGO" value="${esc(CUP?CUP.codigo:'')}" style="text-transform:uppercase;max-width:160px;padding:7px 10px;border:1px solid var(--line);border-radius:9px;background:var(--surface);font-weight:600;letter-spacing:.02em"><button class="btn sm" type="button" id="cupB">${CUP?'Trocar':'Aplicar'}</button>${CUP?`<span class="pill ok">${esc(CUP.codigo)}: ${CUP.tipo==='pct'?CUP.valor+'% off':fmtBRL(CUP.valor)+' off'}${CUP.ciclos?' por '+CUP.ciclos+(CUP.ciclos==1?' cobrança':' cobranças'):''}</span>`:''}</div></div>
    <div class="plans">${PLANS.map(p=>{const isCur=cur===p.id;const sel=isCur||(!cur&&pre===p.id);const pMes=precoMes(p,CYC);const pDes=aplicaCup(pMes,CUP,p.id);return `<div class="plan${sel?' sel':''}">${isCur?'<span class="pill cur">Plano atual</span>':''}<h3>${p.nome}</h3><p class="para">${esc(p.para)}</p><div class="pr">${pDes!==pMes?`<del style="color:var(--ink-3);font-size:16px;margin-right:6px;font-weight:600">${fmtBRL(pMes)}</del>`:''}<b style="${pDes!==pMes?'color:var(--ok)':''}">${fmtBRL(pDes)}</b><span>/mês${CYC==='anual'?' · '+fmtBRL(p.preco*10)+' por ano':''}</span></div><ul>${p.itens.map(x=>`<li>${ICK}<span>${esc(x)}</span></li>`).join('')}</ul>
      ${planBtn(p,ps,cos)}</div>`;}).join('')}</div>
    <p style="margin-top:16px;color:var(--ink-3);font-size:13px">Mais de 15 empresas? O plano Sob medida é contratado com a equipe ${esc(CONFIG.marca)}.</p>`;
   document.querySelectorAll('[data-cyc]').forEach(b=>b.onclick=()=>{CYC=b.dataset.cyc;lsSet('cc-cyc',CYC);vAssinatura();});
-  document.querySelectorAll('[data-pl]').forEach(b=>b.onclick=()=>choosePlan(planById(b.dataset.pl),b.dataset.act));
+  document.querySelectorAll('[data-pl]').forEach(b=>b.onclick=()=>choosePlan(planById(b.dataset.pl)));
   const cb=$('#cupB');if(cb) cb.onclick=()=>{const v=$('#cupF').value.trim().toUpperCase();if(!v){CUP=null;lsSet('cc-cup','');vAssinatura();return;}const c=findCup(v);if(!c){toast('Cupom inválido ou expirado.');return;}CUP=c;lsSet('cc-cup',v);toast('Cupom '+v+' aplicado.');vAssinatura();};
 }
 function planBtn(p,ps,cos){
   const cur=ps.plan&&ps.plan.id===p.id;
   if(cos.length>p.empresas) return `<button class="btn" disabled type="button">Você tem ${cos.length} empresas</button>`;
-  if(ps.status==='sem') return `<button class="btn${p.destaque?' primary':''}" type="button" data-pl="${p.id}" data-act="teste">Começar teste de ${CONFIG.trialDias} dias</button>`;
   if(cur&&ps.status==='ativa') return `<button class="btn" disabled type="button">Plano atual</button>`;
-  if(cur&&ps.status==='teste'&&ps.cartao) return `<button class="btn" disabled type="button">Em teste · 1ª cobrança em ${dataBR(USER.plano.fim)}</button>`;
-  if(cur) return `<button class="btn primary" type="button" data-pl="${p.id}" data-act="assinar">Ativar assinatura</button>`;
-  if(ps.status==='teste') return `<div style="display:grid;gap:6px;margin-top:auto"><button class="btn" type="button" data-pl="${p.id}" data-act="assinar">Assinar este plano</button>${ps.cartao?'':`<button class="btn ghost sm" type="button" data-pl="${p.id}" data-act="trocar">Mudar o teste para este plano</button>`}</div>`;
-  return `<button class="btn" type="button" data-pl="${p.id}" data-act="assinar">Assinar este plano</button>`;
+  if(cur) return `<button class="btn primary" type="button" data-pl="${p.id}" data-act="assinar">Falar para assinar</button>`;
+  return `<button class="btn${p.destaque&&ps.status!=='ativa'?' primary':''}" type="button" data-pl="${p.id}" data-act="assinar">${ps.status==='ativa'?'Mudar para este plano':'Quero assinar'}</button>`;
 }
-async function choosePlan(p,act){
-  if(act==='teste'&&CONFIG.trialCartao){
-    const ok=await confirmBox(`Teste grátis do plano ${p.nome}`,`${CONFIG.trialDias} dias grátis. Para começar, cadastre o cartão de crédito na página segura de pagamento. Nada é cobrado durante o teste; depois dele, a assinatura custa ${fmtBRL(CYC==='anual'?p.preco*10:p.preco)} por ${CYC==='anual'?'ano':'mês'}. Cancele antes do fim do teste e não paga nada.`,payLink(p.id,CYC)?'Cadastrar cartão':'Continuar');
-    if(!ok) return;if(await checkout(p,CYC,true)){lsSet('cc-plan',p.id);toast(`Teste grátis do plano ${p.nome} iniciado.`);const cos=await myCompanies();go(cos.length?'empresas':'nova');}return;}
-  if(act==='teste'||act==='trocar'){const ini=USER.plano&&USER.plano.status==='teste'?USER.plano.inicio:Date.now();
-    USER.plano={id:p.id,ciclo:CYC,status:'teste',inicio:ini,fim:ini+CONFIG.trialDias*DAY};await DB.put('users',USER);lsSet('cc-plan',p.id);
-    toast(act==='teste'?`Teste grátis do plano ${p.nome} iniciado.`:`Plano alterado para ${p.nome}.`);
-    const cos=await myCompanies();go(cos.length?'empresas':'nova');return;}
-  const link=payLink(p.id,CYC);
-  const ok=await confirmBox(`Assinar o plano ${p.nome}`,`${fmtBRL(CYC==='anual'?p.preco*10:p.preco)} por ${CYC==='anual'?'ano':'mês'}${CYC==='anual'?' (equivale a 10 mensalidades)':''}. ${link?'O pagamento é feito na página segura do gateway, em outra aba.':CONFIG.demo?'Neste ambiente a ativação não gera cobrança.':'A assinatura é concluída com a nossa equipe.'}`,link?'Ir para o pagamento':'Continuar');
-  if(!ok) return;if(await checkout(p,CYC)){toast('Assinatura ativada.');route();}
-}
+/* assinatura sem pagamento no site: o interesse vai pelo WhatsApp ou por e-mail e o acesso é liberado pela equipe */
+async function choosePlan(p){lsSet('cc-plan',p.id);await checkout(p,CYC);}
 
 /* ================= empresas ================= */
 async function vEmpresas(){
