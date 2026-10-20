@@ -218,6 +218,7 @@ section.dk h2,section.dk h3{color:#fff}
 .cyc button[aria-pressed="true"]{background:var(--brand);color:var(--on-brand)}
 .cyc em{font-style:normal;font-size:11.5px;font-weight:700;color:var(--ok);margin-left:6px}
 .cyc button[aria-pressed="true"] em{color:inherit;opacity:.85}
+.assine{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:32px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:40px clamp(22px,4vw,48px)}.assine h2{margin:6px 0 10px}.assine p{color:var(--ink-2)}.assine-b{display:grid;gap:10px}.assine-b .btn{justify-content:center}.assine-b small{color:var(--ink-3);text-align:center}@media (max-width:860px){.assine{grid-template-columns:minmax(0,1fr)}}
 .plans{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;align-items:stretch}
 .plan{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:24px 22px;display:flex;flex-direction:column;gap:14px}
 .plan.hl{border-color:var(--brand);box-shadow:0 0 0 1px var(--brand),var(--sh-2)}
@@ -361,7 +362,7 @@ html.intro-run .hero .wrap>*{animation-play-state:paused}
     <a class="brand" href="#top" aria-label="Cifra Clara, início"><i class="mk"></i>Cifra Clara</a>
     <nav class="nav" aria-label="Menu principal">
       <button type="button" id="megaB" aria-expanded="false" aria-controls="mega">Soluções <svg class="i" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></button>
-      <a href="#vertice">O Vértice</a><a href="#planos">Planos</a><a href="#conteudos">Conteúdo</a><a href="#sobre">Sobre nós</a><a href="#duvidas">Dúvidas</a>
+      <a href="#vertice">O Vértice</a><a href="#planos">Assinar</a><a href="#conteudos">Conteúdo</a><a href="#sobre">Sobre nós</a><a href="#duvidas">Dúvidas</a>
     </nav>
     <div class="acts"><a class="btn ghost sm" href="app.html#entrar">Entrar</a><a class="btn wa sm" id="topWa" href="#contato" target="_blank" rel="noopener">Falar com a Cifra Clara</a></div>
     <button class="menu-b" id="menuB" aria-label="Abrir menu" aria-expanded="false"><svg class="i" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
@@ -378,7 +379,7 @@ html.intro-run .hero .wrap>*{animation-play-state:paused}
         <li><a href="#setores">Indústria</a></li><li><a href="#setores">Comércio</a></li><li><a href="#setores">Serviços</a></li><li><a href="#setores">Agronegócio</a></li><li><a href="#setores">Construção e madeira</a></li><li><a href="#setores">Alimentação</a></li></ul></div>
     </div>
   </div>
-  <div class="mnav" id="mnav" hidden><div class="wrap"><a href="#solucoes">Soluções</a><a href="#vertice">O Vértice</a><a href="#planos">Planos</a><a href="#conteudos">Conteúdo</a><a href="#sobre">Sobre nós</a><a href="#duvidas">Dúvidas</a><a href="app.html#entrar">Entrar</a><a class="btn primary" id="mWa" href="#contato" target="_blank" rel="noopener">Falar com a Cifra Clara</a></div></div>
+  <div class="mnav" id="mnav" hidden><div class="wrap"><a href="#solucoes">Soluções</a><a href="#vertice">O Vértice</a><a href="#planos">Assinar</a><a href="#conteudos">Conteúdo</a><a href="#sobre">Sobre nós</a><a href="#duvidas">Dúvidas</a><a href="app.html#entrar">Entrar</a><a class="btn primary" id="mWa" href="#contato" target="_blank" rel="noopener">Falar com a Cifra Clara</a></div></div>
 </header>
 
 <main>
@@ -423,9 +424,9 @@ html.intro-run .hero .wrap>*{animation-play-state:paused}
       <div class="sol"><span class="ar">Vendas</span><h3>Ponto de equilíbrio e metas de venda</h3><p>Receita e volume mínimos para cobrir os gastos e para atingir o lucro desejado.</p><a href="#calculadora">Calcular agora →</a></div>
       <div class="sol"><span class="ar">Preço</span><h3>Preço mínimo e mix de produtos</h3><p>Curva ABC, preço realizado por unidade e o efeito de mudar o mix no resultado.</p><a href="#vertice">Ver no painel →</a></div>
       <div class="sol"><span class="ar">Caixa</span><h3>Fluxo de caixa e capital de giro</h3><p>Para onde foi o dinheiro: operação, investimentos, financiamentos e ciclo financeiro.</p><a href="#vertice">Ver no painel →</a></div>
-      <div class="sol"><span class="ar">Planejamento</span><h3>Orçamento, projeções e alertas</h3><p>Metas mensais comparadas ao realizado, cenários para os próximos meses e avisos quando algo sai da faixa.</p><a href="#planos">Ver planos →</a></div>
+      <div class="sol"><span class="ar">Planejamento</span><h3>Orçamento, projeções e alertas</h3><p>Metas mensais comparadas ao realizado, cenários para os próximos meses e avisos quando algo sai da faixa.</p><a href="#planos">Quero assinar →</a></div>
       <div class="sol"><span class="ar">Contabilidade</span><h3>Plano de contas, conciliação bancária e indicadores</h3><p>O plano de contas da sua contabilidade organizado no painel, saldos de bancos conferidos com os extratos mês a mês, e liquidez, endividamento e retorno direto dos balancetes.</p><a href="#vertice">Ver no painel →</a></div>
-      <div class="sol" id="escritorios"><span class="ar">Escritórios contábeis</span><h3>Análise para toda a carteira</h3><p>Até 15 empresas em uma conta, com a logo de cada cliente no painel. Leve análise, não só obrigação.</p><a href="#planos">Plano Escritório →</a></div>
+      <div class="sol" id="escritorios"><span class="ar">Escritórios contábeis</span><h3>Análise para toda a carteira</h3><p>Até 15 empresas em uma conta, com a logo de cada cliente no painel. Leve análise, não só obrigação.</p><a href="#planos">Falar sobre a carteira →</a></div>
     </div>
   </div>
 </section>
@@ -477,11 +478,10 @@ html.intro-run .hero .wrap>*{animation-play-state:paused}
 
 <section class="s" id="planos">
   <div class="wrap">
-    <div class="sh" style="margin-inline:auto;text-align:center;justify-items:center"><p class="k">Planos</p><h2>Escolha o plano e fale com a gente.</h2><p>Todos os planos incluem atualização mensal ilimitada, conferências automáticas e o painel completo de margem e caixa.</p></div>
-    <div style="text-align:center"><div class="cyc" role="group" aria-label="Ciclo de cobrança"><button type="button" data-cyc="mensal" aria-pressed="true">Mensal</button><button type="button" data-cyc="anual" aria-pressed="false">Anual <em>2 meses grátis</em></button></div></div>
-    <div class="plans" id="plans"></div>
-    <div class="cmp"><table id="cmp"></table></div>
-    <p class="fine">Valores em reais. Para assinar, fale com a gente pelo WhatsApp ou por e-mail: combinamos o pagamento e liberamos o acesso na sua conta. No ciclo anual, o valor do ano equivale a 10 mensalidades. Cancele quando quiser.</p>
+    <div class="assine">
+      <div><p class="k">Assinatura</p><h2>Tem interesse em assinar?</h2><p>Entre em contato pelo WhatsApp ou por e-mail. Conversamos sobre a sua empresa, indicamos o formato ideal e liberamos o seu acesso ao Vértice.</p></div>
+      <div class="assine-b" id="assineB"></div>
+    </div>
   </div>
 </section>
 
@@ -538,7 +538,7 @@ html.intro-run .hero .wrap>*{animation-play-state:paused}
       <details><summary>Para que serve a conciliação bancária?</summary><p>Para garantir que o caixa do painel é o caixa real. O Vértice compara o saldo de cada conta bancária e aplicação no balancete com o saldo do extrato no último dia de cada mês. Se houver diferença, o painel mostra quando ela começou e as prováveis causas (tarifa não lançada, data de compensação, lançamento faltando) para a contabilidade corrigir.</p></details>
       <details><summary>Vocês ajudam na implantação?</summary><p>Sim. Se preferir, fale com a gente pelo WhatsApp e acompanhamos o primeiro envio dos relatórios e a revisão do plano de contas.</p></details>
       <details><summary>Como atualizo o painel todo mês?</summary><p>Envie o balancete, o extrato e as vendas do novo mês na área do cliente. O de/para, o plano de contas e as classificações já feitas são reaproveitados, a conciliação é refeita e o painel é gerado de novo na hora.</p></details>
-      <details><summary>Como faço para assinar? Posso cancelar?</summary><p>Escolha o plano e fale com a gente pelo WhatsApp ou por e-mail. Combinamos o pagamento e liberamos o acesso na conta que você criou no site. A assinatura pode ser cancelada a qualquer momento, sem multa.</p></details>
+      <details><summary>Como faço para assinar? Posso cancelar?</summary><p>Fale com a gente pelo WhatsApp ou por e-mail. Conversamos sobre a sua empresa, combinamos o pagamento e liberamos o acesso na conta que você criou no site. A assinatura pode ser cancelada a qualquer momento, sem multa.</p></details>
     </div>
     <a class="btn primary more" href="#" data-wa="Olá! Tenho dúvidas sobre o Vértice da Cifra Clara.">Tirar minhas dúvidas</a>
   </div>
@@ -573,7 +573,7 @@ html.intro-run .hero .wrap>*{animation-play-state:paused}
   <div class="wrap">
     <div><a class="brand" href="#top"><i class="mk"></i>Cifra Clara</a><p style="margin-top:14px;max-width:30em">Inteligência financeira para pequenas e médias empresas. Criadora do Vértice, painel de gestão a partir dos relatórios da contabilidade.</p><p id="ftContato" style="margin-top:12px"></p></div>
     <div><h4>Soluções</h4><a href="#vertice">Vértice</a><a href="#calculadora">Ponto de equilíbrio</a><a href="#escritorios">Para escritórios</a><a href="demo.html">Demonstração</a></div>
-    <div><h4>Cifra Clara</h4><a href="#sobre">Sobre nós</a><a href="#conteudos">Conteúdos</a><a href="#planos">Planos</a><a href="#duvidas">Dúvidas</a></div>
+    <div><h4>Cifra Clara</h4><a href="#sobre">Sobre nós</a><a href="#conteudos">Conteúdos</a><a href="#planos">Assinar</a><a href="#duvidas">Dúvidas</a></div>
     <div><h4>Contato</h4><a href="#contato">Fale conosco</a><a href="app.html#entrar">Área do cliente</a><a href="legal.html#termos">Termos de uso</a><a href="legal.html#privacidade">Privacidade</a></div>
     <div class="legal"><span>© <span id="yr"></span> Cifra Clara. Todos os direitos reservados.</span><span>Vértice é um produto Cifra Clara.</span></div>
   </div>
@@ -582,7 +582,7 @@ html.intro-run .hero .wrap>*{animation-play-state:paused}
 <a class="fab" id="fab" href="#contato" target="_blank" rel="noopener" aria-label="Falar pelo WhatsApp"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3C8.8 3 3 8.7 3 15.8c0 2.5.7 4.9 2 7L3 29l6.4-2c2 1.1 4.3 1.7 6.6 1.7 7.2 0 13-5.7 13-12.8S23.2 3 16 3zm0 23.4c-2.1 0-4.1-.6-5.9-1.7l-.4-.2-3.8 1.2 1.2-3.7-.3-.4a10.4 10.4 0 0 1-1.6-5.6C5.2 10 10 5.3 16 5.3S26.8 10 26.8 15.9 22 26.4 16 26.4zm5.9-7.8c-.3-.2-1.9-.9-2.2-1s-.5-.2-.7.2-.8 1-1 1.2-.4.2-.7.1a8.6 8.6 0 0 1-4.3-3.7c-.3-.6.3-.5.9-1.6.1-.2 0-.4 0-.5l-1-2.4c-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4s-1.2 1.1-1.2 2.7 1.2 3.2 1.4 3.4 2.4 3.6 5.8 5c2.1.9 3 1 4 .8.7-.1 1.9-.8 2.2-1.5s.3-1.4.2-1.5-.3-.2-.6-.4z"/></svg></a>
 
 <div class="mdl" id="mdl" hidden role="dialog" aria-modal="true" aria-labelledby="mdlT"><div class="box"><h3 id="mdlT">Fale com a Cifra Clara</h3><p id="mdlP">Conte quantas empresas quer acompanhar e montamos uma proposta.</p><div id="mdlC" style="display:grid;gap:8px"></div><button class="btn" id="mdlX" type="button">Fechar</button></div></div>
-<div class="mdl" id="artM" hidden role="dialog" aria-modal="true" aria-labelledby="artT"><div class="box"><span class="pill" id="artCat"></span><h3 id="artT"></h3><div id="artB" style="display:grid;gap:12px"></div><div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:space-between;align-items:center;margin-top:6px"><a class="btn primary" href="#planos" onclick="document.getElementById('artM').hidden=true">Ver planos e assinar</a><button class="btn" type="button" id="artX">Fechar</button></div></div></div>
+<div class="mdl" id="artM" hidden role="dialog" aria-modal="true" aria-labelledby="artT"><div class="box"><span class="pill" id="artCat"></span><h3 id="artT"></h3><div id="artB" style="display:grid;gap:12px"></div><div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:space-between;align-items:center;margin-top:6px"><a class="btn primary" href="#planos" onclick="document.getElementById('artM').hidden=true">Tenho interesse em assinar</a><button class="btn" type="button" id="artX">Fechar</button></div></div></div>
 
 <script>
 /* Configuração comercial — edite aqui nome, contato, preços e limites dos planos. */
@@ -841,25 +841,12 @@ function gal(i){const [k,t,c]=GAL[i];$('#galImg').src=IMGS[k];$('#galImg').alt='
 gal(0);
 /* ---------- planos ---------- */
 const ck='<svg class="i" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>';
-let cyc=lsGet('cc-cyc','mensal')==='anual'?'anual':'mensal';
-function plans(){
-  document.querySelectorAll('[data-cyc]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.cyc===cyc));
-  $('#plans').innerHTML=PLANS.map(p=>`<div class="plan${p.destaque?' hl':''}">${p.destaque?'<span class="badge">Mais escolhido</span>':''}<h3>${p.nome}</h3><p class="para">${esc(p.para)}</p>
-    <div class="pr"><b>${fmtBRL(precoMes(p,cyc))}</b><span>/mês</span></div><p class="sub">${cyc==='anual'?fmtBRL(p.preco*10)+' por ano':'cobrança mensal'}</p>
-    <ul>${p.itens.map(x=>`<li>${ck}<span>${esc(x)}</span></li>`).join('')}</ul>
-    ${hasC?`<button class="btn${p.destaque?' primary':''}" type="button" data-sub="${p.id}">Quero assinar</button>`:`<a class="btn${p.destaque?' primary':''}" href="app.html#cadastro" data-plan="${p.id}">Criar conta</a>`}</div>`).join('')+
-   `<div class="plan"><h3>${PLAN_SOB.nome}</h3><p class="para">${esc(PLAN_SOB.para)}</p><div class="pr"><b style="font-size:26px">Sob consulta</b></div><p class="sub">proposta conforme o volume</p>
-    <ul>${PLAN_SOB.itens.map(x=>`<li>${ck}<span>${esc(x)}</span></li>`).join('')}</ul>${hasC?'<button class="btn" type="button" id="sobB">Falar com a equipe</button>':'<a class="btn" href="app.html#cadastro" data-plan="escritorio">Começar pelo Escritório</a>'}</div>`;
-  document.querySelectorAll('[data-plan]').forEach(a=>a.addEventListener('click',()=>{lsSet('cc-plan',a.dataset.plan);lsSet('cc-cyc',cyc);}));
-  const sb=$('#sobB');if(sb) sb.onclick=()=>openC();
-  document.querySelectorAll('[data-sub]').forEach(b=>b.onclick=()=>{const p=PLANS.find(x=>x.id===b.dataset.sub);lsSet('cc-plan',p.id);lsSet('cc-cyc',cyc);
-    const val=cyc==='anual'?fmtBRL(p.preco*10)+' por ano':fmtBRL(p.preco)+' por mês';
-    openC(`Olá! Quero assinar o plano ${p.nome} (${cyc}, ${val}) do Vértice.`,`Assinar o plano ${p.nome}`,`${val}. Fale com a gente pelo WhatsApp ou por e-mail: combinamos o pagamento e liberamos o acesso na sua conta.`);});
-}
-document.querySelectorAll('[data-cyc]').forEach(b=>b.onclick=()=>{cyc=b.dataset.cyc;lsSet('cc-cyc',cyc);plans();});
-plans();
-const ROWS=[['Empresas','1','até 3','até 15','ilimitadas'],['Histórico analisado','12 meses','24 meses','24 meses','24 meses'],['Custo-volume-lucro e pontos de equilíbrio',1,1,1,1],['Faturamento, curva ABC e custos',1,1,1,1],['Fluxo de caixa livre e indicadores contábeis',1,1,1,1],['Série mensal e escolha livre do período',1,1,1,1],['Orçamento × realizado',0,1,1,1],['Projeção de cenários',0,1,1,1],['Alertas e plano de ação',0,1,1,1],['Preço mínimo por produto',0,1,1,1],['Relatório executivo',0,1,1,1],['Logo do cliente no painel',0,0,1,1],['Implantação assistida',0,0,0,1]];
-$('#cmp').innerHTML=`<thead><tr><th>Recurso</th>${PLANS.map(p=>`<th>${p.nome}</th>`).join('')}<th>${PLAN_SOB.nome}</th></tr></thead><tbody>${ROWS.map(r=>`<tr><td>${r[0]}</td>${r.slice(1).map(v=>`<td>${v===1?'<span class="y" aria-label="incluído">✓</span>':v===0?'<span class="n" aria-label="não incluído">—</span>':esc(v)}</td>`).join('')}</tr>`).join('')}</tbody>`;
+/* ---------- assinatura: contato direto (sem planos nem pagamento no site) ---------- */
+(()=>{const box=$('#assineB');if(!box) return;const msg='Olá! Tenho interesse em assinar o Vértice.';
+  const ml=C.email?'mailto:'+C.email+'?subject='+encodeURIComponent('Interesse em assinar o Vértice')+'&body='+encodeURIComponent(msg):'';
+  box.innerHTML=(C.whatsapp?`<a class="btn primary" href="${waLink(msg)}" target="_blank" rel="noopener">Chamar no WhatsApp · ${esc(C.whatsapp)}</a>`:'')+
+    (C.email?`<a class="btn" href="${ml}">Enviar e-mail · ${esc(C.email)}</a>`:'')+
+    (hasC?'<small>Respondemos o quanto antes, em horário comercial.</small>':'<a class="btn primary" href="#contato">Fale com a gente</a>');})();
 
 /* ---------- contato (plano sob medida) ---------- */
 function openC(msg,tit,sub){msg=msg||'Olá! Quero uma proposta do plano Sob medida do Vértice.';const c=$('#mdlC');
