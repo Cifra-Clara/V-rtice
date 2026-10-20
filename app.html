@@ -1319,6 +1319,7 @@ async function classifyFile(buf,fname){
   if(f.k==='ofx') return {kind:'ext',fmt:FMT.ofx,motivo:'arquivo OFX do banco'};
   const sh=await readTable(buf,fname);
   const nm=new Set(sh.map(s=>norm(s.name)));if(['empresa','produtos','vendas','parametros','balancete','gastos'].filter(x=>nm.has(x)).length>=3) return {kind:'padrao',fmt:sh.fmt,motivo:'abas da planilha padrão'};
+  for(const s of sh.slice(0,12)){const R=readResumoMensal(s.rows,fname);if(R&&R.length) return {kind:'ext',fmt:sh.fmt,motivo:'conciliação bancária mês a mês'};}
   let best=null;
   for(const s of sh.slice(0,12)){
     const b=detectWith(detectBalancete,s.rows).d,e=detectWith(detectExtrato,s.rows).d,v=detectWith(detectVendas,s.rows).d,p=detectWith(detectPlano,s.rows).d;
@@ -1501,6 +1502,9 @@ function readBalancete(rows,det){
     const t=g(r,'tipo'),gp=g(r,'grp');
     A.push({grp:gp==null?'':String(gp).trim(),row:r+1,cls:cls==null?'':String(cls).trim(),cod:cod==null?'':String(cod).trim(),nome:nm||String(cls||cod),sa,db:db?db.v*(db.neg?-1:1):null,cr:cr?cr.v*(cr.neg?-1:1):null,st,tipo:t==null?'':norm(t)});
   }
+  /* saldo com sinal E com D/C ao mesmo tempo (ex.: -65.000 C): o sinal só repete a natureza; vale a coluna D/C */
+  let cNeg=0,cPos=0,dNeg=0;A.forEach(a=>[a.sa,a.st].forEach(x=>{if(!x||!x.v) return;if(x.nat==='C'){if(x.neg) cNeg++;else cPos++;}else if(x.nat==='D'&&x.neg) dNeg++;}));
+  if(cNeg>cPos&&cNeg>dNeg) A.forEach(a=>[a.sa,a.st].forEach(x=>{if(x&&x.nat) x.neg=false;}));
   return A;
 }
 
@@ -1979,11 +1983,42 @@ function readExtratoRows(rows,det,fname){
   const ctx=txt.join(' ')+' '+fname;const bk=bancoDe(ctx);const ct=(ctx.match(/(?:conta|c\/c|cc)[^0-9]{0,12}([\d.\-]{4,})/i)||[])[1]||'';const ag=(ctx.match(/ag[eê]ncia[^0-9]{0,6}([\d\-]{3,})/i)||[])[1]||'';
   return {fmt:'planilha',banco:bk,bancoNome:BANCOS[bk]||'',ag,conta:ct,ini,fim,trn,anch,avisos};
 }
+/* conciliação bancária mensal: uma linha por mês com saldo inicial, entradas, saídas e saldo final do extrato.
+   Vira um extrato com um lançamento de entradas e outro de saídas por mês e o saldo do banco em cada fim de mês. */
+function readResumoMensal(rows,fname){
+  const h=findHeader(rows,c=>{let s=0;const has=re=>c.some(x=>x&&re.test(x));if(has(/compet|^mes|periodo|referencia/)) s+=2;if(has(/saldo (final|atual|do extrato|banco)/)) s+=3;if(has(/entrada/)) s+=1;if(has(/saida/)) s+=1;if(has(/saldo (inicial|anterior)/)) s+=1;return s;});
+  if(h<0) return null;const H=rows[h].map(norm);
+  const f=(re,not)=>H.findIndex(x=>x&&re.test(x)&&!(not&&not.test(x)));
+  const cM=f(/compet|^mes|periodo|referencia/),cF=f(/saldo (final|atual|do extrato|banco|em)/,/contab/),cI=f(/saldo (inicial|anterior)/,/contab/),cE=f(/entrada|total (de )?creditos?/),cS=f(/saida|total (de )?debitos?/),cB=f(/^banco$|instituic/),cC=f(/conta/,/contab/);
+  if(cM<0||cF<0) return null;
+  if(!((cE>=0&&cS>=0)||H.some(x=>x&&/extrato|banc/.test(x)))) return null;
+  const val=x=>{const m=money(x);return m?(m.neg?-m.v:m.v)*(m.nat==='D'?-1:1):null;};
+  const by=new Map();
+  for(let r=h+1;r<rows.length;r++){const d=toDate(rows[r][cM]);const fim=val(rows[r][cF]);if(!d||fim==null) continue;
+    const k=cC>=0&&rows[r][cC]!=null?String(rows[r][cC]):'';if(!by.has(k)) by.set(k,[]);
+    by.get(k).push({m:mkey(d.getFullYear(),d.getMonth()),ini:cI>=0?val(rows[r][cI]):null,ent:cE>=0?val(rows[r][cE]):null,sai:cS>=0?val(rows[r][cS]):null,fim,banco:cB>=0?rows[r][cB]:null});}
+  if(![...by.values()].some(L=>L.length)) return null;
+  const out=[];
+  by.forEach((L,conta)=>{L.sort((a,b)=>a.m-b.m);const trn=[],anch=[],avisos=['Conciliação mensal: cada mês tem um lançamento com o total de entradas e outro com o total de saídas.'];
+    const mov=L.every(x=>x.ent!=null&&x.sai!=null);let bad=0;
+    L.forEach(x=>{const e=mEnd(x.m),s=mStart(x.m);
+      if(x.ini!=null) anch.push([s-1,r2(x.ini),'dia']);
+      if(mov){if(Math.abs(x.ent)>0.005) trn.push([e,r2(Math.abs(x.ent)),'Total de entradas de '+mlong(x.m),'']);if(Math.abs(x.sai)>0.005) trn.push([e,-r2(Math.abs(x.sai)),'Total de saídas de '+mlong(x.m),'']);
+        if(x.ini!=null&&Math.abs(x.ini+Math.abs(x.ent)-Math.abs(x.sai)-x.fim)>0.011) bad++;}
+      anch.push([e,r2(x.fim),'dia']);});
+    if(bad) avisos.push(`Em ${bad} mês(es) o saldo inicial mais entradas menos saídas não bate com o saldo final informado.`);
+    const nome=String(L.find(x=>x.banco)?.banco||'');const bk=bancoDe(nome+' '+fname);
+    out.push({fmt:'conciliação mensal',banco:bk,bancoNome:BANCOS[bk]||nome,ag:'',conta,ini:mov?mStart(L[0].m):mEnd(L[0].m),fim:mEnd(L[L.length-1].m),trn,anch,avisos});});
+  /* sem entradas e saídas, só os saldos de fim de mês: cada mês é conferido pelo saldo */
+  out.forEach(st=>{if(!st.trn.length) st.ini=st.fim=null;});
+  return out;
+}
 async function readExtratoFile(buf,name){
   const ext=(name.split('.').pop()||'').toLowerCase();
   const head=decodeText(buf.slice?buf.slice(0,4000):buf);
   if(ext==='ofx'||ext==='qfx'||/<OFX>/i.test(head)){const S=parseOFX(decodeText(buf));if(!S||!S.length) return {ok:false,msg:'Não consegui ler o arquivo OFX.'};if(!S.some(s=>s.trn.length||s.anch.length)) return {ok:false,msg:'O arquivo OFX não tem lançamentos nem saldo.'};return {ok:true,stmts:S};}
   const sh=await readTable(buf,name);let msg=null;
+  for(const s0 of sh){const R=readResumoMensal(s0.rows,name+' '+s0.name);if(R&&R.length) return {ok:true,stmts:R};}
   for(const s0 of sh){const w=detectWith(detectExtrato,s0.rows),d=w.d,s={name:s0.name,rows:w.rows};if(!d.ok){msg=msg||d.msg;continue;}const st=readExtratoRows(s.rows,d,name+' '+s.name);if(st){st.fmtArq=sh.fmt;return {ok:true,stmts:[st]};}msg=msg||'Nenhum lançamento encontrado no extrato.';}
   return {ok:false,msg:msg||'Arquivo vazio.'};
 }
@@ -2545,6 +2580,8 @@ function model(C){
   const salesBy={};recs.forEach(r=>{salesBy[r.month]=(salesBy[r.month]||0)+r.rs;});
   /* receita contabilizada no balancete (para a conferência) */
   const rbBy={};months.forEach(m=>{rbBy[m]=-accs.filter(a=>!a.synth&&a.line==='rb').reduce((t,a)=>t+I.movement(a.S,m),0);});
+  /* receita com o sinal invertido pelo arquivo (credora vindo positiva): se a maioria dos meses der negativa, inverte */
+  {const vs=Object.values(rbBy).filter(v=>Math.abs(v)>0.005);if(vs.length&&vs.filter(v=>v<0).length>vs.length/2) Object.keys(rbBy).forEach(k=>{rbBy[k]=-rbBy[k];});}
   /* gastos */
   const gastos=accs.filter(a=>!a.synth&&I.GASTO_LINES.includes(a.line)).map(a=>{const v={};months.forEach(m=>{v[m]=I.movement(a.S,m);});const d=I.classifyGasto(a.line,a.nome,a.path.join(' '));const o=C.gastoCfg[a.key]||{};
       return {key:a.key,nome:a.nome,line:a.line,v,tipo:o.tipo||d.tipo,comp:o.comp||d.comp,nat:o.nat!=null?o.nat:d.nat,on:o.on!==false,manual:!!(o.tipo||o.comp||o.nat!=null)};})
