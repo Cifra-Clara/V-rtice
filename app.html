@@ -414,7 +414,8 @@ async function unzip(buf){
     out[name]={meth,data:d.subarray(start,start+csz)};
     p+=46+nl+xl+cl;
   }
-  return {async text(name){const f=out[name];if(!f) return null;const b=f.meth===0?f.data:await inflateRaw(f.data);return td.decode(b);},names:Object.keys(out)};
+  const raw=async name=>{const f=out[name];if(!f) return null;return f.meth===0?f.data:await inflateRaw(f.data);};
+  return {raw,async text(name){const b=await raw(name);return b==null?null:td.decode(b);},names:Object.keys(out)};
 }
 const ENT={lt:'<',gt:'>',amp:'&',quot:'"',apos:"'"};
 function unesc(s){
@@ -426,38 +427,45 @@ function colNum(c){let n=0;for(const ch of c) n=n*26+(ch.charCodeAt(0)-64);retur
 function colName(n){let s='';while(n>0){const m=(n-1)%26;s=String.fromCharCode(65+m)+s;n=(n-1-m)/26;}return s;}
 async function readXlsx(buf){
   const z=await unzip(buf);
-  const wbx=await z.text('xl/workbook.xml');if(!wbx) throw new Error('Planilha sem xl/workbook.xml.');
-  const rels=(await z.text('xl/_rels/workbook.xml.rels'))||'';const rmap={};
+  /* alguns sistemas gravam o XML com prefixo de namespace (<x:sheet>, <x:c>): remove o prefixo das tags */
+  const np=x=>x==null?x:x.replace(/<(\/?)[A-Za-z_][\w.-]*:(?=[A-Za-z_])/g,'<$1');
+  const wbx=np(await z.text('xl/workbook.xml'));if(!wbx) throw new Error('Planilha sem xl/workbook.xml.');
+  const rels=np(await z.text('xl/_rels/workbook.xml.rels'))||'';const rmap={};
   rels.replace(/<Relationship\b([^>]*)\/?>/g,(m,a)=>{const o=attrs(a);rmap[o.Id]=o.Target;});
-  const ssx=(await z.text('xl/sharedStrings.xml'))||'';const SS=[];
-  ssx.replace(/<si\b[^>]*>([\s\S]*?)<\/si>/g,(m,inner)=>{inner=inner.replace(/<rPh\b[\s\S]*?<\/rPh>/g,'');let t='';inner.replace(/<t\b[^>]*>([\s\S]*?)<\/t>/g,(mm,x)=>{t+=x;});SS.push(unesc(t));});
-  ssx.replace(/<si\b[^>]*\/>/g,()=>{});
+  const ssx=np(await z.text('xl/sharedStrings.xml'))||'';const SS=[];
+  ssx.replace(/<si\b[^>]*?(?:\/>|>([\s\S]*?)<\/si>)/g,(m,inner)=>{inner=(inner||'').replace(/<rPh\b[\s\S]*?<\/rPh>/g,'');let t='';inner.replace(/<t\b[^>]*>([\s\S]*?)<\/t>/g,(mm,x)=>{t+=x;});SS.push(unesc(t));});
   const sheets={},order=[];
   const re=/<sheet\b([^>]*)\/?>/g;let m;
   while((m=re.exec(wbx))){
     const a=attrs(m[1]);const rid=a['r:id']||Object.keys(a).filter(k=>/:id$/.test(k)).map(k=>a[k])[0];
     let tg=rmap[rid];if(!tg) continue;tg=tg.replace(/^\/?xl\//,'').replace(/^\//,'');
-    const xml=await z.text('xl/'+tg);if(!xml) continue;
-    const cells={};let maxR=0,maxC=0;
-    const cre=/<c\b([^>]*?)(?:\/>|>([\s\S]*?)<\/c>)/g;let c;
-    while((c=cre.exec(xml))){
-      const a2=attrs(c[1]);const r=a2.r;if(!r) continue;const inner=c[2]||'';
-      const vm=inner.match(/<v>([\s\S]*?)<\/v>/);const fm=inner.match(/<f\b[^>]*>([\s\S]*?)<\/f>/);
-      let v=null;const t=a2.t||'n';
-      if(t==='s'){v=vm?SS[+vm[1]]:null;}
-      else if(t==='inlineStr'){let s='';inner.replace(/<t\b[^>]*>([\s\S]*?)<\/t>/g,(mm,x)=>{s+=x;});v=unesc(s);}
-      else if(t==='str'){v=vm?unesc(vm[1]):null;}
-      else if(t==='b'){v=vm?vm[1]==='1':null;}
-      else if(t==='e'){v=null;}
-      else {v=vm&&vm[1]!==''?Number(vm[1]):null;}
-      cells[r]={v,f:fm?unesc(fm[1]):null};
-      const mm=r.match(/^([A-Z]+)(\d+)$/);if(mm){maxR=Math.max(maxR,+mm[2]);maxC=Math.max(maxC,colNum(mm[1]));}
+    const xml=np(await z.text('xl/'+tg)||await z.text(('xl/'+tg).toLowerCase()));if(!xml) continue;
+    const cells={};let maxR=0,maxC=0,ri=0;
+    /* linhas e células sem endereço (r="A1") seguem a posição no arquivo */
+    const rre=/<row\b([^>]*?)(?:\/>|>([\s\S]*?)<\/row>)/g;let rw;
+    while((rw=rre.exec(xml))){
+      const ra=attrs(rw[1]);ri=ra.r?+ra.r:ri+1;let ci=0;
+      const cre=/<c\b([^>]*?)(?:\/>|>([\s\S]*?)<\/c>)/g;let c;
+      while((c=cre.exec(rw[2]||''))){
+        const a2=attrs(c[1]);const inner=c[2]||'';
+        const mm=(a2.r||'').match(/^([A-Z]+)(\d+)$/);ci=mm?colNum(mm[1]):ci+1;const rr=mm?+mm[2]:ri;
+        const vm=inner.match(/<v\b[^>]*>([\s\S]*?)<\/v>/);const fm=inner.match(/<f\b[^>]*>([\s\S]*?)<\/f>/);
+        let v=null;const t=a2.t||'n';
+        if(t==='s'){v=vm?SS[+vm[1]]:null;}
+        else if(t==='inlineStr'){let s='';inner.replace(/<t\b[^>]*>([\s\S]*?)<\/t>/g,(q,x)=>{s+=x;});v=unesc(s);}
+        else if(t==='str'||t==='d'){v=vm?unesc(vm[1]):null;}
+        else if(t==='b'){v=vm?vm[1]==='1':null;}
+        else if(t==='e'){v=null;}
+        else {v=vm&&vm[1]!==''?Number(vm[1]):null;}
+        cells[colName(ci)+rr]={v,f:fm?unesc(fm[1]):null};
+        maxR=Math.max(maxR,rr);maxC=Math.max(maxC,ci);
+      }
     }
     sheets[a.name]={cells,maxR,maxC};order.push(a.name);
   }
   return {sheets,order};
 }
-root.XLSXR={readXlsx,colNum,colName};
+root.XLSXR={readXlsx,unzip,colNum,colName};
 })(typeof window!=='undefined'?window:globalThis);
 
 /* Motor de cálculo do Painel CVL: a partir dos dados brutos (RAW) monta os dados de uma janela de 3 meses
@@ -1025,44 +1033,324 @@ const mkey=(y,m)=>y*12+m;                       /* chave do mês (ano*12+mês) *
 const mlabel=k=>MABR[k%12]+'/'+String(Math.floor(k/12)).slice(-2);
 const mlong=k=>MESES[k%12]+' de '+Math.floor(k/12);
 
-/* ======================= leitura de arquivos ======================= */
+/* ======================= leitura de arquivos (qualquer formato) =======================
+   Todo arquivo enviado passa por três etapas antes de chegar às telas:
+   1. identificar o formato pelo conteúdo (não só pela extensão);
+   2. extrair as tabelas: uma entrada {name, rows} por aba, tabela ou página;
+   3. organizar: limpar espaços e caracteres invisíveis, tirar linhas e colunas vazias,
+      e oferecer variações (títulos em duas linhas, colunas que vieram coladas) para os detectores. */
 function decodeText(buf){
   const u=new Uint8Array(buf);
+  if(u[0]===0xFF&&u[1]===0xFE) return new TextDecoder('utf-16le').decode(u.subarray(2));
+  if(u[0]===0xFE&&u[1]===0xFF) return new TextDecoder('utf-16be').decode(u.subarray(2));
+  /* UTF-16 sem BOM: muitos zeros em posições ímpares */
+  let z=0;const n=Math.min(u.length,2000);for(let i=1;i<n;i+=2) if(u[i]===0) z++;
+  if(n>20&&z>n/4) return new TextDecoder('utf-16le').decode(u);
   try{return new TextDecoder('utf-8',{fatal:true}).decode(u).replace(/^﻿/,'');}
   catch(e){return new TextDecoder('windows-1252').decode(u);}
 }
 function parseCSV(text){
-  const lines=text.split(/\r\n|\n|\r/).slice(0,60).join('\n');
-  const cnt=ch=>(lines.match(new RegExp(ch==='\t'?'\\t':'\\'+ch,'g'))||[]).length;
-  const d=[';','\t',',','|'].map(ch=>[ch,cnt(ch)]).sort((a,b)=>b[1]-a[1])[0][0];
+  text=text.replace(/^﻿/,'');
+  /* "sep=;" na primeira linha (Excel) */
+  let d=null;const sm=text.match(/^sep=(.)\s*\r?\n/i);if(sm){d=sm[1];text=text.slice(sm[0].length);}
+  const sample=text.split(/\r\n|\n|\r/).slice(0,80);
+  if(!d){
+    /* separador: o que aparece em mais linhas com a mesma contagem, ignorando o que está entre aspas */
+    let best=null;
+    for(const ch of [';','\t',',','|']){
+      const cs=sample.map(l=>{let c=0,q=false;for(const x of l){if(x==='"') q=!q;else if(x===ch&&!q) c++;}return c;}).filter(c=>c>0);
+      if(!cs.length) continue;const freq={};cs.forEach(c=>freq[c]=(freq[c]||0)+1);const mode=+Object.keys(freq).sort((a,b)=>freq[b]-freq[a])[0];
+      const score=freq[mode]*Math.min(mode,12)+cs.length;
+      /* vírgula como separador só se não parecer vírgula decimal */
+      if(ch===','&&/\d,\d{2}(?!\d)/.test(sample.join('\n'))&&cs.length<sample.length*.6) continue;
+      if(!best||score>best.score) best={ch,score,lines:cs.length};
+    }
+    if(!best||best.lines<Math.min(3,sample.filter(l=>l.trim()).length)) return null;
+    d=best.ch;
+  }
   const rows=[];let row=[],cur='',q=false;
   for(let i=0;i<text.length;i++){
     const c=text[i];
     if(q){if(c==='"'){if(text[i+1]==='"'){cur+='"';i++;}else q=false;}else cur+=c;continue;}
-    if(c==='"'&&cur===''){q=true;continue;}
+    if(c==='"'&&cur.trim()===''){cur='';q=true;continue;}
     if(c===d){row.push(cur);cur='';continue;}
     if(c==='\n'||c==='\r'){if(c==='\r'&&text[i+1]==='\n') i++;row.push(cur);rows.push(row);row=[];cur='';continue;}
     cur+=c;
   }
   if(cur!==''||row.length){row.push(cur);rows.push(row);}
-  return rows.map(r=>r.map(x=>x.trim()===''?null:x.trim()));
+  return rows.map(r=>r.map(x=>{x=x.trim();if(/^=".*"$/.test(x)) x=x.slice(2,-1);return x===''?null:x;}));
+}
+/* relatório em texto alinhado por espaços (impressão em .txt / .prn): colunas pelos espaços que nunca têm texto */
+function parseFixed(text){
+  const L=text.replace(/\t/g,'    ').split(/\r\n|\n|\r/).map(l=>l.replace(/\s+$/,''));
+  const body=L.filter(l=>l.trim()&&(l.trim().match(/\S+/g)||[]).length>=2&&!/^[\s=\-_*.]+$/.test(l));
+  if(body.length<2) return null;
+  const W=Math.max(...body.map(l=>l.length));const used=new Uint16Array(W+1);
+  body.forEach(l=>{for(let i=0;i<l.length;i++) if(l[i]!==' ') used[i]++;});
+  /* separador: faixa de pelo menos 1 coluna livre em quase todas as linhas, com texto dos dois lados */
+  const lim=Math.max(1,Math.floor(body.length*.04));const cuts=[];let i=0;
+  while(i<W){if(used[i]<=lim){let j=i;while(j<W&&used[j]<=lim) j++;if(i>0&&j<W&&(j-i>=2||body.filter(l=>l[i]===' '&&l[i-1]&&l[i-1]!==' '&&l[j]&&l[j]!==' ').length>body.length*.3)) cuts.push([i,j]);i=j;}else i++;}
+  if(!cuts.length){/* sem alinhamento: separa por dois ou mais espaços */
+    const rows=L.map(l=>l.trim()?l.trim().split(/\s{2,}/):[]);return rows.some(r=>r.length>1)?rows:null;}
+  const edges=[0,...cuts.map(c=>c[1]),W+1];
+  return L.map(l=>{if(!l.trim()) return [];const out=[];for(let k=0;k<edges.length-1;k++){const s=l.slice(k?cuts[k-1][0]:0,edges[k+1]===W+1?undefined:cuts[k][0]).trim();out.push(s===''?null:s);}return out;});
 }
 function sheetRows(sh){
   const R=[];for(let r=1;r<=sh.maxR;r++){const row=[];for(let c=1;c<=sh.maxC;c++){const x=sh.cells[root.XLSXR.colName(c)+r];row.push(x&&x.v!=null&&x.v!==''?x.v:null);}R.push(row);}
   return R;
 }
-/* devolve [{name,rows}] — uma entrada por aba (xlsx) ou uma única (csv) */
-async function readTable(buf,fname){
-  const ext=(fname.split('.').pop()||'').toLowerCase();
-  const u=new Uint8Array(buf.slice?buf.slice(0,8):buf);
-  const isZip=u[0]===0x50&&u[1]===0x4B,isOle=u[0]===0xD0&&u[1]===0xCF;
-  if(isOle||ext==='xls') throw new Error('Arquivos .xls (Excel 97-2003) não são lidos. Abra no Excel e salve como .xlsx ou .csv.');
-  if(ext==='pdf'||(u[0]===0x25&&u[1]===0x50)) throw new Error('PDF não é aceito: peça à contabilidade o mesmo relatório exportado em Excel (.xlsx) ou CSV.');
-  if(isZip||ext==='xlsx'){
-    const b=await root.XLSXR.readXlsx(buf);
-    return b.order.map(n=>({name:n,rows:sheetRows(b.sheets[n])})).filter(s=>s.rows.some(r=>r.some(v=>v!=null)));
+const xdec=s=>String(s).replace(/&(#x[0-9a-fA-F]+|#\d+|lt|gt|amp|quot|apos|nbsp);/g,(m,c)=>c[0]==='#'?String.fromCodePoint(c[1]==='x'?parseInt(c.slice(2),16):parseInt(c.slice(1),10)):({lt:'<',gt:'>',amp:'&',quot:'"',apos:"'",nbsp:' '})[c]);
+const xattr=(s,k)=>{const m=String(s).match(new RegExp('(?:^|\\s)'+k.replace(':','\\:')+'\\s*=\\s*"([^"]*)"','i'));return m?xdec(m[1]):null;};
+const stripTags=s=>xdec(String(s).replace(/<br\s*\/?>/gi,' ').replace(/<[^>]+>/g,'')).replace(/\s+/g,' ').trim();
+/* tabelas HTML (muitos sistemas exportam "Excel" que na verdade é HTML) */
+function parseHTMLTables(text){
+  const out=[];
+  if(typeof DOMParser!=='undefined'){
+    const doc=new DOMParser().parseFromString(text,'text/html');
+    doc.querySelectorAll('table').forEach((t,ti)=>{if(t.querySelector('table')) return;const rows=[],span=[];
+      [...t.rows].forEach((tr,ri)=>{const row=rows[ri]||(rows[ri]=[]);let c=0;
+        [...tr.cells].forEach(td=>{while(row[c]!==undefined) c++;const v=td.textContent.replace(/\s+/g,' ').trim()||null;const cs=+td.colSpan||1,rs=+td.rowSpan||1;
+          for(let a=0;a<rs;a++){const rr=rows[ri+a]||(rows[ri+a]=[]);for(let b=0;b<cs;b++) rr[c+b]=a===0&&b===0?v:null;}c+=cs;});});
+      out.push({name:'Tabela '+(ti+1),rows:rows.map(r=>[...r].map(x=>x===undefined?null:x))});});
+    return out;
   }
-  return [{name:fname,rows:parseCSV(decodeText(buf))}];
+  const tabs=text.match(/<table\b[\s\S]*?<\/table>/gi)||[];
+  tabs.forEach((t,ti)=>{const rows=[];(t.match(/<tr\b[\s\S]*?<\/tr>/gi)||[]).forEach(tr=>{const r=[];
+      (tr.match(/<t[dh]\b[^>]*>[\s\S]*?<\/t[dh]>/gi)||[]).forEach(td=>{const v=stripTags(td.replace(/^<t[dh]\b[^>]*>|<\/t[dh]>$/gi,''))||null;r.push(v);const cs=+(xattr(td.match(/^<t[dh]\b([^>]*)>/i)[1],'colspan')||1);for(let k=1;k<cs;k++) r.push(null);});
+      rows.push(r);});out.push({name:'Tabela '+(ti+1),rows});});
+  return out;
+}
+/* Excel 2003 XML (SpreadsheetML): <Workbook><Worksheet><Table><Row><Cell><Data> */
+function parseSpreadsheetML(text){
+  const t=text.replace(/<(\/?)[A-Za-z_][\w.-]*:(?=[A-Za-z_])/g,'<$1').replace(/\s[A-Za-z_][\w.-]*:(?=[A-Za-z_][\w.-]*\s*=)/g,' ');
+  const out=[];const wre=/<Worksheet\b([^>]*)>([\s\S]*?)<\/Worksheet>/g;let w;
+  while((w=wre.exec(t))){const rows=[];let ri=0;
+    (w[2].match(/<Row\b[^>]*?(?:\/>|>[\s\S]*?<\/Row>)/g)||[]).forEach(R=>{const ix=xattr(R,'Index');ri=ix?+ix-1:ri;const row=[];let ci=0;
+      (R.match(/<Cell\b[^>]*?(?:\/>|>[\s\S]*?<\/Cell>)/g)||[]).forEach(C=>{const cx=xattr(C,'Index');ci=cx?+cx-1:ci;const dm=C.match(/<Data\b([^>]*)>([\s\S]*?)<\/Data>/);
+        let v=null;if(dm){const ty=xattr(dm[1],'Type');const s=stripTags(dm[2]);v=ty==='Number'&&s!==''&&isFinite(+s)?+s:ty==='DateTime'?s.slice(0,10):s===''?null:s;}
+        row[ci]=v;const ma=+(xattr(C,'MergeAcross')||0);ci+=1+ma;});
+      rows[ri]=[...row].map(x=>x===undefined?null:x);ri++;});
+    out.push({name:xattr(w[1],'Name')||'Planilha '+(out.length+1),rows:[...rows].map(r=>r||[])});}
+  return out;
+}
+/* OpenDocument (LibreOffice .ods): content.xml */
+function parseODS(xml){
+  const t=xml.replace(/<(\/?)[A-Za-z_][\w.-]*:(?=[A-Za-z_])/g,'<$1').replace(/\s(table|office|text):(?=[\w-]+\s*=)/g,' ');
+  const out=[];const tre=/<table\b([^>]*)>([\s\S]*?)<\/table>/g;let tb;
+  while((tb=tre.exec(t))){const rows=[];
+    (tb[2].match(/<table-row\b[^>]*?(?:\/>|>[\s\S]*?<\/table-row>)/g)||[]).forEach(R=>{const rep=Math.min(+(xattr(R,'number-rows-repeated')||1),2000);const row=[];
+      (R.match(/<(?:covered-)?table-cell\b[^>]*?(?:\/>|>[\s\S]*?<\/(?:covered-)?table-cell>)/g)||[]).forEach(C=>{const head=C.match(/^<[^>]*>/)[0];const n=Math.min(+(xattr(head,'number-columns-repeated')||1),200);
+        const ty=xattr(head,'value-type');let v=null;
+        if(ty==='float'||ty==='currency'||ty==='percentage') v=+xattr(head,'value');
+        else if(ty==='date') v=(xattr(head,'date-value')||'').slice(0,10);
+        else{const ps=C.match(/<p\b[^>]*>[\s\S]*?<\/p>/g);if(ps) v=ps.map(stripTags).join(' ').trim()||null;}
+        for(let k=0;k<n;k++) row.push(v);});
+      while(row.length&&row[row.length-1]==null) row.pop();
+      for(let k=0;k<rep&&(row.length||k<1);k++) rows.push(row.slice());});
+    out.push({name:xattr(tb[1],'name')||'Planilha '+(out.length+1),rows});}
+  return out;
+}
+/* Word (.docx): cada tabela do documento vira uma aba */
+function parseDocxTables(xml){
+  const t=xml.replace(/<(\/?)[A-Za-z_][\w.-]*:(?=[A-Za-z_])/g,'<$1');const out=[];
+  (t.match(/<tbl>[\s\S]*?<\/tbl>/g)||[]).forEach((tb,i)=>{const rows=(tb.match(/<tr\b[\s\S]*?<\/tr>/g)||[]).map(tr=>(tr.match(/<tc>[\s\S]*?<\/tc>/g)||[]).map(tc=>{const s=(tc.match(/<t\b[^>]*>[\s\S]*?<\/t>/g)||[]).map(x=>xdec(x.replace(/<[^>]+>/g,''))).join('').trim();return s||null;}));
+    out.push({name:'Tabela '+(i+1),rows});});
+  if(!out.length){/* sem tabela: parágrafos como texto alinhado */
+    const txt=(t.match(/<p\b[\s\S]*?<\/p>/g)||[]).map(p=>(p.match(/<t\b[^>]*>[\s\S]*?<\/t>|<tab\/>/g)||[]).map(x=>x==='<tab/>'?'\t':xdec(x.replace(/<[^>]+>/g,''))).join('')).join('\n');
+    const r=parseCSV(txt)||parseFixed(txt);if(r) out.push({name:'Documento',rows:r});}
+  return out;
+}
+/* JSON: lista de objetos ou de listas */
+function parseJSONRows(text){
+  let j;try{j=JSON.parse(text);}catch(e){return null;}
+  const find=o=>{if(Array.isArray(o)) return o;if(o&&typeof o==='object') for(const k in o){const r=find(o[k]);if(r&&r.length) return r;}return null;};
+  const a=find(j);if(!a||!a.length) return null;
+  if(Array.isArray(a[0])) return a.map(r=>r.map(v=>v===''?null:v));
+  const keys=[...new Set(a.flatMap(o=>o&&typeof o==='object'?Object.keys(o):[]))];
+  return [keys,...a.map(o=>keys.map(k=>o&&o[k]!=null&&typeof o[k]!=='object'?o[k]:null))];
+}
+/* OFX como tabela (para quando um extrato OFX é enviado numa etapa que lê planilhas) */
+function ofxRows(text){
+  const tag=(b,t)=>{const m=b.match(new RegExp('<'+t+'>\\s*([^<\\r\\n]*)','i'));return m?m[1].trim():null;};
+  const rows=[['Data','Histórico','Documento','Valor']];
+  (text.match(/<STMTTRN>[\s\S]*?(?:<\/STMTTRN>|(?=<STMTTRN>)|(?=<\/BANKTRANLIST>))/gi)||[]).forEach(b=>{const d=tag(b,'DTPOSTED')||'';
+    rows.push([d.slice(6,8)+'/'+d.slice(4,6)+'/'+d.slice(0,4),tag(b,'MEMO')||tag(b,'NAME')||'',tag(b,'CHECKNUM')||tag(b,'FITID')||'',+(tag(b,'TRNAMT')||'0').replace(',','.')]);});
+  return rows.length>1?rows:null;
+}
+/* bibliotecas carregadas sob demanda, só para formatos binários que o leitor próprio não cobre */
+const LIBS={};
+function loadScript(urls,glob){
+  if(root[glob]) return Promise.resolve(root[glob]);if(LIBS[glob]) return LIBS[glob];
+  if(typeof document==='undefined') return Promise.reject(new Error('Leitor externo indisponível.'));
+  LIBS[glob]=(async()=>{for(const u of urls){try{await new Promise((ok,ko)=>{const s=document.createElement('script');s.src=u;s.async=true;s.onload=ok;s.onerror=ko;document.head.appendChild(s);});if(root[glob]) return root[glob];}catch(e){}}
+    LIBS[glob]=null;throw new Error('Não consegui carregar o leitor deste formato. Confira a conexão com a internet e tente de novo.');})();
+  return LIBS[glob];
+}
+const SHEETJS=['https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js','https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js'];
+const PDFJS=['https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js','https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js'];
+async function viaSheetJS(buf){
+  const X=await loadScript(SHEETJS,'XLSX');
+  const wb=X.read(new Uint8Array(buf),{type:'array',cellDates:false,dense:false});
+  return wb.SheetNames.map(n=>({name:n,rows:X.utils.sheet_to_json(wb.Sheets[n],{header:1,raw:true,defval:null,blankrows:true})}));
+}
+/* PDF com texto: agrupa os trechos por linha (altura) e por coluna (faixas horizontais que nunca têm texto) */
+function pdfRows(items){
+  const it=items.filter(x=>x.s&&x.s.trim()).map(x=>({s:x.s.replace(/\s+/g,' ').trim(),x0:x.x,x1:x.x+(x.w>0?x.w:x.s.length*(x.h||8)*.5),y:x.y,h:x.h||8}));
+  if(!it.length) return [];
+  it.sort((a,b)=>b.y-a.y||a.x0-b.x0);
+  const lines=[];it.forEach(t=>{const l=lines[lines.length-1];if(l&&Math.abs(l.y-t.y)<=Math.max(2,t.h*.45)) l.it.push(t);else lines.push({y:t.y,it:[t]});});
+  /* junta palavras próximas na mesma linha */
+  lines.forEach(l=>{l.it.sort((a,b)=>a.x0-b.x0);const m=[];l.it.forEach(t=>{const p=m[m.length-1];if(p&&t.x0-p.x1<Math.max(2.5,t.h*.35)){p.s+=(t.x0-p.x1>t.h*.12?' ':'')+t.s;p.x1=Math.max(p.x1,t.x1);}else m.push({...t});});l.it=m;});
+  /* faixas de colunas pelas linhas com 3 ou mais trechos */
+  const body=lines.filter(l=>l.it.length>=3);const src=body.length>=2?body:lines;
+  let iv=[];src.forEach(l=>l.it.forEach(t=>iv.push([t.x0,t.x1])));iv.sort((a,b)=>a[0]-b[0]);
+  const cols=[];iv.forEach(([a,b])=>{const c=cols[cols.length-1];if(c&&a<=c[1]+1) c[1]=Math.max(c[1],b);else cols.push([a,b]);});
+  const colOf=t=>{const cx=(t.x0+t.x1)/2;let best=0,bd=1e9;cols.forEach((c,i)=>{const d=cx<c[0]?c[0]-cx:cx>c[1]?cx-c[1]:0;if(d<bd){bd=d;best=i;}});return best;};
+  let R=lines.map(l=>{const r=new Array(cols.length).fill(null);l.it.forEach(t=>{const k=colOf(t);r[k]=r[k]==null?t.s:r[k]+' '+t.s;});return r;});
+  /* título alinhado à esquerda e números alinhados à direita caem em faixas diferentes: junta a coluna que só tem título à vizinha livre mais próxima */
+  for(let c=0;c<cols.length;c++){
+    const filled=R.map((r,i)=>r[c]!=null?i:-1).filter(i=>i>=0);
+    if(!filled.length||filled.length>3||filled.some(i=>/^[-\d.,()DC ]+$/.test(R[i][c]))) continue;
+    const cand=[c-1,c+1].filter(k=>k>=0&&k<cols.length&&R.filter(r=>r[k]!=null).length>filled.length&&filled.every(i=>R[i][k]==null))
+      .sort((a,b)=>(a<c?cols[c][0]-cols[a][1]:cols[b][0]-cols[c][1])-(b<c?cols[c][0]-cols[b][1]:cols[b][0]-cols[c][1]));
+    if(!cand.length) continue;const k=cand[0];filled.forEach(i=>{R[i][k]=R[i][c];R[i][c]=null;});
+  }
+  return R;
+}
+async function viaPDF(buf){
+  const P=await loadScript(PDFJS,'pdfjsLib');
+  if(P.GlobalWorkerOptions&&!P.GlobalWorkerOptions.workerSrc) P.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  const doc=await P.getDocument({data:new Uint8Array(buf)}).promise;const all=[];let chars=0;
+  for(let p=1;p<=Math.min(doc.numPages,200);p++){const pg=await doc.getPage(p);const tc=await pg.getTextContent();
+    const items=tc.items.map(x=>({s:x.str,x:x.transform[4],y:x.transform[5],w:x.width,h:Math.abs(x.transform[3])||x.height}));chars+=items.reduce((t,x)=>t+(x.s||'').length,0);
+    all.push(...pdfRows(items));}
+  if(chars<20) throw new Error('Este PDF é uma imagem escaneada, sem texto para ler. Peça à contabilidade o mesmo relatório em Excel, CSV ou PDF gerado pelo sistema.');
+  return [{name:'PDF',rows:all}];
+}
+/* identifica o formato pelo conteúdo */
+async function sniff(buf,fname){
+  const ext=(fname.split('.').pop()||'').toLowerCase();const u=new Uint8Array(buf.slice?buf.slice(0,8):buf);
+  if(u[0]===0x50&&u[1]===0x4B){
+    const z=await root.XLSXR.unzip(buf);const has=n=>z.names.includes(n);
+    if(has('xl/workbook.xml')) return {k:'xlsx',z};
+    if(has('xl/workbook.bin')) return {k:'xlsb'};
+    if(has('content.xml')&&/opendocument\.spreadsheet/.test((await z.text('mimetype'))||'opendocument.spreadsheet')) return {k:'ods',z};
+    if(has('word/document.xml')) return {k:'docx',z};
+    if(z.names.some(n=>/\.iwa$/.test(n))||ext==='numbers') return {k:'numbers'};
+    /* zip com planilhas dentro */
+    const inner=z.names.filter(n=>!/\/$/.test(n)&&!/(^|\/)(__MACOSX|\.)/.test(n));
+    if(inner.length) return {k:'zip',z,inner};
+    return {k:'?'};
+  }
+  if(u[0]===0xD0&&u[1]===0xCF&&u[2]===0x11&&u[3]===0xE0) return {k:'xls'};
+  if(u[0]===0x25&&u[1]===0x50&&u[2]===0x44&&u[3]===0x46) return {k:'pdf'};
+  if(u[0]===0x09&&(u[1]===0x08||u[1]===0x04||u[1]===0x02)) return {k:'xls'};/* BIFF2–5 sem contêiner */
+  const text=decodeText(buf);const head=text.slice(0,6000).trimStart();
+  if(/<OFX>|OFXHEADER/i.test(head)) return {k:'ofx',text};
+  if(/urn:schemas-microsoft-com:office:spreadsheet|<(ss:)?Workbook\b/i.test(head)&&/<(ss:)?Worksheet\b/i.test(text)) return {k:'xml2003',text};
+  if(/<table\b/i.test(text)&&/<(html|table|body|meta|!doctype)/i.test(head)) return {k:'html',text};
+  if(/^[\[{]/.test(head)) return {k:'json',text};
+  if(/^\{\\rtf/.test(head)) return {k:'rtf',text};
+  return {k:'text',text};
+}
+const FMT={xlsx:'Excel (.xlsx)',xlsb:'Excel binário (.xlsb)',xls:'Excel 97-2003 (.xls)',ods:'LibreOffice (.ods)',docx:'Word (.docx)',numbers:'Numbers',zip:'Pasta compactada (.zip)',pdf:'PDF',ofx:'OFX',xml2003:'Excel 2003 XML',html:'Tabela HTML',json:'JSON',rtf:'Texto RTF',csv:'CSV / texto delimitado',fixed:'Relatório em texto'};
+async function extract(buf,fname,depth){
+  const f=await sniff(buf,fname);let sheets=[],fmt=f.k;
+  switch(f.k){
+    case 'xlsx':{let b;try{b=await root.XLSXR.readXlsx(buf);sheets=b.order.map(n=>({name:n,rows:sheetRows(b.sheets[n])}));}catch(e){}
+      if(!sheets.some(s=>s.rows.some(r=>r.some(v=>v!=null)))){try{sheets=await viaSheetJS(buf);}catch(e){if(!sheets.length) throw e;}}break;}
+    case 'xlsb':case 'xls':case 'numbers':sheets=await viaSheetJS(buf);break;
+    case 'ods':sheets=parseODS(await f.z.text('content.xml'));if(!sheets.some(s=>s.rows.length)) sheets=await viaSheetJS(buf);break;
+    case 'docx':sheets=parseDocxTables(await f.z.text('word/document.xml'));break;
+    case 'zip':{if(depth) break;for(const n of f.inner.slice(0,40)){
+        try{const r=await extract((await f.z.raw(n)).slice().buffer,n,1);r.sheets.forEach(s=>sheets.push({name:n.split('/').pop()+(r.sheets.length>1?' · '+s.name:''),rows:s.rows}));}catch(e){}}
+      break;}
+    case 'pdf':sheets=await viaPDF(buf);break;
+    case 'ofx':{const r=ofxRows(f.text);if(r) sheets=[{name:fname,rows:r}];break;}
+    case 'xml2003':sheets=parseSpreadsheetML(f.text);if(!sheets.length) sheets=await viaSheetJS(buf);break;
+    case 'html':sheets=parseHTMLTables(f.text);break;
+    case 'json':{const r=parseJSONRows(f.text);if(r) sheets=[{name:fname,rows:r}];else{const c=parseCSV(f.text);if(c){sheets=[{name:fname,rows:c}];fmt='csv';}}break;}
+    case 'rtf':{const t=f.text.replace(/\\par[d]?/g,'\n').replace(/\\cell/g,'\t').replace(/\\row/g,'\n').replace(/\\'([0-9a-f]{2})/gi,(m,h)=>String.fromCharCode(parseInt(h,16))).replace(/\\[a-z]+-?\d* ?|[{}]/gi,'');
+      const r=parseCSV(t)||parseFixed(t);if(r) sheets=[{name:fname,rows:r}];break;}
+    default:{const c=parseCSV(f.text);const fx=parseFixed(f.text);
+      /* fica com a leitura que dá mais colunas consistentes */
+      const sc=r=>{if(!r) return 0;const ls=r.map(x=>x.filter(v=>v!=null).length).filter(n=>n>=2);return ls.length*Math.min(8,Math.max(0,...ls));};
+      if(sc(c)>=sc(fx)&&c){sheets=[{name:fname,rows:c}];fmt='csv';}else if(fx){sheets=[{name:fname,rows:fx}];fmt='fixed';}}
+  }
+  return {sheets,fmt};
+}
+/* organiza a tabela: texto limpo, sem linhas e colunas vazias nas bordas, células que só têm traço viram vazias */
+function tidy(rows){
+  let R=rows.map(r=>(r||[]).map(v=>{if(v==null) return null;if(typeof v==='number') return isFinite(v)?v:null;if(typeof v==='boolean') return v;if(v instanceof Date) return v;
+    const s=String(v).replace(/[   ]/g,' ').replace(/[​-‍﻿\u0000-\u0008\u000B\u000C\u000E-\u001F]/g,'').replace(/\s+/g,' ').trim();
+    return s===''||/^[-–—_.]{1,3}$/.test(s)?null:s;}));
+  let n=R.length;while(n>0&&!R[n-1].some(v=>v!=null)) n--;R=R.slice(0,n);
+  const W=Math.max(0,...R.map(r=>r.length));const keep=[];for(let c=0;c<W;c++) if(R.some(r=>r[c]!=null)) keep.push(c);
+  if(keep.length<W) R=R.map(r=>keep.map(c=>r[c]===undefined?null:r[c]));
+  else R=R.map(r=>{const o=r.slice();while(o.length<W) o.push(null);return o;});
+  return R;
+}
+/* variações de leitura para os detectores: como veio, títulos em duas ou três linhas juntos e células "1.1.01 Caixa" separadas */
+function variants(rows){
+  const V=[rows];const isTxt=r=>r.some(v=>v!=null)&&r.every(v=>v==null||typeof v==='string'&&!/^[-\d.,()R$ DC]+$/.test(v));
+  for(const depth of [2,3]){
+    for(let h=0;h<Math.min(rows.length-depth,40);h++){
+      const blk=rows.slice(h,h+depth);if(!blk.every(isTxt)) continue;
+      const W=Math.max(...blk.map(r=>r.length));const mer=[];
+      /* título agrupador (ex.: "Saldo" em cima de "Anterior | Atual") se estende para a direita até o próximo */
+      const top=blk[0].slice();for(let c=1;c<W;c++) if(top[c]==null&&top[c-1]!=null&&blk.slice(1).some(r=>r[c]!=null)) top[c]=top[c-1];
+      for(let c=0;c<W;c++) mer.push([top[c],...blk.slice(1).map(r=>r[c])].filter(x=>x!=null).join(' ')||null);
+      V.push([...rows.slice(0,h),mer,...rows.slice(h+depth)]);break;}
+  }
+  /* "1.1.01.001 Caixa geral" numa só célula: separa código e nome */
+  const W=Math.max(0,...rows.map(r=>r.length));
+  for(let c=0;c<W;c++){let hit=0,n=0;rows.forEach(r=>{const v=r[c];if(typeof v!=='string') return;n++;if(/^\d+([.\-]\d+)+\s+\S/.test(v)) hit++;});
+    if(n>5&&hit>n*.5){V.push(rows.map((r,i)=>{const o=r.slice();const v=o[c];const m=typeof v==='string'&&v.match(/^(\d+(?:[.\-]\d+)+)\s+(.+)$/);
+      o.splice(c,1,...(m?[m[1],m[2]]:[i===rows.findIndex(x=>x.some(y=>y!=null))?'Classificação':null,v]));return o;}));break;}}
+  /* valor e natureza juntos numa coluna e D/C em outra: os detectores já tratam; números com sinal no fim também (money) */
+  return V;
+}
+/* roda um detector em cada variação e fica com a primeira que der certo */
+function detectWith(fn,rows){let first=null;for(const r of variants(rows)){const d=fn(r);if(d&&d.ok) return {d,rows:r};if(!first) first={d,rows:r};}return first||{d:{ok:false,msg:'Arquivo vazio.'},rows};}
+/* que relatório é este? balancete, plano de contas, extrato, vendas ou a planilha padrão */
+const KIND_L={bal:'Balancete',plano:'Plano de contas',ext:'Extrato bancário',vend:'Relatório de vendas',padrao:'Planilha padrão Vértice'};
+async function classifyFile(buf,fname){
+  const f=await sniff(buf,fname);
+  if(f.k==='ofx') return {kind:'ext',fmt:FMT.ofx,motivo:'arquivo OFX do banco'};
+  const sh=await readTable(buf,fname);
+  const nm=new Set(sh.map(s=>norm(s.name)));if(['empresa','produtos','vendas','parametros','balancete','gastos'].filter(x=>nm.has(x)).length>=3) return {kind:'padrao',fmt:sh.fmt,motivo:'abas da planilha padrão'};
+  let best=null;
+  for(const s of sh.slice(0,12)){
+    const b=detectWith(detectBalancete,s.rows).d,e=detectWith(detectExtrato,s.rows).d,v=detectWith(detectVendas,s.rows).d,p=detectWith(detectPlano,s.rows).d;
+    const head=v.ok?norm((s.rows[v.h]||[]).join(' ')):'';
+    let k=null,why='';
+    if(v.ok&&/produto|mercadoria|\bitem|servico|sku/.test(head)&&!(b.ok&&b.col.sant!=null)){k='vend';why='colunas de produto e valor';}
+    else if(e.ok&&!(b.ok&&b.col.sant!=null)){k='ext';why='lançamentos com data e valor';}
+    else if(b.ok&&(b.col.sant!=null||b.col.deb!=null)){k='bal';why='saldo anterior, débito, crédito e saldo atual';}
+    else if(p.ok){k='plano';why='lista de contas com classificação';}
+    else if(b.ok){k='bal';why='contas com saldo';}
+    if(k&&(!best||(best.kind==='plano'&&k!=='plano'))) best={kind:k,fmt:sh.fmt,motivo:why};
+  }
+  return best||{kind:null,fmt:sh.fmt,motivo:'não encontrei títulos de balancete, extrato, vendas ou plano de contas'};
+}
+/* devolve [{name,rows}] — uma entrada por aba, tabela ou página com dados — e o formato reconhecido em .fmt */
+async function readTable(buf,fname){
+  const {sheets,fmt}=await extract(buf,fname,0);
+  const out=sheets.map(s=>({name:s.name,rows:tidy(s.rows)})).filter(s=>s.rows.some(r=>r.some(v=>v!=null)));
+  out.fmt=FMT[fmt]||fmt;
+  if(!out.length){
+    if(fmt==='?') throw new Error('Não reconheci o conteúdo deste arquivo compactado.');
+    throw new Error(`O arquivo (${FMT[fmt]||fmt}) não tem nenhuma tabela com dados. Confira se é o relatório certo ou se ele foi salvo vazio.`);}
+  return out;
+}
+/* pasta de trabalho no formato da planilha padrão ({sheets,order} com células), a partir de qualquer planilha */
+async function readWorkbook(buf,fname){
+  const f=await sniff(buf,fname);
+  if(f.k==='xlsx'){const b=await root.XLSXR.readXlsx(buf);if(b.order.some(n=>b.sheets[n].maxR)) return b;}
+  const {sheets}=await extract(buf,fname,0);const out={sheets:{},order:[]};
+  sheets.forEach(s=>{const cells={};let maxR=0,maxC=0;s.rows.forEach((r,i)=>(r||[]).forEach((v,j)=>{if(v==null) return;cells[root.XLSXR.colName(j+1)+(i+1)]={v,f:null};maxR=Math.max(maxR,i+1);maxC=Math.max(maxC,j+1);}));
+    out.sheets[s.name]={cells,maxR,maxC};out.order.push(s.name);});
+  return out;
 }
 
 /* ======================= números e datas ======================= */
@@ -1553,9 +1841,9 @@ function readPlano(rows,det){
 }
 async function readPlanoFile(buf,name){
   const sh=await readTable(buf,name);let msg=null;
-  for(const s of sh){const d=detectPlano(s.rows);if(!d.ok){msg=msg||d.msg;continue;}const L=readPlano(s.rows,d);
+  for(const s0 of sh){const w=detectWith(detectPlano,s0.rows),d=w.d,s={name:s0.name,rows:w.rows};if(!d.ok){msg=msg||d.msg;continue;}const L=readPlano(s.rows,d);
     if(L.length<5){msg=msg||'O arquivo tem poucas contas para ser um plano de contas.';continue;}
-    return {ok:true,accs:L,info:{tipo:d.col.tipo!=null,nat:d.col.nat!=null,nivel:d.col.nivel!=null,ref:d.col.ref!=null,cod:d.col.cod!=null,cls:d.col.cls!=null}};}
+    return {ok:true,fmt:sh.fmt,accs:L,info:{tipo:d.col.tipo!=null,nat:d.col.nat!=null,nivel:d.col.nivel!=null,ref:d.col.ref!=null,cod:d.col.cod!=null,cls:d.col.cls!=null}};}
   return {ok:false,msg:msg||'Arquivo vazio.'};
 }
 /* liga as contas do balancete ao plano: caminho, classificação e tipo (sintética/analítica) passam a vir do plano */
@@ -1691,7 +1979,7 @@ async function readExtratoFile(buf,name){
   const head=decodeText(buf.slice?buf.slice(0,4000):buf);
   if(ext==='ofx'||ext==='qfx'||/<OFX>/i.test(head)){const S=parseOFX(decodeText(buf));if(!S||!S.length) return {ok:false,msg:'Não consegui ler o arquivo OFX.'};if(!S.some(s=>s.trn.length||s.anch.length)) return {ok:false,msg:'O arquivo OFX não tem lançamentos nem saldo.'};return {ok:true,stmts:S};}
   const sh=await readTable(buf,name);let msg=null;
-  for(const s of sh){const d=detectExtrato(s.rows);if(!d.ok){msg=msg||d.msg;continue;}const st=readExtratoRows(s.rows,d,name+' '+s.name);if(st) return {ok:true,stmts:[st]};msg=msg||'Nenhum lançamento encontrado no extrato.';}
+  for(const s0 of sh){const w=detectWith(detectExtrato,s0.rows),d=w.d,s={name:s0.name,rows:w.rows};if(!d.ok){msg=msg||d.msg;continue;}const st=readExtratoRows(s.rows,d,name+' '+s.name);if(st){st.fmtArq=sh.fmt;return {ok:true,stmts:[st]};}msg=msg||'Nenhum lançamento encontrado no extrato.';}
   return {ok:false,msg:msg||'Arquivo vazio.'};
 }
 /* junta os extratos de uma mesma conta: lançamentos sem duplicar, períodos cobertos e saldos conhecidos */
@@ -1809,7 +2097,7 @@ function buildBook(S,opt){
   return {book:B,first,last,N,d0:fd(d0),months};
 }
 
-root.IMPORT={splitBalancete,readProdutos,readTable,parseCSV,money,toDate,detectMonth,detectBalancete,readBalancete,hierarchy,groupOf,suggestLine,consolidate,signed,balancesFor,normalizeResult,applyBalances,
+root.IMPORT={splitBalancete,readProdutos,readTable,readWorkbook,classifyFile,KIND_L,detectWith,variants,tidy,pdfRows,parseFixed,sniff,FMT,parseCSV,money,toDate,detectMonth,detectBalancete,readBalancete,hierarchy,groupOf,suggestLine,consolidate,signed,balancesFor,normalizeResult,applyBalances,
   classifyGasto,movement,GASTO_LINES,readPlanoFile,detectPlano,readPlano,applyPlano,readExtratoFile,parseOFX,detectExtrato,readExtratoRows,mergeExtratos,reconcileAccount,suggestConta,BANCOS,dnum,dfmt,dMonth,mEnd,mStart,fmtBR,digits,detectVendas,readVendas,buildBook,mkey,mlabel,mlong,keyOf,norm,LMAP,eom,fd};
 })(typeof window!=='undefined'?window:globalThis);
 
@@ -1825,11 +2113,11 @@ function updPanel(O){
   NAVS.splice(1,0,{k:'atu',single:'atu'});
   var css=document.createElement('style');css.textContent='.vu{display:grid;gap:16px}.vu .vu-b{padding:18px 20px;display:grid;gap:14px}.vu-s{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}.vu-s div{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--surface)}.vu-s small{display:block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}.vu-s b{font-size:18px;color:var(--head)}.vu-f{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 14px;align-items:center;border:1px dashed var(--line);border-radius:12px;padding:12px 14px}.vu-f b{font-size:13.5px;color:var(--head)}.vu-f span{font-size:12px;color:var(--ink-3)}.vu-f .vu-n{grid-column:1/-1;font-size:12px;color:var(--accent-2)}.vu-f label{cursor:pointer;border:1px solid var(--line);border-radius:9px;padding:7px 12px;font-size:13px;font-weight:600;background:var(--surface);white-space:nowrap}.vu-f.req b:after{content:" · obrigatório";font-weight:500;color:var(--neg);font-size:12px}.vu-go{justify-self:start;border:0;border-radius:10px;padding:12px 18px;font:700 14px inherit;background:var(--accent);color:#fff;cursor:pointer;display:inline-flex;gap:8px;align-items:center}.vu-go[disabled]{opacity:.5;cursor:default}.vu-r{border-radius:12px;padding:14px 16px;font-size:13.5px;line-height:1.55}.vu-r.ok{background:rgba(29,122,78,.1);color:var(--pos)}.vu-r.err{background:var(--gold-l);color:var(--gold-ink)}.vu-r ul{margin:8px 0 0;padding-left:18px}.vu-r li{margin:3px 0;color:var(--ink-2)}.vu-sp{width:16px;height:16px;border-radius:50%;border:2.5px solid rgba(255,255,255,.4);border-top-color:#fff;animation:vtspin .8s linear infinite}@keyframes vtspin{to{transform:rotate(360deg)}}@media (max-width:600px){.vu-f{grid-template-columns:1fr}}';document.head.appendChild(css);
   var E=function(x){return String(x==null?'':x).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});};
-  var SL=U.mode==='planilha'?[['xlsx','Planilha padrão Vértice atualizada','Com as abas preenchidas até '+U.next+'.','.xlsx',1,0]]:[
-    ['bal','Balancete de '+U.next,'Da contabilidade, em Excel ou CSV. Pode reenviar meses anteriores corrigidos.','.xlsx,.csv,.txt',1,1],
-    ['vend','Vendas de '+U.next,'Relatório por produto do sistema de vendas, em Excel ou CSV.','.xlsx,.csv,.txt',1,1],
-    ['ext','Extratos bancários de '+U.next,U.contas.length?'Um por conta: '+U.contas.join(', ')+'. OFX de preferência.':'Se a empresa tiver conta em banco. OFX de preferência.','.ofx,.qfx,.xlsx,.csv,.txt',U.contas.length?1:0,1],
-    ['plano','Plano de contas','Só se a contabilidade criou ou alterou contas.','.xlsx,.csv,.txt',0,0]];
+  var SL=U.mode==='planilha'?[['xlsx','Planilha padrão Vértice atualizada','Com as abas preenchidas até '+U.next+'.','',1,0]]:[
+    ['bal','Balancete de '+U.next,'Da contabilidade, em qualquer formato (Excel, CSV, PDF, TXT…). Pode reenviar meses anteriores corrigidos.','',1,1],
+    ['vend','Vendas de '+U.next,'Relatório por produto do sistema de vendas, em qualquer formato.','',1,1],
+    ['ext','Extratos bancários de '+U.next,U.contas.length?'Um por conta: '+U.contas.join(', ')+'. OFX de preferência.':'Se a empresa tiver conta em banco. OFX de preferência.','',U.contas.length?1:0,1],
+    ['plano','Plano de contas','Só se a contabilidade criou ou alterou contas.','',0,0]];
   var FS={};
   function res(R){if(!R) return '';if(R.ok) return '<div class="vu-r ok"><b>Painel atualizado.</b> Período recalculado: '+E(R.win[0])+' a '+E(R.win[1])+' ('+R.n+' meses). Todos os indicadores, gráficos e tabelas usam os dados novos.'+(R.msgs&&R.msgs.length?'<ul>'+R.msgs.map(function(m){return '<li>'+E(m)+'</li>';}).join('')+'</ul>':'')+'</div>';
     return '<div class="vu-r err"><b>'+E(R.titulo||'O painel ainda não foi atualizado.')+'</b>'+(R.pend&&R.pend.length?'<ul>'+R.pend.map(function(m){return '<li>'+E(m)+'</li>';}).join('')+'</ul>':'')+(R.saved?'<div style="margin-top:8px">Os arquivos enviados ficaram guardados. Envie o que falta aqui ou na área do cliente.</div>':'')+'</div>';}
@@ -2347,7 +2635,7 @@ async function applyUpdate(C,files){
   if(!canUse(USER)&&!USER.admin) return {ok:false,titulo:'Ative a assinatura para atualizar o painel.',pend:[]};
   const nextK=C.gen.win[1]+1,pend=[],lidos=[];
   if(C.mode==='planilha'){const f=files.find(x=>x.kind==='xlsx');if(!f) return {ok:false,titulo:'Escolha a planilha padrão atualizada.',pend:[]};
-    try{const P=PARSE.parse(await XLSXR.readXlsx(f.buf));const er=P.MSG.filter(m=>m.l==='erro');if(er.length) return {ok:false,titulo:'A planilha tem erros.',pend:er.map(m=>m.t)};
+    try{const P=PARSE.parse(await I.readWorkbook(f.buf,f.name||'planilha.xlsx'));const er=P.MSG.filter(m=>m.l==='erro');if(er.length) return {ok:false,titulo:'A planilha tem erros.',pend:er.map(m=>m.t)};
       const u=I.norm(USER.email).replace(/\s+/g,'');P.USERS[u]={h:PARSE.sha256('cvl|'+u+'|'+C.secret),n:USER.nome,i:initials(USER.nome),r:'autor'};const R=P.RAW;
       C.gen.RAW=R;C.gen.USERS=P.USERS;C.gen.at=Date.now();C.gen.win=[R.months[0].y*12+R.months[0].m,R.months[R.months.length-1].y*12+R.months[R.months.length-1].m];delete C.importado;
       C.hist.unshift({at:Date.now(),t:'Painel atualizado pelo próprio painel: '+f.name});await save(C,false);logEv('painel','Painel atualizado (planilha): '+C.empresa.nome);
@@ -2363,7 +2651,7 @@ async function applyUpdate(C,files){
       const old=C.vend.filter(x=>x.name===n.name||(n.months.length&&vendMonths(x).some(m=>n.months.includes(m))));C.vend=C.vend.filter(x=>!old.includes(x));C.vend.push(n);lidos.push('vendas de '+n.months.map(ML).join(', '));}
     else if(f.kind==='ext'){const r=await I.readExtratoFile(f.buf,f.name).catch(e=>({ok:false,msg:e.message}));if(!r.ok){pend.push(`${f.name}: ${r.msg}`);continue;}
       C.ext=(C.ext||[]).filter(x=>x.name!==f.name);r.stmts.forEach((st,i)=>{st.trn=st.trn.slice(0,30000);C.ext.push({id:uid(),name:r.stmts.length>1?`${f.name} · ${st.conta||i+1}`:f.name,at:Date.now(),ok:true,s:st});});lidos.push('extrato '+f.name);}
-    else if(f.kind==='plano'){const r=await I.readPlanoFile(f.buf,f.name).catch(e=>({ok:false,msg:e.message}));if(!r.ok){pend.push(`${f.name}: ${r.msg}`);continue;}C.plano={name:f.name,at:Date.now(),accs:r.accs,info:r.info};lidos.push('plano de contas');}}
+    else if(f.kind==='plano'){const r=await I.readPlanoFile(f.buf,f.name).catch(e=>({ok:false,msg:e.message}));if(!r.ok){pend.push(`${f.name}: ${r.msg}`);continue;}C.plano={name:f.name,at:Date.now(),accs:r.accs,info:r.info,fmt:r.fmt};lidos.push('plano de contas');}}
   if(lidos.length){C.hist.unshift({at:Date.now(),t:'Enviado pelo painel: '+lidos.join(', ')});await save(C);}
   if(pend.length) return {ok:false,titulo:'Alguns arquivos não foram lidos.',pend,saved:!!lidos.length};
   const M=model(C);
@@ -2593,7 +2881,7 @@ async function vNova(){
     const C=blankCompany();C.empresa.nome=n;C.empresa.curto=n.slice(0,24);C.hist.push({at:Date.now(),t:'Empresa cadastrada'});await DB.put('companies',C);openCompany(C.id,'empresa');};
   $('#nvN').addEventListener('keydown',e=>{if(e.key==='Enter') $('#nvGo').click();});
   $('#nvS').onclick=()=>loadSample();
-  $('#nvX').onclick=()=>pickFiles('.xlsx',false,async fs=>{const f=fs[0];try{const book=await XLSXR.readXlsx(await f.arrayBuffer());const P=PARSE.parse(book);
+  $('#nvX').onclick=()=>pickFiles(ACC,false,async fs=>{const f=fs[0];try{const book=await I.readWorkbook(await f.arrayBuffer(),f.name);const P=PARSE.parse(book);
       if(P.MSG.some(m=>m.l==='erro')){modal(`<h3>A planilha tem pendências</h3><ul class="msgs">${P.MSG.map(m=>`<li class="${m.l}"><b>${m.l}</b><span>${esc(m.t)}</span></li>`).join('')}</ul><div class="acts"><button class="btn primary" data-close type="button">Fechar</button></div>`);return;}
       const C=blankCompany();const R=P.RAW;C.empresa=Object.assign(C.empresa,{nome:R.CFG.nome,curto:R.CFG.curto,regime:R.CFG.regime,setor:R.CFG.setor,atividade:R.CFG.atividade,cidade:R.CFG.cidade,un:R.CFG.un,unExt:R.CFG.unExt});
       C.mode='planilha';C.gen={RAW:R,USERS:Object.assign(P.USERS,{[I.norm(USER.email).replace(/\s+/g,'')]:{h:PARSE.sha256('cvl|'+I.norm(USER.email).replace(/\s+/g,'')+'|'+C.secret),n:USER.nome,i:initials(USER.nome),r:'autor'}}),at:Date.now(),rev:C.rev,win:[R.months[0].y*12+R.months[0].m,R.months[R.months.length-1].y*12+R.months[R.months.length-1].m],MSG:P.MSG};
@@ -2637,9 +2925,10 @@ function sGeral(C,M){
      <div class="panel" style="margin-top:16px"><div class="hd"><div><h2>Receita e resultado mês a mês</h2><p>Barras: receita · linha: resultado gerencial. Últimos ${L.length} meses do painel.</p></div><button class="btn sm" type="button" id="opB2">Abrir painel completo</button></div><div class="bd">${miniChart(L)}</div></div>`;
   }else{
     h+=`<div class="panel"><div class="hd"><div><h2>Para gerar o painel</h2><p>Estas etapas são obrigatórias. As informações complementares podem ficar para depois.</p></div></div><div class="bd chks">
-      ${[['empresa','Dados da empresa','Nome, regime tributário e unidade de medida das vendas.'],['bal','Balancetes mensais','Excel ou CSV: um arquivo com todos os meses ou um por mês.'],['map','Plano de contas','Envie o plano de contas da contabilidade e revise o de/para até o balancete fechar em todas as datas.'],['conc','Conciliação bancária','Extratos de cada conta bancária e aplicação (OFX, Excel ou CSV) para conferir os saldos com o banco.'],['vend','Vendas por produto','Produto, quantidade e valor de cada mês.'],['gastos','Gastos fixos e variáveis','Classificação sugerida a partir das contas de resultado.']].map(([k,t,d])=>{const s=k==='map'?worst(M.st.map,M.st.plano):M.st[k];return `<div class="c ${s==='ok'?'ok':s==='todo'?'':s==='warn'?'warn':'err'}">${s==='ok'?ICK:s==='todo'?'<svg class="i" viewBox="0 0 24 24" style="stroke:var(--ink-3)"><circle cx="12" cy="12" r="8"/></svg>':s==='warn'?IWARN:IERR}<span><b>${t}</b><br><span style="color:var(--ink-3)">${d}</span> <a href="#" data-goto="${k}">${s==='ok'?'Revisar':'Ir para a etapa'}</a></span></div>`;}).join('')}
+      ${[['empresa','Dados da empresa','Nome, regime tributário e unidade de medida das vendas.'],['bal','Balancetes mensais','Em qualquer formato: um arquivo com todos os meses ou um por mês.'],['map','Plano de contas','Envie o plano de contas da contabilidade e revise o de/para até o balancete fechar em todas as datas.'],['conc','Conciliação bancária','Extratos de cada conta bancária e aplicação (OFX, Excel ou CSV) para conferir os saldos com o banco.'],['vend','Vendas por produto','Produto, quantidade e valor de cada mês.'],['gastos','Gastos fixos e variáveis','Classificação sugerida a partir das contas de resultado.']].map(([k,t,d])=>{const s=k==='map'?worst(M.st.map,M.st.plano):M.st[k];return `<div class="c ${s==='ok'?'ok':s==='todo'?'':s==='warn'?'warn':'err'}">${s==='ok'?ICK:s==='todo'?'<svg class="i" viewBox="0 0 24 24" style="stroke:var(--ink-3)"><circle cx="12" cy="12" r="8"/></svg>':s==='warn'?IWARN:IERR}<span><b>${t}</b><br><span style="color:var(--ink-3)">${d}</span> <a href="#" data-goto="${k}">${s==='ok'?'Revisar':'Ir para a etapa'}</a></span></div>`;}).join('')}
       </div></div>`;
   }
+  if(C.mode!=='planilha') h=centralPanel()+h;
   const inf=infoState(C);const falta=inf.filter(x=>!x[2]);
   if(C.mode!=='planilha') h+=`<div class="panel" style="margin-top:16px"><div class="hd"><div><h2>O que precisamos de você para completar o painel</h2><p>${falta.length?`Faltam ${falta.length} de ${inf.length} informações opcionais. Leva poucos minutos e deixa o painel completo.`:'Todas as informações complementares foram preenchidas.'}</p></div><button class="btn sm${falta.length?' primary':''}" type="button" data-goto="equipe">${falta.length?'Preencher agora':'Revisar'}</button></div>
     <div class="bd" style="display:flex;flex-wrap:wrap;gap:8px">${inf.map(([k,t,ok])=>`<span class="pill ${ok?'ok':'mute'}">${ok?'✓ ':''}${t}</span>`).join('')}</div></div>`;
@@ -2650,9 +2939,10 @@ function sGeral(C,M){
     <div class="panel"><div class="hd"><h2>Histórico</h2></div><div class="bd">${C.hist.length?`<ul style="list-style:none;margin:0;padding:0;display:grid;gap:10px">${C.hist.slice(0,8).map(x=>`<li style="display:grid;grid-template-columns:auto 1fr;gap:10px;font-size:13.5px"><span class="mono">${new Date(x.at).toLocaleDateString('pt-BR')}</span><span>${esc(x.t)}</span></li>`).join('')}</ul>`:'<p style="color:var(--ink-3)">Nada por aqui ainda.</p>'}</div></div></div>`;
   B.innerHTML=h;
   B.querySelectorAll('[data-goto]').forEach(a=>a.onclick=e=>{e.preventDefault();STEP=a.dataset.goto;vEmpresa();});
+  bindCentral(C);
   const o2=$('#opB2');if(o2) o2.onclick=()=>openPanel(C);
   const dl=$('#dlB');if(dl) dl.onclick=()=>downloadPanel(C);
-  const rx=$('#reX');if(rx) rx.onclick=()=>pickFiles('.xlsx',false,async fs=>{try{const P=PARSE.parse(await XLSXR.readXlsx(await fs[0].arrayBuffer()));if(P.MSG.some(m=>m.l==='erro')){toast('A planilha tem erros: '+P.MSG.find(m=>m.l==='erro').t);return;}
+  const rx=$('#reX');if(rx) rx.onclick=()=>pickFiles(ACC,false,async fs=>{try{const P=PARSE.parse(await I.readWorkbook(await fs[0].arrayBuffer(),fs[0].name));if(P.MSG.some(m=>m.l==='erro')){toast('A planilha tem erros: '+P.MSG.find(m=>m.l==='erro').t);return;}
       const u=I.norm(USER.email).replace(/\s+/g,'');P.USERS[u]={h:PARSE.sha256('cvl|'+u+'|'+C.secret),n:USER.nome,i:initials(USER.nome),r:'autor'};C.gen.RAW=P.RAW;C.gen.USERS=P.USERS;C.gen.at=Date.now();delete C.importado;C.hist.unshift({at:Date.now(),t:'Planilha padrão atualizada: '+fs[0].name});await save(C,false);toast('Painel atualizado.');vEmpresa();}catch(e){toast(e.message);}});
   $('#delB').onclick=async()=>{if(!await confirmBox('Excluir empresa',`A empresa <b>${esc(C.empresa.nome)}</b>, os relatórios enviados e o painel serão apagados. Essa ação não pode ser desfeita.`,'Excluir',true)) return;await DB.del('companies',C.id);CUR=null;toast('Empresa excluída.');go('empresas');};
 }
@@ -2692,16 +2982,17 @@ function pickFiles(accept,multiple,cb){const i=$('#fileIn');i.value='';i.accept=
 function bindDrop(el,accept,cb){el.onclick=()=>pickFiles(accept,true,cb);el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();el.click();}};
   ['dragover','dragenter'].forEach(ev=>el.addEventListener(ev,e=>{e.preventDefault();el.classList.add('on');}));['dragleave','drop'].forEach(ev=>el.addEventListener(ev,e=>{e.preventDefault();el.classList.remove('on');}));
   el.addEventListener('drop',e=>{const f=[...(e.dataTransfer.files||[])];if(f.length) cb(f);});}
-const ACC='.xlsx,.csv,.txt,.xls,.pdf';
+/* aceita qualquer arquivo: o leitor identifica o formato pelo conteúdo */
+const ACC='';
 const trimRows=rows=>{let n=rows.length;while(n>0&&!rows[n-1].some(v=>v!=null)) n--;return rows.slice(0,Math.min(n,6000));};
 /* um arquivo pode trazer vários meses (coluna de competência, blocos repetidos ou uma aba por mês): vira um balancete por mês */
 async function readBalFiles(name,buf){
   const bad=msg=>[{id:uid(),src:name,name,rows:[],det:{ok:false,msg},month:null,at:Date.now()}];
   try{const sh=await I.readTable(buf,name);const out=[];let msg=null;
-    for(const s of sh){const d=I.detectBalancete(s.rows);if(!d.ok){msg=msg||d.msg;continue;}
+    for(const s0 of sh){const w=I.detectWith(I.detectBalancete,s0.rows),d=w.d,s={name:s0.name,rows:w.rows};if(!d.ok){msg=msg||d.msg;continue;}
       const rows=trimRows(s.rows);const parts=I.splitBalancete(rows,d,sh.length>1?s.name+' '+name:name);
       parts.forEach(p=>{let m=p.month;if(m==null&&!p.part) m=I.detectMonth(rows,s.name);if(m==null&&!p.part) m=I.detectMonth(rows,name);
-        out.push({id:uid(),src:name,name:parts.length>1||sh.length>1?`${name} · ${m!=null?ML(m):s.name}`:name,rows:p.rows,det:p.det,month:m,at:Date.now()});});}
+        out.push({id:uid(),src:name,name:parts.length>1||sh.length>1?`${name} · ${m!=null?ML(m):s.name}`:name,rows:p.rows,det:p.det,month:m,fmt:sh.fmt,at:Date.now()});});}
     return out.length?out:bad(msg||'Arquivo vazio.');}
   catch(e){return bad(e.message);}
 }
@@ -2709,10 +3000,10 @@ const vendMonths=f=>{if(!f.det||!f.det.ok) return [];if(f.det.col.data==null) re
 async function readVendFile(name,buf){
   const bad=msg=>({id:uid(),src:name,name,rows:[],det:{ok:false,msg},month:null,months:[],at:Date.now()});
   try{const sh=await I.readTable(buf,name);let main=null,ref=null,msg=null;
-    for(const s of sh){if(!main){const d=I.detectVendas(s.rows);if(d.ok){main={s,d};continue;}msg=msg||d.msg;}if(!ref){const r=I.readProdutos(s.rows);if(r) ref=r;}}
+    for(const s of sh){if(!main){const w=I.detectWith(I.detectVendas,s.rows);if(w.d.ok){main={s:{name:s.name,rows:w.rows},d:w.d};continue;}msg=msg||w.d.msg;}if(!ref){const r=I.readProdutos(s.rows);if(r) ref=r;}}
     if(!main) return bad(msg||'Arquivo vazio.');
     const rows=trimRows(main.s.rows);let month=null;if(main.d.col.data==null){month=I.detectMonth(rows,main.s.name);if(month==null) month=I.detectMonth(rows,name);}
-    const f={id:uid(),src:name,name,rows,det:main.d,month,prodRef:ref,at:Date.now()};f.months=vendMonths(f);return f;}
+    const f={id:uid(),src:name,name,rows,det:main.d,month,prodRef:ref,fmt:sh.fmt,at:Date.now()};f.months=vendMonths(f);return f;}
   catch(e){return bad(e.message);}
 }
 function monthOptions(sel,around){const now=new Date();const base=around!=null?around:now.getFullYear()*12+now.getMonth();let h='<option value="">Escolha o mês</option>';
@@ -2729,22 +3020,66 @@ function colEditor(f,kind,onSave){
       f.det.col=col;close();onSave();};});
 }
 
+/* ---------- envio de arquivos: usado pelas etapas e pela central de arquivos ---------- */
+async function addBal(C,fs){let nm=0,rep=0;
+  for(const f of fs){const parts=await readBalFiles(f.name,f.buf||await f.arrayBuffer());
+    parts.forEach(r=>{const old=C.bal.filter(x=>(r.month!=null&&x.month===r.month)||(!r.det.ok&&x.name===r.name));rep+=old.length;C.bal=C.bal.filter(x=>!old.includes(x));C.bal.push(r);if(r.det.ok) nm++;});}
+  C.hist.unshift({at:Date.now(),t:`Balancetes enviados: ${fs.map(f=>f.name).join(', ')} (${nm} mês${nm>1?'es':''})`});await save(C);return {n:nm,rep};}
+async function addPlano(C,f){const r=await I.readPlanoFile(f.buf||await f.arrayBuffer(),f.name).catch(e=>({ok:false,msg:e.message}));
+  if(r.ok){C.plano={name:f.name,at:Date.now(),accs:r.accs,info:r.info,fmt:r.fmt};C.hist.unshift({at:Date.now(),t:`Plano de contas enviado: ${f.name} (${r.accs.length} contas)`});await save(C);}
+  return r;}
+async function addExt(C,fs){let n=0,bad=0;
+  for(const f of fs){const r=await I.readExtratoFile(f.buf||await f.arrayBuffer(),f.name).catch(e=>({ok:false,msg:e.message}));
+    if(!r.ok){bad++;C.ext=(C.ext||[]).filter(x=>x.name!==f.name||x.ok);C.ext.push({id:uid(),name:f.name,at:Date.now(),ok:false,msg:r.msg});continue;}
+    C.ext=(C.ext||[]).filter(x=>x.name!==f.name);r.stmts.forEach((s,i)=>{s.trn=s.trn.slice(0,30000);C.ext.push({id:uid(),name:r.stmts.length>1?`${f.name} · ${s.conta||i+1}`:f.name,at:Date.now(),ok:true,s});n++;});}
+  C.hist.unshift({at:Date.now(),t:`Extratos enviados: ${fs.map(f=>f.name).join(', ')}`});await save(C);return {n,bad};}
+async function addVend(C,fs){let rep=0;
+  for(const f of fs){const n=await readVendFile(f.name,f.buf||await f.arrayBuffer());
+    const old=C.vend.filter(x=>x.name===n.name||(n.months.length&&vendMonths(x).some(m=>n.months.includes(m))));rep+=old.length;C.vend=C.vend.filter(x=>!old.includes(x));C.vend.push(n);}
+  C.hist.unshift({at:Date.now(),t:`Relatório de vendas enviado (${fs.map(f=>f.name).join(', ')})`});await save(C);return {rep};}
+
+/* ---------- central de arquivos: recebe qualquer arquivo, descobre o que é e leva para a etapa certa ---------- */
+const KIND_STEP={bal:'bal',plano:'map',ext:'conc',vend:'vend'};
+function centralPanel(){return `<div class="panel" style="margin-bottom:16px"><div class="hd"><div><h2>Central de arquivos</h2><p>Envie todos os relatórios de uma vez, em qualquer formato. O Vértice identifica cada um (balancete, plano de contas, extrato ou vendas), organiza as colunas e coloca na etapa certa.</p></div></div><div class="bd">
+  <div class="drop" id="cdrop" tabindex="0" role="button" aria-label="Enviar arquivos para a central">${IUP}<b>Arraste aqui qualquer arquivo ou clique para escolher</b><span>Excel (.xlsx, .xls), LibreOffice, CSV, TXT, PDF com texto, Word, HTML, OFX, JSON ou uma pasta .zip</span></div></div></div>`;}
+function bindCentral(C){const d=$('#cdrop');if(!d) return;
+  bindDrop(d,ACC,async fs=>{toast('Identificando '+fs.length+' arquivo'+(fs.length>1?'s':'')+'…');
+    const L=[];for(const f of fs){const buf=await f.arrayBuffer();let c;try{c=await I.classifyFile(buf,f.name);}catch(e){c={kind:null,fmt:'',motivo:e.message};}L.push({f,buf,c});}
+    const opt=k=>['bal','plano','ext','vend'].map(x=>`<option value="${x}"${x===k?' selected':''}>${I.KIND_L[x]}</option>`).join('')+`<option value=""${k?'':' selected'}>Não enviar</option>`;
+    modal(`<h3>Arquivos identificados</h3><p style="color:var(--ink-2);font-size:14px">Confira o tipo de cada arquivo. Se algum estiver errado, troque antes de organizar.</p>
+      <div style="display:grid;gap:10px;margin:14px 0;max-height:52vh;overflow:auto">${L.map((x,i)=>`<div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:10px 12px">
+        <b style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(x.f.name)}</b>
+        <select data-ck="${i}" aria-label="Tipo de ${esc(x.f.name)}"${x.c.kind==='padrao'?' disabled':''}>${x.c.kind==='padrao'?'<option>Planilha padrão</option>':opt(x.c.kind)}</select>
+        <span style="grid-column:1/-1;font-size:12.5px;color:${x.c.kind?'var(--ink-3)':'var(--err)'}">${x.c.fmt?esc(x.c.fmt)+' · ':''}${x.c.kind==='padrao'?'use “Enviar nova versão da planilha padrão” nas ações':x.c.kind?'reconhecido por '+esc(x.c.motivo):esc(x.c.motivo)+'. Escolha o tipo para tentar mesmo assim.'}</span></div>`).join('')}</div>
+      <div class="acts"><button class="btn" data-close type="button">Cancelar</button><button class="btn primary" id="ckOk" type="button">Organizar arquivos</button></div>`,(b,close)=>{
+      b.querySelector('#ckOk').onclick=async()=>{const G={bal:[],plano:[],ext:[],vend:[]};
+        b.querySelectorAll('[data-ck]').forEach(sl=>{const x=L[+sl.dataset.ck];if(!sl.disabled&&sl.value) G[sl.value].push({name:x.f.name,buf:x.buf});});
+        close();toast('Organizando…');const res=[];
+        if(G.plano.length){const r=await addPlano(C,G.plano[G.plano.length-1]);res.push(r.ok?`Plano de contas: ${r.accs.length} contas`:`Plano de contas não lido: ${r.msg}`);}
+        if(G.bal.length){const r=await addBal(C,G.bal);res.push(`Balancetes: ${r.n} mês(es)${r.rep?`, ${r.rep} substituído(s)`:''}`);}
+        if(G.ext.length){const r=await addExt(C,G.ext);res.push(`Extratos: ${r.n} lido(s)${r.bad?`, ${r.bad} não reconhecido(s)`:''}`);}
+        if(G.vend.length){await addVend(C,G.vend);res.push(`Vendas: ${G.vend.length} arquivo(s)`);}
+        if(!res.length){toast('Nenhum arquivo foi enviado.');return;}
+        await autoRegen(C);
+        const first=['bal','plano','ext','vend'].find(k=>G[k].length);STEP='geral';vEmpresa();
+        modal(`<h3>Arquivos organizados</h3><ul style="margin:8px 0 0;padding-left:18px;display:grid;gap:6px;color:var(--ink-2)">${res.map(t=>`<li>${esc(t)}</li>`).join('')}</ul>
+          <div class="acts"><button class="btn" data-close type="button">Fechar</button>${first?`<button class="btn primary" type="button" id="ckGo">Revisar ${esc(I.KIND_L[first].toLowerCase())}</button>`:''}</div>`,(b2,close2)=>{const g=b2.querySelector('#ckGo');if(g) g.onclick=()=>{close2();STEP=KIND_STEP[first];vEmpresa();window.scrollTo(0,0);};});};});
+  });}
+
 /* ---------- 2. balancetes ---------- */
 function sBal(C,M){
   const B=$('#stepB');
   const fl=C.bal.slice().sort((a,b)=>(a.month||0)-(b.month||0));
   const dupl=m=>m!=null&&C.bal.filter(f=>f.month===m).length>1;
-  B.innerHTML=`<div class="panel"><div class="hd"><div><h2>Balancetes mensais</h2><p>Excel (.xlsx) ou CSV: um arquivo com todos os meses ou um arquivo por mês. Reenviar um mês substitui a versão anterior.</p></div><a class="btn sm ghost" href="#ajuda">Como pedir à contabilidade</a></div><div class="bd">
+  B.innerHTML=`<div class="panel"><div class="hd"><div><h2>Balancetes mensais</h2><p>Qualquer formato (Excel .xlsx ou .xls, LibreOffice, CSV, TXT, PDF com texto, Word, HTML ou .zip): um arquivo com todos os meses ou um arquivo por mês. Reenviar um mês substitui a versão anterior.</p></div><a class="btn sm ghost" href="#ajuda">Como pedir à contabilidade</a></div><div class="bd">
     <div class="drop" id="drop" tabindex="0" role="button" aria-label="Enviar balancetes">${IUP}<b>Arraste os balancetes aqui ou clique para escolher</b><span>Saldo anterior, débito, crédito e saldo atual de cada conta, em um ou vários arquivos · dezembro antes do encerramento</span></div>
-    ${fl.length?`<div class="files">${fl.map(f=>`<div class="file${!f.det.ok||f.month==null||dupl(f.month)?' bad':''}"><span class="fi">${esc((f.name.split('.').pop()||'').toUpperCase().slice(0,4))}</span><div class="nm"><b>${esc(f.name)}</b><span>${f.det.ok?`${I.readBalancete(f.rows,f.det).length} contas lidas${dupl(f.month)?' · mês repetido':''}`:`<span style="color:var(--err)">${esc(f.det.msg)}</span>`}</span></div>
+    ${fl.length?`<div class="files">${fl.map(f=>`<div class="file${!f.det.ok||f.month==null||dupl(f.month)?' bad':''}"><span class="fi">${esc((f.name.split('.').pop()||'').toUpperCase().slice(0,4))}</span><div class="nm"><b>${esc(f.name)}</b><span>${f.det.ok?`${I.readBalancete(f.rows,f.det).length} contas lidas${f.fmt?' · '+esc(f.fmt):''}${dupl(f.month)?' · mês repetido':''}`:`<span style="color:var(--err)">${esc(f.det.msg)}</span>`}</span></div>
       ${f.det.ok?`<select data-mon="${f.id}" aria-label="Mês do balancete">${monthOptions(f.month,f.month)}</select>`:'<span></span>'}
       <span style="display:flex;gap:4px">${f.det.ok?`<button class="btn sm ghost" type="button" data-cols="${f.id}">Colunas</button>`:''}<button class="btn sm ghost" type="button" data-rm="${f.id}" aria-label="Remover ${esc(f.name)}">Remover</button></span></div>`).join('')}</div>`:''}
     ${M.seq.length?`<div style="margin-top:18px;display:grid;gap:8px"><b style="font-size:13.5px">Meses recebidos</b><div class="months">${M.seq.map(m=>`<span class="${M.months.includes(m)?'':'miss'}" title="${M.months.includes(m)?'recebido':'faltando'}">${ML(m)}</span>`).join('')}</div>${M.missing.length?`<p style="color:var(--err);font-size:13px">Falta${M.missing.length>1?'m':''} o balancete de ${M.missing.map(ML).join(', ')}. Sem ele, o painel não calcula o fluxo de caixa desse mês.</p>`:''}${M.closing?`<p class="alert info" style="font-size:13px">Os balancetes de janeiro vieram sem o encerramento do exercício anterior. O Vértice zerou as contas de resultado no início do ano e levou o valor para lucros acumulados, como no lançamento de encerramento.</p>`:''}</div>`:''}
     <div class="bar-acts"><span style="color:var(--ink-3);font-size:13px">${C.bal.length?'Os arquivos são lidos no seu navegador.':''}</span>${M.st.bal==='ok'||M.st.bal==='warn'?nextBtn('map',C.plano?'Revisar o plano de contas':'Enviar o plano de contas'):''}</div></div></div>`;
   bindDrop($('#drop'),ACC,async fs=>{toast('Lendo '+fs.length+' arquivo'+(fs.length>1?'s':'')+'…');
-    let nm=0,rep=0;for(const f of fs){const parts=await readBalFiles(f.name,await f.arrayBuffer());
-      parts.forEach(r=>{const old=C.bal.filter(x=>(r.month!=null&&x.month===r.month)||(!r.det.ok&&x.name===r.name));rep+=old.length;C.bal=C.bal.filter(x=>!old.includes(x));C.bal.push(r);if(r.det.ok) nm++;});}
-    C.hist.unshift({at:Date.now(),t:`Balancetes enviados: ${fs.map(f=>f.name).join(', ')} (${nm} mês${nm>1?'es':''})`});await save(C);
+    const {rep}=await addBal(C,fs);
     if(rep) setTimeout(()=>toast(`${rep} mês(es) já enviados foram substituídos pela versão nova.`),3300);
     const bad=C.bal.filter(f=>!f.det.ok).length;toast(bad?`${bad} arquivo(s) não foram reconhecidos. Veja a mensagem em vermelho.`:'Balancetes lidos.');if(!bad) await autoRegen(C);vEmpresa();});
   B.querySelectorAll('[data-mon]').forEach(s=>s.onchange=async()=>{const f=C.bal.find(x=>x.id===s.dataset.mon);f.month=s.value===''?null:+s.value;await save(C);vEmpresa();});
@@ -2817,9 +3152,9 @@ function planoPanel(C,M){
   const P=M.pstat,pl=C.plano;
   const pill=!pl?`<span class="pill err">Obrigatório</span>`:P&&P.sem.length?`<span class="pill warn">${P.sem.length} conta${P.sem.length>1?'s':''} fora do plano</span>`:`<span class="pill ok">${P?'Plano confere com o balancete':'Plano recebido'}</span>`;
   let h=`<div class="panel"><div class="hd"><div><h2>Plano de contas da contabilidade</h2><p>Obrigatório. O arquivo organiza as contas do balancete em grupos e contas totalizadoras, com a classificação oficial da contabilidade. Com ele, o de/para fica mais preciso e a soma do balancete não conta nada em dobro.</p></div>${pill}</div><div class="bd">`;
-  if(!pl) h+=`<div class="drop" id="pdrop" tabindex="0" role="button" aria-label="Enviar plano de contas">${IUP}<b>Arraste o plano de contas aqui ou clique para escolher</b><span>Excel (.xlsx) ou CSV com classificação, código reduzido, descrição, tipo (sintética ou analítica) e natureza</span></div>`;
+  if(!pl) h+=`<div class="drop" id="pdrop" tabindex="0" role="button" aria-label="Enviar plano de contas">${IUP}<b>Arraste o plano de contas aqui ou clique para escolher</b><span>Qualquer formato (Excel, CSV, PDF, TXT…) com classificação, código reduzido, descrição, tipo (sintética ou analítica) e natureza</span></div>`;
   else{const S=pl.accs.filter(a=>a.tipo==='S').length;
-    h+=`<div class="files" style="margin-top:0"><div class="file"><span class="fi">${esc((pl.name.split('.').pop()||'').toUpperCase().slice(0,4))}</span><div class="nm"><b>${esc(pl.name)}</b><span>${pl.accs.length} contas · ${S} totalizadoras · ${pl.accs.length-S} analíticas${pl.info&&!pl.info.tipo?' · tipo deduzido pela estrutura':''}</span></div><span></span>
+    h+=`<div class="files" style="margin-top:0"><div class="file"><span class="fi">${esc((pl.name.split('.').pop()||'').toUpperCase().slice(0,4))}</span><div class="nm"><b>${esc(pl.name)}</b><span>${pl.accs.length} contas${pl.fmt?' · '+esc(pl.fmt):''} · ${S} totalizadoras · ${pl.accs.length-S} analíticas${pl.info&&!pl.info.tipo?' · tipo deduzido pela estrutura':''}</span></div><span></span>
       <span style="display:flex;gap:4px;flex-wrap:wrap">${M.accs.length?`<button class="btn sm ghost" type="button" id="plDl">Baixar plano organizado</button>`:''}<button class="btn sm ghost" type="button" id="plTr">Trocar arquivo</button><button class="btn sm ghost" type="button" id="plRm">Remover</button></span></div></div>`;
     if(P){h+=`<p style="margin-top:12px;font-size:13.5px;color:var(--ink-2)"><b>${P.ok} de ${P.bal}</b> contas com movimento no balancete foram localizadas no plano${P.porNome?` (${P.porNome} pelo nome, porque o balancete não traz o código)`:''}. A hierarquia, as contas totalizadoras e a natureza passam a vir do plano.</p>`;
       if(P.sem.length) h+=`<div class="alert warn" style="margin-top:10px;font-size:13px"><b>Contas do balancete que não estão no plano.</b> Peça à contabilidade o plano atualizado ou confira o código destas contas: ${P.sem.slice(0,8).map(esc).join('; ')}${P.sem.length>8?` e mais ${P.sem.length-8}`:''}.</div>`;
@@ -2828,11 +3163,11 @@ function planoPanel(C,M){
   return h+`</div></div>`;
 }
 function bindPlano(C){
-  const up=async fs=>{const f=fs[0];toast('Lendo '+f.name+'…');const r=await I.readPlanoFile(await f.arrayBuffer(),f.name).catch(e=>({ok:false,msg:e.message}));
+  const up=async fs=>{const f=fs[0];toast('Lendo '+f.name+'…');const r=await addPlano(C,f);
     if(!r.ok){modal(`<h3>Plano de contas não reconhecido</h3><p style="color:var(--ink-2)">${esc(r.msg)}</p><p style="color:var(--ink-3);font-size:13.5px">O arquivo precisa de uma linha de títulos com a classificação (ou código) e a descrição de cada conta. Tipo (S/A) e natureza (D/C) deixam a organização mais precisa.</p><div class="acts"><button class="btn primary" data-close type="button">Entendi</button></div>`);return;}
-    C.plano={name:f.name,at:Date.now(),accs:r.accs,info:r.info};C.hist.unshift({at:Date.now(),t:`Plano de contas enviado: ${f.name} (${r.accs.length} contas)`});await save(C);toast('Plano de contas lido: '+r.accs.length+' contas.');await autoRegen(C);vEmpresa();};
-  const d=$('#pdrop');if(d) bindDrop(d,'.xlsx,.csv,.txt',up);
-  const t=$('#plTr');if(t) t.onclick=()=>pickFiles('.xlsx,.csv,.txt',false,up);
+    toast('Plano de contas lido: '+r.accs.length+' contas.');await autoRegen(C);vEmpresa();};
+  const d=$('#pdrop');if(d) bindDrop(d,ACC,up);
+  const t=$('#plTr');if(t) t.onclick=()=>pickFiles(ACC,false,up);
   const rm=$('#plRm');if(rm) rm.onclick=async()=>{if(!await confirmBox('Remover o plano de contas','O de/para volta a usar só a estrutura do balancete. O plano é obrigatório para gerar o painel.','Remover',true)) return;C.plano=null;await save(C);vEmpresa();};
   const dl=$('#plDl');if(dl) dl.onclick=()=>planoCSV(C,model(C));
 }
@@ -2850,7 +3185,7 @@ function sConc(C,M){
   const opts=(sel)=>`<option value="">— ligar a uma conta —</option>${M.disp.map(a=>`<option value="${esc(a.key)}"${a.key===sel?' selected':''}>${esc(accLabel(a))}</option>`).join('')}<option value="__none"${sel==='__none'?' selected':''}>Não usar este extrato</option>`;
   const nC=M.conc.length,okC=M.conc.filter(c=>concStatus(c)[0]==='ok').length;
   let h=`<div class="panel"><div class="hd"><div><h2>Extratos bancários</h2><p>Obrigatório para cada conta bancária e aplicação com saldo no período. Envie os extratos de todo o período do painel: o OFX é o formato mais preciso (internet banking → extrato → exportar OFX/Money); Excel e CSV também servem.</p></div>${nC?`<span class="pill ${M.st.conc==='ok'?'ok':M.st.conc==='err'?'err':'warn'}">${okC} de ${nC} conta${nC>1?'s':''} conciliada${nC>1?'s':''}</span>`:''}</div><div class="bd">
-    <div class="drop" id="xdrop" tabindex="0" role="button" aria-label="Enviar extratos">${IUP}<b>Arraste os extratos aqui ou clique para escolher</b><span>OFX, Excel (.xlsx) ou CSV · um arquivo por conta ou por mês · PDF não é lido</span></div>
+    <div class="drop" id="xdrop" tabindex="0" role="button" aria-label="Enviar extratos">${IUP}<b>Arraste os extratos aqui ou clique para escolher</b><span>OFX (mais preciso), Excel, CSV, TXT ou PDF do banco · um arquivo por conta ou por mês</span></div>
     ${exts.length?`<div class="files">${exts.map(x=>{const m=ex.get(x.id);if(!x.ok) return `<div class="file bad"><span class="fi">${esc((x.name.split('.').pop()||'').toUpperCase().slice(0,4))}</span><div class="nm"><b>${esc(x.name)}</b><span style="color:var(--err)">${esc(x.msg)}</span></div><span></span><span><button class="btn sm ghost" type="button" data-xrm="${x.id}">Remover</button></span></div>`;
       const la=lastAnch(x.s);const sel=x.link===''?'__none':m.lk||'';
       return `<div class="file${!semBal&&!m.lk&&x.link!==''?' bad':''}" style="grid-template-columns:auto minmax(0,1fr) auto"><span class="fi">${esc(x.s.fmt==='OFX'?'OFX':(x.name.split('.').pop()||'').toUpperCase().slice(0,4))}</span><div class="nm"><b>${esc(x.name)}</b><span>${esc(extDesc(x.s))}</span>${(x.s.avisos||[]).map(t=>`<span style="display:block;color:var(--warn)">${esc(t)}</span>`).join('')}</div>
@@ -2883,11 +3218,7 @@ function sConc(C,M){
   if(M.st.conc==='err'||(C.semContabil&&M.st.semCtb)) h+=`<div class="panel"><div class="hd"><div><h2>Sem os extratos agora?</h2><p>Você pode gerar o painel só com a parte gerencial (vendas, margem, ponto de equilíbrio e custos) e concluir a conciliação depois.</p></div><label class="chk" style="font-weight:600"><input type="checkbox" id="semCtb2"${C.semContabil?' checked':''}> Gerar sem a parte contábil</label></div></div>`;
   h+=`<div class="bar-acts"><span>${M.conc.some(c=>!c.sem)?`<button class="btn sm ghost" type="button" id="xCsv">Baixar relatório de conciliação</button>`:''}</span>${!semBal&&(['ok','warn'].includes(M.st.conc)||C.semContabil)?nextBtn('vend','Continuar para Vendas'):''}</div>`;
   B.innerHTML=h;
-  bindDrop($('#xdrop'),'.ofx,.qfx,.xlsx,.csv,.txt',async fs=>{toast('Lendo '+fs.length+' extrato'+(fs.length>1?'s':'')+'…');let n=0,bad=0;
-    for(const f of fs){const r=await I.readExtratoFile(await f.arrayBuffer(),f.name).catch(e=>({ok:false,msg:e.message}));
-      if(!r.ok){bad++;C.ext=(C.ext||[]).filter(x=>x.name!==f.name||x.ok);C.ext.push({id:uid(),name:f.name,at:Date.now(),ok:false,msg:r.msg});continue;}
-      C.ext=(C.ext||[]).filter(x=>x.name!==f.name);r.stmts.forEach((s,i)=>{s.trn=s.trn.slice(0,30000);C.ext.push({id:uid(),name:r.stmts.length>1?`${f.name} · ${s.conta||i+1}`:f.name,at:Date.now(),ok:true,s});n++;});}
-    C.hist.unshift({at:Date.now(),t:`Extratos enviados: ${fs.map(f=>f.name).join(', ')}`});await save(C);toast(bad?`${bad} arquivo(s) não foram reconhecidos.`:`${n} extrato${n>1?'s':''} lido${n>1?'s':''}.`);if(!bad) await autoRegen(C);vEmpresa();});
+  bindDrop($('#xdrop'),ACC,async fs=>{toast('Lendo '+fs.length+' extrato'+(fs.length>1?'s':'')+'…');const {n,bad}=await addExt(C,fs);toast(bad?`${bad} arquivo(s) não foram reconhecidos.`:`${n} extrato${n>1?'s':''} lido${n>1?'s':''}.`);if(!bad) await autoRegen(C);vEmpresa();});
   B.querySelectorAll('[data-xrm]').forEach(b=>b.onclick=async()=>{C.ext=C.ext.filter(x=>x.id!==b.dataset.xrm);await save(C);vEmpresa();});
   B.querySelectorAll('[data-xl]').forEach(s=>s.onchange=async()=>{const x=C.ext.find(y=>y.id===s.dataset.xl);x.link=s.value==='__none'?'':s.value||null;if(x.link==null) delete x.link;await save(C);vEmpresa();});
   B.querySelectorAll('[data-xs]').forEach(i=>i.onchange=async()=>{const x=C.ext.find(y=>y.id===i.dataset.xs);const m=I.money(i.value);const la=lastAnch(x.s);
@@ -2949,8 +3280,8 @@ function sVend(C,M){
   const B=$('#stepB');
   const conf=M.vm.map(m=>{const s=M.salesBy[m]||0,r=M.rbBy[m];return {m,s,r,d:r?((s-r)/r):null};});
   B.innerHTML=`<div class="panel"><div class="hd"><div><h2>Relatório de vendas</h2><p>Produto, quantidade e valor vendido. Pode ser um arquivo com todos os meses (com coluna de data) ou um arquivo por mês.</p></div><button class="btn sm ghost" type="button" id="vModel">Baixar modelo CSV</button></div><div class="bd">
-    <div class="drop" id="drop" tabindex="0" role="button" aria-label="Enviar relatório de vendas">${IUP}<b>Arraste o relatório de vendas aqui ou clique para escolher</b><span>Excel (.xlsx) ou CSV · colunas de produto, quantidade e valor</span></div>
-    ${C.vend.length?`<div class="files">${C.vend.map(f=>{const n=f.det.ok?I.readVendas(f.rows,f.det).rows.length:0;return `<div class="file${!f.det.ok||(f.det.col.data==null&&f.month==null)?' bad':''}"><span class="fi">${esc((f.name.split('.').pop()||'').toUpperCase().slice(0,4))}</span><div class="nm"><b>${esc(f.name)}</b><span>${f.det.ok?`${n} linhas · ${f.det.col.data!=null?'mês pela coluna de data':'arquivo de um único mês'}`:`<span style="color:var(--err)">${esc(f.det.msg)}</span>`}</span></div>
+    <div class="drop" id="drop" tabindex="0" role="button" aria-label="Enviar relatório de vendas">${IUP}<b>Arraste o relatório de vendas aqui ou clique para escolher</b><span>Qualquer formato · colunas de produto, quantidade e valor</span></div>
+    ${C.vend.length?`<div class="files">${C.vend.map(f=>{const n=f.det.ok?I.readVendas(f.rows,f.det).rows.length:0;return `<div class="file${!f.det.ok||(f.det.col.data==null&&f.month==null)?' bad':''}"><span class="fi">${esc((f.name.split('.').pop()||'').toUpperCase().slice(0,4))}</span><div class="nm"><b>${esc(f.name)}</b><span>${f.det.ok?`${n} linhas${f.fmt?' · '+esc(f.fmt):''} · ${f.det.col.data!=null?'mês pela coluna de data':'arquivo de um único mês'}`:`<span style="color:var(--err)">${esc(f.det.msg)}</span>`}</span></div>
       ${f.det.ok&&f.det.col.data==null?`<select data-vmon="${f.id}" aria-label="Mês das vendas">${monthOptions(f.month,f.month!=null?f.month:(M.months.length?M.months[M.months.length-1]:null))}</select>`:'<span></span>'}
       <span style="display:flex;gap:4px">${f.det.ok?`<button class="btn sm ghost" type="button" data-vcols="${f.id}">Colunas</button>`:''}<button class="btn sm ghost" type="button" data-vrm="${f.id}">Remover</button></span></div>`;}).join('')}</div>`:''}
     ${M.semMes?`<p style="color:var(--err);font-size:13.5px;margin-top:12px">${M.semMes} linha(s) sem mês: escolha o mês do arquivo.</p>`:''}
@@ -2964,9 +3295,7 @@ function sVend(C,M){
    <div class="panel"><div class="hd"><div><h2>Conferência com o balancete</h2><p>Receita do relatório de vendas × receita bruta contabilizada. Diferenças pequenas são normais (data de emissão, devoluções); grandes merecem conversa com a contabilidade.</p></div></div>
      <div class="tw"><table class="t"><thead><tr><th>Mês</th><th class="r">Relatório de vendas</th><th class="r">Receita contabilizada</th><th class="r">Diferença</th></tr></thead><tbody>${conf.map(c=>`<tr><td>${I.mlong(c.m)}</td><td class="r">R$ ${f0(c.s)}</td><td class="r">${c.r?'R$ '+f0(c.r):'—'}</td><td class="r">${c.d==null?'<span class="pill mute">sem balancete</span>':Math.abs(c.d)<0.02?`<span class="pill ok">${pct(c.d)}</span>`:`<span class="pill ${Math.abs(c.d)<0.1?'warn':'err'}">${pct(c.d)}</span>`}</td></tr>`).join('')}</tbody></table></div></div>`:''}
    <div class="bar-acts"><span></span>${M.st.vend==='ok'?nextBtn('gastos','Continuar para Gastos'):''}</div>`;
-  bindDrop($('#drop'),ACC,async fs=>{let rep=0;for(const f of fs){const n=await readVendFile(f.name,await f.arrayBuffer());
-      const old=C.vend.filter(x=>x.name===n.name||(n.months.length&&vendMonths(x).some(m=>n.months.includes(m))));rep+=old.length;C.vend=C.vend.filter(x=>!old.includes(x));C.vend.push(n);}
-    C.hist.unshift({at:Date.now(),t:`Relatório de vendas enviado (${fs.map(f=>f.name).join(', ')})`});await save(C);
+  bindDrop($('#drop'),ACC,async fs=>{const {rep}=await addVend(C,fs);
     if(rep) setTimeout(()=>toast('O envio anterior dos mesmos meses foi substituído; as vendas não são somadas duas vezes.'),3300);
     const bad=C.vend.filter(f=>!f.det.ok).length;toast(bad?'Um arquivo não foi reconhecido. Veja a mensagem em vermelho.':'Vendas lidas.');if(!bad) await autoRegen(C);vEmpresa();});
   $('#vModel').onclick=()=>download('modelo_vendas.csv','﻿Data;Produto;Grupo;Quantidade;Volume;Valor\n01/05/2026;Pão francês;Panificação;1200;60,5;1.512,00\n01/05/2026;Bolo de cenoura;Confeitaria;85;68;2.380,00\n','text/csv');
@@ -3100,7 +3429,7 @@ function vConta(){
     $('#cP0').value='';$('#cP1').value='';logEv('senha','Senha trocada pelo cliente');toast('Senha trocada.');};
   $('#cDel').onclick=async()=>{if(!await confirmBox('Excluir conta','Todas as empresas e painéis desta conta serão apagados.','Excluir conta',true)) return;if(CLOUD.on){await DB.del('users');await logout();}else{for(const c of await myCompanies()) await DB.del('companies',c.id);await DB.del('users',USER.email);sessClear();USER=null;}location.href='index.html';};
 }
-function msgContador(){return `Olá! Vou acompanhar os resultados da empresa no painel Vértice e preciso destes relatórios, em Excel (.xlsx) ou CSV:
+function msgContador(){return `Olá! Vou acompanhar os resultados da empresa no painel Vértice e preciso destes relatórios, de preferência em Excel ou CSV:
 
 1. Balancete de verificação de cada mês (um arquivo por mês), dos últimos 12 meses, com as colunas: classificação ou código da conta, nome da conta, saldo anterior, débito, crédito e saldo atual (com a indicação D/C).
 2. Para dezembro, o balancete antes do lançamento de encerramento do exercício.
@@ -3109,7 +3438,7 @@ function msgContador(){return `Olá! Vou acompanhar os resultados da empresa no 
 
 Os extratos bancários eu tiro direto do banco, para conferir os saldos com os balancetes. Se aparecer diferença, envio para vocês o mês e o valor.
 
-PDF não serve, porque o sistema precisa ler os valores. Obrigado!`;}
+Se o sistema só gerar PDF, pode ser o PDF exportado direto do sistema (não escaneado nem foto). Obrigado!`;}
 function vAjuda(){
   const m=msgContador();
   $('#main').innerHTML=`<div class="ph"><div><h1>Relatórios necessários</h1><p>O que pedir à contabilidade, o que tirar do sistema de vendas e do banco.</p></div></div>
@@ -3117,7 +3446,7 @@ function vAjuda(){
       <div class="c ok">${ICK}<span><b>Balancete de verificação mensal</b><br><span style="color:var(--ink-3)">Um arquivo por mês, com saldo anterior, débito, crédito e saldo atual. Excel ou CSV. Até 24 meses.</span></span></div>
       <div class="c ok">${ICK}<span><b>Dezembro antes do encerramento</b><br><span style="color:var(--ink-3)">Se vier depois do encerramento, as contas de resultado aparecem zeradas e o mês fica sem resultado.</span></span></div>
       <div class="c ok">${ICK}<span><b>Plano de contas completo</b><br><span style="color:var(--ink-3)">Classificação, código reduzido, descrição, tipo (sintética ou analítica) e natureza. Organiza o balancete em grupos e deixa o de/para mais preciso.</span></span></div>
-      <div class="c warn">${IWARN}<span><b>PDF não é aceito</b><br><span style="color:var(--ink-3)">Os sistemas contábeis exportam o mesmo relatório em Excel ou CSV.</span></span></div></div></div>
+      <div class="c warn">${IWARN}<span><b>Excel ou CSV é o mais preciso</b><br><span style="color:var(--ink-3)">Qualquer formato é lido, inclusive PDF exportado pelo sistema. Só PDF escaneado ou foto não tem texto para ler.</span></span></div></div></div>
     <div class="panel"><div class="hd"><div><h2>Do sistema de vendas</h2><p>Obrigatório</p></div></div><div class="bd chks">
       <div class="c ok">${ICK}<span><b>Vendas por produto</b><br><span style="color:var(--ink-3)">Produto, quantidade e valor vendido. Com coluna de data (todos os meses em um arquivo) ou um arquivo por mês.</span></span></div>
       <div class="c ok">${ICK}<span><b>Grupo ou família do produto</b><br><span style="color:var(--ink-3)">Opcional, mas permite analisar por linha de produtos. Com mais de 99 produtos, o painel agrupa os menores.</span></span></div>
