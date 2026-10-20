@@ -2180,19 +2180,25 @@ function updPanel(O){
     Promise.all(L.map(function(x){return x.f.arrayBuffer();})).then(function(bufs){parent.postMessage({vt:'upd',files:L.map(function(x,i){return {kind:x.kind,name:x.f.name,buf:bufs[i]};})},'*',bufs);});}
   window.addEventListener('message',function(e){var d=e.data;if(e.source!==parent||!d||d.vt!=='updRes') return;BUSY=false;draw(d);try{window.scrollTo({top:0});}catch(x){}});
   draw(U.result);
+  /* atalho fixo: o botão Atualizar dados fica sempre visível, em todas as páginas do painel */
+  try{var fab=document.createElement('button');fab.type='button';fab.className='vu-fab';fab.innerHTML='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 0 0-14.9-3.5M4 4v4h4M4 13a8 8 0 0 0 14.9 3.5M20 20v-4h-4"/></svg><span>Atualizar dados</span>';
+    fab.onclick=function(){show('atu');try{window.scrollTo({top:0});}catch(x){}};document.body.appendChild(fab);
+    var fs=document.createElement('style');fs.textContent='.vu-fab{position:fixed;right:max(18px,env(safe-area-inset-right,0px));bottom:max(18px,env(safe-area-inset-bottom,0px));z-index:8000;display:flex;align-items:center;gap:8px;padding:11px 16px;border:0;border-radius:999px;background:var(--brand,#4F46E5);color:#fff;font:700 13.5px inherit;font-family:inherit;box-shadow:0 8px 24px rgba(30,27,75,.28);cursor:pointer}.vu-fab:hover{filter:brightness(1.08)}body.vu-on .vu-fab{display:none}@media print{.vu-fab{display:none}}';document.head.appendChild(fs);
+    var _sh=show;show=function(v){var r=_sh.apply(this,arguments);document.body.classList.toggle('vu-on',v==='atu');return r;};}catch(e){}
   if(U.result){var _r=render;render=function(){var x=_r.apply(this,arguments);setTimeout(function(){show('atu');if(typeof toast==='function'&&U.result.ok) toast('Painel atualizado até '+U.result.win[1]+'.','ok');},30);return x;};}
 }
-/* níveis de detalhamento nas tabelas com contas: DFCL, balanço, DRE e custos e despesas.
-   Cada tabela ganha um seletor (do resumo até as contas do balancete); a escolha fica guardada neste navegador. */
+/* níveis de detalhamento (opcionais) nas tabelas com contas: DFCL, balanço, DRE e custos e despesas.
+   Quatro níveis iguais em todas: 1 totais principais, 2 subtotais, 3 padrão, 4 contas do balancete.
+   A tabela abre no nível 3 (como sempre foi); a escolha fica guardada neste navegador. */
 function detLevels(O){
   if(typeof BALD==='undefined'||typeof fM!=='function') return;
-  var KEY='vt-det:'+(typeof RAW!=='undefined'&&RAW.CFG&&RAW.CFG.ns||'p');
+  var KEY='vt-det4:'+(typeof RAW!=='undefined'&&RAW.CFG&&RAW.CFG.ns||'p');
   var LV;try{LV=JSON.parse(localStorage.getItem(KEY)||'{}')||{};}catch(e){LV={};}
   var put=function(k,v){LV[k]=v;try{localStorage.setItem(KEY,JSON.stringify(LV));}catch(e){}};
   var E=function(x){return String(x==null?'':x).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});};
   var css=document.createElement('style');
   css.textContent='.dl-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:10px 18px 12px;border-bottom:1px solid var(--line)}.dl-bar span{font-size:12px;font-weight:600;color:var(--ink-3);letter-spacing:.02em}.dl-bar .seg{margin:0}'+
-    'tr.dl-acc td{font-size:12px;color:var(--ink-2);background:color-mix(in srgb,var(--surface,#fff) 70%,var(--line,#e5e7eb))}tr.dl-acc td:first-child{padding-left:34px!important;font-weight:400}tr.dl-acc td:first-child:before{content:"↳ ";color:var(--ink-3)}tr.dl-hide{display:none}';
+    'tr.dl-acc td{font-size:12px;color:var(--ink-2);background:color-mix(in srgb,var(--surface,#fff) 70%,var(--line,#e5e7eb))}tr.dl-acc td:first-child{padding-left:34px;font-weight:400}tr.dl-acc td:first-child:before{content:"↳ ";color:var(--ink-3)}tr.dl-hide{display:none}';
   document.head.appendChild(css);
   var hasAcc=typeof RAW!=='undefined'&&RAW.acc&&RAW.acc.length;
   var sumT=function(m,f){var t=0;for(var j=0;j<NM;j++) t+=f(m[j]);return t;};
@@ -2201,27 +2207,28 @@ function detLevels(O){
   function bar(tbl,id,opts,cur,cb){
     var pn=tbl.closest('.panel');if(!pn) return;var old=pn.querySelector('.dl-bar[data-dl="'+id+'"]');if(old) old.remove();
     var b=document.createElement('div');b.className='dl-bar';b.setAttribute('data-dl',id);
-    b.innerHTML='<span>Nível de detalhe</span><div class="seg">'+opts.map(function(o){return '<button type="button" class="'+(o[0]===cur?'on':'')+'" data-dlv="'+o[0]+'">'+E(o[1])+'</button>';}).join('')+'</div>';
+    b.innerHTML='<span>Nível de detalhe</span><div class="seg">'+opts.map(function(o,i){return '<button type="button" class="'+(o[0]===cur?'on':'')+'" data-dlv="'+o[0]+'"'+(o[2]?' disabled title="'+E(o[2])+'" style="opacity:.45;cursor:not-allowed"':' title="'+E(o[1])+'"')+'>'+(i+1)+' · '+E(o[1])+'</button>';}).join('')+'</div>';
     var w=tbl.closest('.tw')||tbl.parentElement;w.parentNode.insertBefore(b,w);
-    b.querySelectorAll('[data-dlv]').forEach(function(x){x.onclick=function(e){e.stopPropagation();put(id,x.getAttribute('data-dlv'));cb();};});
+    b.querySelectorAll('[data-dlv]:not([disabled])').forEach(function(x){x.onclick=function(e){e.stopPropagation();put(id,x.getAttribute('data-dlv'));cb();};});
   }
   /* linha de conta com as mesmas colunas da linha-mãe: vals[k] = valor do período k (null = célula vazia) */
   function accRow(parent,label,cells){
     var tr=document.createElement('tr');tr.className='dl-acc';tr.innerHTML='<td>'+E(label)+'</td>'+cells.join('');
     var n=parent.children.length;while(tr.children.length<n) tr.appendChild(document.createElement('td'));
+    try{var pl=parseFloat(getComputedStyle(parent.children[0]).paddingLeft)||14;tr.children[0].style.setProperty('padding-left',(pl+20)+'px','important');}catch(e){}
     return tr;
   }
   /* ---------- DFCL ---------- */
   function dfc(){
     var el=document.getElementById('v-dfc');if(!el||!BALD.rows) return;var tbl=el.querySelector('table');if(!tbl) return;
-    var lv=LV.dfc||'linhas';
-    bar(tbl,'dfc',[['resumo','Resumo'],['linhas','Linhas'],['contas','Contas do balancete']],lv,function(){renderDfc();});
+    var lv=LV.dfc||'3';
+    bar(tbl,'dfc',[['1','Totais'],['2','Subtotais'],['3','Padrão'],['4','Contas']],lv,function(){renderDfc();});
     var fx=(typeof DFST!=='undefined'&&DFST.per!=='all')?[+DFST.per]:PI;
     tbl.querySelectorAll('tr[data-trace^="dfc:"]').forEach(function(tr){
       var r=BALD.rows[+tr.getAttribute('data-trace').split(':')[1]];if(!r) return;
-      var key=r.s==='sub'||r.s==='key'||r.s==='rec'||r.k==='dini'||r.k==='dfim';
-      if(lv==='resumo'&&!key) tr.classList.add('dl-hide');
-      if(lv==='contas'&&r.c&&r.c.length){var after=tr;
+      var top=r.s==='key'||r.s==='rec',key=top||r.s==='sub'||r.k==='dini'||r.k==='dfim';
+      if((lv==='1'&&!top)||(lv==='2'&&!key)) tr.classList.add('dl-hide');
+      if(lv==='4'&&r.c&&r.c.length){var after=tr;
         r.c.forEach(function(c){
           var tot=sumT(c.m,function(x){return x[2];});if(c.m.every(function(x){return Math.abs(x[2])<0.005;})&&!r.bal) return;
           var cells=[];fx.forEach(function(i){var v=i<NM?c.m[i][2]:tot;cells.push(num(v));if(ST.av) cells.push('<td class="av"></td>');if(ST.ah&&(i>0&&i<NM)) cells.push('<td class="ah"></td>');});
@@ -2238,13 +2245,13 @@ function detLevels(O){
     var el=document.getElementById('v-ctb');if(!el||!BALD.bp) return;
     /* balanço */
     var bt=el.querySelector('#ctb-bp table');
-    if(bt){var lv=LV.bp||'n3';
-      bar(bt,'bp',[['n1','Grupos'],['n2','Subgrupos'],['n3','Linhas'],['contas','Contas do balancete']],lv,function(){renderCtb();});
+    if(bt){var lv=LV.bp||'3';
+      bar(bt,'bp',[['1','Grupos'],['2','Subgrupos'],['3','Padrão'],['4','Contas']],lv,function(){renderCtb();});
       var s0=WINF.s||0,K=(WINF.ds||[]).length;var rows=[].slice.call(bt.querySelectorAll('tbody tr')).filter(function(tr){return !tr.classList.contains('r-grp');});
       var AT=BALD.bp[0]?BALD.bp[0].v:[];
       rows.forEach(function(tr,ri){var r=BALD.bp[ri];if(!r) return;
-        var max=lv==='n1'?1:lv==='n2'?2:9;if(r.lv>max) tr.classList.add('dl-hide');
-        if(lv==='contas'&&hasAcc&&BPC[r.l]){var codes=BPC[r.l],after=tr;
+        var max=lv==='1'?1:lv==='2'?2:9;if(r.lv>max) tr.classList.add('dl-hide');
+        if(lv==='4'&&hasAcc&&BPC[r.l]){var codes=BPC[r.l],after=tr;
           RAW.acc.filter(function(a){return codes.indexOf(a.line)>=0;}).forEach(function(a){
             var v=[];for(var j=0;j<K;j++){var x=a.sg[s0+j]||0;v.push(PAS.indexOf(a.line)>=0?-x:x);}
             if(v.every(function(x){return Math.abs(x)<0.005;})) return;
@@ -2253,12 +2260,12 @@ function detLevels(O){
       });}
     /* DRE */
     var dt=el.querySelector('#ctb-dre table');
-    if(dt){var ger=typeof CTB!=='undefined'&&CTB.dre==='ger';var lv2=LV.dre||'linhas';
-      bar(dt,'dre',ger?[['resumo','Resumo'],['linhas','Linhas']]:[['resumo','Resumo'],['linhas','Linhas'],['contas','Contas do balancete']],ger&&lv2==='contas'?'linhas':lv2,function(){renderCtb();});
+    if(dt){var ger=typeof CTB!=='undefined'&&CTB.dre==='ger';var lv2=LV.dre||'3';if(ger&&lv2==='4') lv2='3';
+      bar(dt,'dre',[['1','Totais'],['2','Subtotais'],['3','Padrão'],['4','Contas',ger?'Disponível na DRE contábil':'']],lv2,function(){renderCtb();});
       var keys=ger?null:['rb','ded',null,'mp','mod','oc',null,'dv','da_','dt',null,'dep',null,['rf','or'],'df'].concat(BALD.rows.some(function(x){return x.k==='ir';})?['ir']:[]).concat([null]);
       [].slice.call(dt.querySelectorAll('tbody tr')).forEach(function(tr,ri){
-        var hl=/r-hl|r-key|r-rec/.test(tr.className);if(lv2==='resumo'&&!hl) tr.classList.add('dl-hide');
-        if(ger||lv2!=='contas'||!keys||!keys[ri]) return;var ks=[].concat(keys[ri]),after=tr;
+        var top=/r-key|r-rec/.test(tr.className),hl=top||/r-hl/.test(tr.className);if((lv2==='1'&&!top)||(lv2==='2'&&!hl)) tr.classList.add('dl-hide');
+        if(ger||lv2!=='4'||!keys||!keys[ri]) return;var ks=[].concat(keys[ri]),after=tr;
         ks.forEach(function(k){var R=BALD.rows.find(function(x){return x.k===k;});if(!R||!R.c) return;
           R.c.forEach(function(c){if(c.m.every(function(x){return Math.abs(x[2])<0.005;})) return;var tot=sumT(c.m,function(x){return x[2];});
             var cells=[];PI.forEach(function(i){cells.push(num(i<NM?c.m[i][2]:tot));if(ST.av) cells.push('<td class="av"></td>');if(ST.ah&&(i>0&&i<NM)) cells.push('<td class="ah"></td>');});
@@ -2268,12 +2275,12 @@ function detLevels(O){
   /* ---------- custos e despesas ---------- */
   function cus(){
     var el=document.getElementById('v-cus');if(!el||typeof DATA==='undefined'||!DATA.custos) return;var tbl=el.querySelector('table');if(!tbl) return;
-    var lv=LV.cus||'cat';
-    bar(tbl,'cus',[['blocos','Blocos'],['cat','Categorias'],['contas','Lançamentos']],lv,function(){renderCus();});
+    var lv=LV.cus||'3';
+    bar(tbl,'cus',[['1','Total'],['2','Blocos'],['3','Padrão'],['4','Lançamentos']],lv,function(){renderCus();});
     tbl.querySelectorAll('tr[data-trace^="cus:"]').forEach(function(tr){
       var c=DATA.custos[+tr.getAttribute('data-trace').split(':')[1]];if(!c) return;
-      if(lv==='blocos'&&c.kind!=='total'&&c.kind!=='sub') tr.classList.add('dl-hide');
-      if(lv!=='contas'||!c.detalhes||!c.detalhes.length||c.kind==='total') return;
+      if((lv==='1'&&c.kind!=='total')||(lv==='2'&&c.kind!=='total'&&c.kind!=='sub')) tr.classList.add('dl-hide');
+      if(lv!=='4'||!c.detalhes||!c.detalhes.length||c.kind==='total') return;
       var by={},ord=[];c.detalhes.forEach(function(d){var k=d.desc||d.classe||'Outros';if(!by[k]){by[k]={};ord.push(k);}by[k][d.mes]=(by[k][d.mes]||0)+(d.valor&&d.valor[0]||0);});
       var after=tr;ord.forEach(function(k){var cells=[],tot=0;c.vals.forEach(function(p,i){var v=i<NM?(by[k][MES[i]]||0):tot;if(i<NM) tot+=v;cells.push(num(i<NM?v:tot));if(ST.av) cells.push('<td class="av"></td>');if(ST.ah&&(i>0&&i<NM)) cells.push('<td class="ah"></td>');});
         var t=accRow(tr,k,cells);after.parentNode.insertBefore(t,after.nextSibling);after=t;});
@@ -2831,7 +2838,8 @@ async function panelGate(C){
 async function openPanel(C,result){
   if(!C.gen) return;OPENC=null;
   if(!canUse(USER)&&!USER.admin){toast('Ative a assinatura para abrir o painel.');location.hash='assinatura';return;}
-  if(!await panelGate(C)) return;
+  /* depois de uma atualização feita no próprio painel, ele reabre direto na aba Atualizar dados */
+  if(!result&&!await panelGate(C)) return;
   if(C.importado){const u=panelKey(C.owner||USER.email);const ps0=planState(USER);
     OPENC=C;let html;try{html=await importedHtml(C,{hide:ps0.plan?ps0.plan.hide:[],lockMsg:'Recurso disponível a partir do plano Profissional.',embedded:true,addUser:{u,p:C.secret,n:USER.nome,i:initials(USER.nome)},auto:{u,p:C.secret},upd:updInfo(C,result),det:true});}catch(e){toast('Não foi possível abrir o painel importado neste navegador.');return;}
     $('#ovT').textContent=C.empresa.nome+' · Vértice';$('#ovF').srcdoc=html;$('#ov').hidden=false;document.body.style.overflow='hidden';
