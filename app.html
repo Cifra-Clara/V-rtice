@@ -2153,6 +2153,10 @@ function updPanel(O){
   NAVS.splice(1,0,{k:'atu',single:'atu'});
   var css=document.createElement('style');css.textContent='.vu{display:grid;gap:16px}.vu .vu-b{padding:18px 20px;display:grid;gap:14px}.vu-s{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}.vu-s div{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--surface)}.vu-s small{display:block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}.vu-s b{font-size:18px;color:var(--head)}.vu-f{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 14px;align-items:center;border:1px dashed var(--line);border-radius:12px;padding:12px 14px}.vu-f b{font-size:13.5px;color:var(--head)}.vu-f span{font-size:12px;color:var(--ink-3)}.vu-f .vu-n{grid-column:1/-1;font-size:12px;color:var(--accent-2)}.vu-f label{cursor:pointer;border:1px solid var(--line);border-radius:9px;padding:7px 12px;font-size:13px;font-weight:600;background:var(--surface);white-space:nowrap}.vu-f.req b:after{content:" · obrigatório";font-weight:500;color:var(--neg);font-size:12px}.vu-go{justify-self:start;border:0;border-radius:10px;padding:12px 18px;font:700 14px inherit;background:var(--accent);color:#fff;cursor:pointer;display:inline-flex;gap:8px;align-items:center}.vu-go[disabled]{opacity:.5;cursor:default}.vu-r{border-radius:12px;padding:14px 16px;font-size:13.5px;line-height:1.55}.vu-r.ok{background:rgba(29,122,78,.1);color:var(--pos)}.vu-r.err{background:var(--gold-l);color:var(--gold-ink)}.vu-r ul{margin:8px 0 0;padding-left:18px}.vu-r li{margin:3px 0;color:var(--ink-2)}.vu-sp{width:16px;height:16px;border-radius:50%;border:2.5px solid rgba(255,255,255,.4);border-top-color:#fff;animation:vtspin .8s linear infinite}@keyframes vtspin{to{transform:rotate(360deg)}}@media (max-width:600px){.vu-f{grid-template-columns:1fr}}';document.head.appendChild(css);
   var E=function(x){return String(x==null?'':x).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});};
+  if(U.offline){el.innerHTML='<div class="vu"><div class="panel"><div class="panel-head"><div><div class="panel-title">Atualizar com o próximo mês</div><div class="panel-sub">Este painel é um arquivo salvo no computador. Para incluir os relatórios de '+E(U.next)+', atualize pelo site: o painel é recalculado e você baixa a versão nova.</div></div></div><div class="vu-b">'+
+    '<div class="vu-s"><div><small>Dados até</small><b>'+E(U.last)+'</b></div><div><small>Próximo mês</small><b>'+E(U.next)+'</b></div><div><small>Meses no painel</small><b>'+E(U.n)+'</b></div></div>'+
+    '<ol style="margin:0;padding-left:20px;display:grid;gap:6px;color:var(--ink-2)"><li>Entre no site com o seu e-mail.</li><li>Abra a empresa e envie os relatórios do mês (balancete, vendas e extratos), ou use a aba Atualizar dados dentro do painel.</li><li>Baixe o painel de novo pelo botão “Baixar o painel como arquivo”.</li></ol>'+
+    (U.site?'<a class="vu-go" style="text-align:center;text-decoration:none" href="'+E(U.site)+'" target="_blank" rel="noopener">Abrir o site para atualizar</a>':'')+'</div></div></div>';return;}
   var SL=U.mode==='planilha'?[['xlsx','Planilha padrão Vértice atualizada','Com as abas preenchidas até '+U.next+'.','',1,0]]:[
     ['bal','Balancete de '+U.next,'Da contabilidade, em qualquer formato (Excel, CSV, PDF, TXT…). Pode reenviar meses anteriores corrigidos.','',1,1],
     ['vend','Vendas de '+U.next,'Relatório por produto do sistema de vendas, em qualquer formato.','',1,1],
@@ -2178,6 +2182,107 @@ function updPanel(O){
   draw(U.result);
   if(U.result){var _r=render;render=function(){var x=_r.apply(this,arguments);setTimeout(function(){show('atu');if(typeof toast==='function'&&U.result.ok) toast('Painel atualizado até '+U.result.win[1]+'.','ok');},30);return x;};}
 }
+/* níveis de detalhamento nas tabelas com contas: DFCL, balanço, DRE e custos e despesas.
+   Cada tabela ganha um seletor (do resumo até as contas do balancete); a escolha fica guardada neste navegador. */
+function detLevels(O){
+  if(typeof BALD==='undefined'||typeof fM!=='function') return;
+  var KEY='vt-det:'+(typeof RAW!=='undefined'&&RAW.CFG&&RAW.CFG.ns||'p');
+  var LV;try{LV=JSON.parse(localStorage.getItem(KEY)||'{}')||{};}catch(e){LV={};}
+  var put=function(k,v){LV[k]=v;try{localStorage.setItem(KEY,JSON.stringify(LV));}catch(e){}};
+  var E=function(x){return String(x==null?'':x).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});};
+  var css=document.createElement('style');
+  css.textContent='.dl-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:10px 18px 12px;border-bottom:1px solid var(--line)}.dl-bar span{font-size:12px;font-weight:600;color:var(--ink-3);letter-spacing:.02em}.dl-bar .seg{margin:0}'+
+    'tr.dl-acc td{font-size:12px;color:var(--ink-2);background:color-mix(in srgb,var(--surface,#fff) 70%,var(--line,#e5e7eb))}tr.dl-acc td:first-child{padding-left:34px!important;font-weight:400}tr.dl-acc td:first-child:before{content:"↳ ";color:var(--ink-3)}tr.dl-hide{display:none}';
+  document.head.appendChild(css);
+  var hasAcc=typeof RAW!=='undefined'&&RAW.acc&&RAW.acc.length;
+  var sumT=function(m,f){var t=0;for(var j=0;j<NM;j++) t+=f(m[j]);return t;};
+  var num=function(v){return '<td class="'+(v<-0.004?'neg':'')+'">'+(Math.abs(v)<0.005?'—':fM(v))+'</td>';};
+  /* barra de níveis antes da tabela */
+  function bar(tbl,id,opts,cur,cb){
+    var pn=tbl.closest('.panel');if(!pn) return;var old=pn.querySelector('.dl-bar[data-dl="'+id+'"]');if(old) old.remove();
+    var b=document.createElement('div');b.className='dl-bar';b.setAttribute('data-dl',id);
+    b.innerHTML='<span>Nível de detalhe</span><div class="seg">'+opts.map(function(o){return '<button type="button" class="'+(o[0]===cur?'on':'')+'" data-dlv="'+o[0]+'">'+E(o[1])+'</button>';}).join('')+'</div>';
+    var w=tbl.closest('.tw')||tbl.parentElement;w.parentNode.insertBefore(b,w);
+    b.querySelectorAll('[data-dlv]').forEach(function(x){x.onclick=function(e){e.stopPropagation();put(id,x.getAttribute('data-dlv'));cb();};});
+  }
+  /* linha de conta com as mesmas colunas da linha-mãe: vals[k] = valor do período k (null = célula vazia) */
+  function accRow(parent,label,cells){
+    var tr=document.createElement('tr');tr.className='dl-acc';tr.innerHTML='<td>'+E(label)+'</td>'+cells.join('');
+    var n=parent.children.length;while(tr.children.length<n) tr.appendChild(document.createElement('td'));
+    return tr;
+  }
+  /* ---------- DFCL ---------- */
+  function dfc(){
+    var el=document.getElementById('v-dfc');if(!el||!BALD.rows) return;var tbl=el.querySelector('table');if(!tbl) return;
+    var lv=LV.dfc||'linhas';
+    bar(tbl,'dfc',[['resumo','Resumo'],['linhas','Linhas'],['contas','Contas do balancete']],lv,function(){renderDfc();});
+    var fx=(typeof DFST!=='undefined'&&DFST.per!=='all')?[+DFST.per]:PI;
+    tbl.querySelectorAll('tr[data-trace^="dfc:"]').forEach(function(tr){
+      var r=BALD.rows[+tr.getAttribute('data-trace').split(':')[1]];if(!r) return;
+      var key=r.s==='sub'||r.s==='key'||r.s==='rec'||r.k==='dini'||r.k==='dfim';
+      if(lv==='resumo'&&!key) tr.classList.add('dl-hide');
+      if(lv==='contas'&&r.c&&r.c.length){var after=tr;
+        r.c.forEach(function(c){
+          var tot=sumT(c.m,function(x){return x[2];});if(c.m.every(function(x){return Math.abs(x[2])<0.005;})&&!r.bal) return;
+          var cells=[];fx.forEach(function(i){var v=i<NM?c.m[i][2]:tot;cells.push(num(v));if(ST.av) cells.push('<td class="av"></td>');if(ST.ah&&(i>0&&i<NM)) cells.push('<td class="ah"></td>');});
+          var a=accRow(tr,c.n,cells);after.parentNode.insertBefore(a,after.nextSibling);after=a;});}
+    });
+  }
+  /* ---------- balanço e DRE ---------- */
+  var BPC={'Caixa':['cx'],'Bancos — conta corrente':['bco'],'Aplicações de liquidez imediata':['apl'],'Clientes':['cli'],'Outros créditos':['cred'],'Estoques':['est'],'Despesas pagas antecipadamente':['antec'],
+    'Investimentos':['inv'],'Bens em operação (custo)':['imob'],'(−) Depreciação acumulada':['depac'],'Intangível':['intg','amorac'],'Fornecedores':['forn'],'Obrigações tributárias':['trib'],
+    'Obrigações trabalhistas e provisões':['trab'],'Outras obrigações':['oobr'],'Empréstimos e financiamentos (curto prazo)':['empcp'],'Lucros a pagar':['lpag'],
+    'Empréstimos e financiamentos (longo prazo)':['emplp'],'Outras obrigações de longo prazo':['pnco'],'Capital social':['capsoc'],'Lucros acumulados':['lacum']};
+  var PAS=['forn','trib','trab','oobr','empcp','lpag','emplp','pnco','capsoc','lacum'];
+  function ctb(){
+    var el=document.getElementById('v-ctb');if(!el||!BALD.bp) return;
+    /* balanço */
+    var bt=el.querySelector('#ctb-bp table');
+    if(bt){var lv=LV.bp||'n3';
+      bar(bt,'bp',[['n1','Grupos'],['n2','Subgrupos'],['n3','Linhas'],['contas','Contas do balancete']],lv,function(){renderCtb();});
+      var s0=WINF.s||0,K=(WINF.ds||[]).length;var rows=[].slice.call(bt.querySelectorAll('tbody tr')).filter(function(tr){return !tr.classList.contains('r-grp');});
+      var AT=BALD.bp[0]?BALD.bp[0].v:[];
+      rows.forEach(function(tr,ri){var r=BALD.bp[ri];if(!r) return;
+        var max=lv==='n1'?1:lv==='n2'?2:9;if(r.lv>max) tr.classList.add('dl-hide');
+        if(lv==='contas'&&hasAcc&&BPC[r.l]){var codes=BPC[r.l],after=tr;
+          RAW.acc.filter(function(a){return codes.indexOf(a.line)>=0;}).forEach(function(a){
+            var v=[];for(var j=0;j<K;j++){var x=a.sg[s0+j]||0;v.push(PAS.indexOf(a.line)>=0?-x:x);}
+            if(v.every(function(x){return Math.abs(x)<0.005;})) return;
+            var cells=[];v.forEach(function(x,j){cells.push(num(x));if(ST.av) cells.push('<td class="av">'+(AT[j]?fP(x/AT[j]):'—')+'</td>');});
+            var t=accRow(tr,a.n,cells);after.parentNode.insertBefore(t,after.nextSibling);after=t;});}
+      });}
+    /* DRE */
+    var dt=el.querySelector('#ctb-dre table');
+    if(dt){var ger=typeof CTB!=='undefined'&&CTB.dre==='ger';var lv2=LV.dre||'linhas';
+      bar(dt,'dre',ger?[['resumo','Resumo'],['linhas','Linhas']]:[['resumo','Resumo'],['linhas','Linhas'],['contas','Contas do balancete']],ger&&lv2==='contas'?'linhas':lv2,function(){renderCtb();});
+      var keys=ger?null:['rb','ded',null,'mp','mod','oc',null,'dv','da_','dt',null,'dep',null,['rf','or'],'df'].concat(BALD.rows.some(function(x){return x.k==='ir';})?['ir']:[]).concat([null]);
+      [].slice.call(dt.querySelectorAll('tbody tr')).forEach(function(tr,ri){
+        var hl=/r-hl|r-key|r-rec/.test(tr.className);if(lv2==='resumo'&&!hl) tr.classList.add('dl-hide');
+        if(ger||lv2!=='contas'||!keys||!keys[ri]) return;var ks=[].concat(keys[ri]),after=tr;
+        ks.forEach(function(k){var R=BALD.rows.find(function(x){return x.k===k;});if(!R||!R.c) return;
+          R.c.forEach(function(c){if(c.m.every(function(x){return Math.abs(x[2])<0.005;})) return;var tot=sumT(c.m,function(x){return x[2];});
+            var cells=[];PI.forEach(function(i){cells.push(num(i<NM?c.m[i][2]:tot));if(ST.av) cells.push('<td class="av"></td>');if(ST.ah&&(i>0&&i<NM)) cells.push('<td class="ah"></td>');});
+            var t=accRow(tr,c.n,cells);after.parentNode.insertBefore(t,after.nextSibling);after=t;});});
+      });}
+  }
+  /* ---------- custos e despesas ---------- */
+  function cus(){
+    var el=document.getElementById('v-cus');if(!el||typeof DATA==='undefined'||!DATA.custos) return;var tbl=el.querySelector('table');if(!tbl) return;
+    var lv=LV.cus||'cat';
+    bar(tbl,'cus',[['blocos','Blocos'],['cat','Categorias'],['contas','Lançamentos']],lv,function(){renderCus();});
+    tbl.querySelectorAll('tr[data-trace^="cus:"]').forEach(function(tr){
+      var c=DATA.custos[+tr.getAttribute('data-trace').split(':')[1]];if(!c) return;
+      if(lv==='blocos'&&c.kind!=='total'&&c.kind!=='sub') tr.classList.add('dl-hide');
+      if(lv!=='contas'||!c.detalhes||!c.detalhes.length||c.kind==='total') return;
+      var by={},ord=[];c.detalhes.forEach(function(d){var k=d.desc||d.classe||'Outros';if(!by[k]){by[k]={};ord.push(k);}by[k][d.mes]=(by[k][d.mes]||0)+(d.valor&&d.valor[0]||0);});
+      var after=tr;ord.forEach(function(k){var cells=[],tot=0;c.vals.forEach(function(p,i){var v=i<NM?(by[k][MES[i]]||0):tot;if(i<NM) tot+=v;cells.push(num(i<NM?v:tot));if(ST.av) cells.push('<td class="av"></td>');if(ST.ah&&(i>0&&i<NM)) cells.push('<td class="ah"></td>');});
+        var t=accRow(tr,k,cells);after.parentNode.insertBefore(t,after.nextSibling);after=t;});
+    });
+  }
+  var wrap=function(name,fn){if(typeof window[name]!=='function') return;var o=window[name];window[name]=function(){var r=o.apply(this,arguments);try{fn();}catch(e){}return r;};};
+  wrap('renderDfc',dfc);wrap('renderCtb',ctb);wrap('renderCus',cus);
+  try{dfc();ctb();cus();}catch(e){}
+}
 function extras(O){
   const js=JSON.stringify(O).replace(/</g,'\\u003c');
   return `<script>
@@ -2191,6 +2296,7 @@ function extras(O){
    NAVS.forEach(function(s){if(s.k==='fin'&&s.items){var i=-1;s.items.forEach(function(x,j){if(x.v==='con') i=j;});s.items.splice(i<0?s.items.length:i+1+pos,0,{v:v.k});}});pos++;});}}catch(e){}
  try{if(O.qual&&typeof panelQual==='function'){var _pq=panelQual;panelQual=function(){var h=_pq.apply(this,arguments);var i=h.indexOf('</tbody>');return i<0?h:h.slice(0,i)+O.qual+h.slice(i);};}}catch(e){}
  try{if(O.upd) (${updPanel.toString()})(O);}catch(e){}
+ try{if(O.det!==false) (${detLevels.toString()})(O);}catch(e){}
  try{if(O.addUser){var a=O.addUser;USERS[a.u]={p:a.p,h:sha256('cvl|'+a.u+'|'+a.p),n:a.n||'Cliente',i:a.i||'CL',r:a.r||'autor'};}}catch(e){}
  if(O.auto){var st=document.createElement('style');st.textContent='html.vt-auto #login{visibility:hidden}.vt-veil{position:fixed;inset:0;display:grid;place-items:center;background:#F4F5FA;z-index:9999;font:600 14px "Plus Jakarta Sans",Inter,system-ui,sans-serif;color:#4F46E5}.vt-veil div{display:flex;gap:10px;align-items:center}.vt-veil i{width:18px;height:18px;border-radius:50%;border:2.5px solid #C7D2FE;border-top-color:#4F46E5;animation:vtspin .8s linear infinite}@keyframes vtspin{to{transform:rotate(360deg)}}@media (prefers-color-scheme:dark){.vt-veil{background:#0F1424;color:#A5B4FC}}';
    document.head.appendChild(st);document.documentElement.classList.add('vt-auto');
@@ -2618,9 +2724,11 @@ function model(C){
   const out={accs,rel,months,seq,missing,checks,unmapped,review,closing,recs,prods,vm,win,salesBy,rbBy,gastos,semMes,noQty,decl,agr,hasFam,balCover,st,pstat,conc,cdates,disp,exts,extSolto};
   MEMO.clear();MEMO.set(k,out);return out;
 }
+/* quem é o dono do painel: o próprio usuário ou, na visão do administrador, o cliente */
+function panelOwner(C){if(C&&C.__adm&&C.owner){const k=I.norm(C.owner).replace(/\s+/g,'');const u=C.gen&&C.gen.USERS&&C.gen.USERS[k];return {email:C.owner,nome:(u&&u.n)||'Cliente'};}return {email:USER.email,nome:USER.nome};}
 function buildState(C,M){
-  const owner={login:USER.email,nome:USER.nome,perfil:'Administrador',senha:C.secret};
-  return {empresa:C.empresa,users:[owner,...C.users.filter(u=>u.login&&u.senha&&I.norm(u.login)!==I.norm(USER.email))],
+  const ow=panelOwner(C);const owner={login:ow.email,nome:ow.nome,perfil:'Administrador',senha:C.secret};
+  return {empresa:C.empresa,users:[owner,...C.users.filter(u=>u.login&&u.senha&&I.norm(u.login)!==I.norm(ow.email))],
     produtos:M.prods.map(p=>({key:p.key,n:p.n,nome:p.nome,fam:p.fam,cls2:p.cls2,sg:p.sg,c:p.c,p:p.p})),
     vendas:{rows:M.recs,declared:M.decl},
     gastos:M.gastos.map(g=>({nome:g.nome,tipo:g.tipo,comp:g.comp,nat:g.nat,on:g.on,v:g.v})),
@@ -2642,7 +2750,7 @@ async function generate(C){
   const M=model(C);
   C.gen={RAW:r.P.RAW,USERS:r.P.USERS,at:Date.now(),rev:C.rev,win:r.win,MSG:r.P.MSG.filter(m=>m.l!=='erro').concat(concMsgs(M)),extra:panelExtraData(C,M)};r.MSG=C.gen.MSG;
   C.hist.unshift({at:Date.now(),t:`Painel gerado: ${ML(r.win[0])} a ${ML(r.win[1])}`});C.hist=C.hist.slice(0,30);
-  await DB.put('companies',C);logEv('painel',`Painel gerado: ${C.empresa.nome} (${ML(r.win[0])} a ${ML(r.win[1])})`);return r;
+  await (C.__adm?ADM.salvarDados(C):DB.put('companies',C));logEv('painel',`Painel gerado: ${C.empresa.nome} (${ML(r.win[0])} a ${ML(r.win[1])})`);return r;
 }
 /* ---------- painel importado (.html pronto) ---------- */
 async function gzB64(str){const cs=new Blob([str]).stream().pipeThrough(new CompressionStream('gzip'));const buf=new Uint8Array(await new Response(cs).arrayBuffer());let s='';for(let i=0;i<buf.length;i+=0x8000) s+=String.fromCharCode.apply(null,buf.subarray(i,i+0x8000));return btoa(s);}
@@ -2670,15 +2778,18 @@ function panelHtml(C,opts){
 }
 /* ---------- atualização pelo próprio painel (aba "Atualizar dados") ---------- */
 let OPENC=null;
-function updInfo(C,result){try{const ps=planState(USER);const M=C.mode==='planilha'?null:model(C);const w=C.gen.win;
-  return {mode:C.mode==='planilha'?'planilha':'normal',last:ML(w[1]),next:ML(w[1]+1),n:C.gen.RAW.months.length,max:ps.plan?ps.plan.meses:24,
-    contas:M?M.conc.filter(c=>!c.just).map(c=>c.a.nome):[],result:result||null};}catch(e){return null;}}
+function updInfo(C,result,extra){
+  const ps=planState(USER);const R=C.gen&&C.gen.RAW;const ms=(R&&R.months)||[];
+  let w=C.gen&&C.gen.win;if(!w&&ms.length) w=[ms[0].y*12+ms[0].m,ms[ms.length-1].y*12+ms[ms.length-1].m];
+  let contas=[];if(C.mode!=='planilha'){try{contas=model(C).conc.filter(c=>!c.just).map(c=>c.a.nome);}catch(e){}}
+  return Object.assign({mode:C.mode==='planilha'?'planilha':'normal',last:w?ML(w[1]):'—',next:w?ML(w[1]+1):'próximo mês',n:ms.length,max:ps.plan?ps.plan.meses:24,
+    contas,result:result||null,site:appUrl()},extra||{});}
 async function applyUpdate(C,files){
   if(!canUse(USER)&&!USER.admin) return {ok:false,titulo:'Ative a assinatura para atualizar o painel.',pend:[]};
   const nextK=C.gen.win[1]+1,pend=[],lidos=[];
   if(C.mode==='planilha'){const f=files.find(x=>x.kind==='xlsx');if(!f) return {ok:false,titulo:'Escolha a planilha padrão atualizada.',pend:[]};
     try{const P=PARSE.parse(await I.readWorkbook(f.buf,f.name||'planilha.xlsx'));const er=P.MSG.filter(m=>m.l==='erro');if(er.length) return {ok:false,titulo:'A planilha tem erros.',pend:er.map(m=>m.t)};
-      const u=I.norm(USER.email).replace(/\s+/g,'');P.USERS[u]={h:PARSE.sha256('cvl|'+u+'|'+C.secret),n:USER.nome,i:initials(USER.nome),r:'autor'};const R=P.RAW;
+      const ow=panelOwner(C);const u=I.norm(ow.email).replace(/\s+/g,'');P.USERS[u]={h:PARSE.sha256('cvl|'+u+'|'+C.secret),n:ow.nome,i:initials(ow.nome),r:'autor'};const R=P.RAW;
       C.gen.RAW=R;C.gen.USERS=P.USERS;C.gen.at=Date.now();C.gen.win=[R.months[0].y*12+R.months[0].m,R.months[R.months.length-1].y*12+R.months[R.months.length-1].m];delete C.importado;
       C.hist.unshift({at:Date.now(),t:'Painel atualizado pelo próprio painel: '+f.name});await save(C,false);logEv('painel','Painel atualizado (planilha): '+C.empresa.nome);
       return {ok:true,win:[ML(C.gen.win[0]),ML(C.gen.win[1])],n:R.months.length,msgs:P.MSG.filter(m=>m.l==='aviso').map(m=>m.t).slice(0,6)};}
@@ -2706,7 +2817,7 @@ async function applyUpdate(C,files){
 }
 window.addEventListener('message',async e=>{const d=e.data;if(!d||d.vt!=='upd') return;const fr=$('#ovF');if(!fr||e.source!==fr.contentWindow||!OPENC) return;
   const C=OPENC;let res;try{res=await applyUpdate(C,d.files||[]);}catch(x){res={ok:false,titulo:'Não foi possível atualizar.',pend:[x.message]};}
-  if(res.ok){toast('Painel atualizado até '+res.win[1]+'.');openPanel(C,res);if(ROUTE==='empresa'&&CUR&&CUR.id===C.id) vEmpresa();else if(ROUTE==='empresas') vEmpresas();}
+  if(res.ok){toast('Painel atualizado até '+res.win[1]+'.');if(C.__adm){admDirty();admOpenPanel(C.id,res,C);return;}openPanel(C,res);if(ROUTE==='empresa'&&CUR&&CUR.id===C.id) vEmpresa();else if(ROUTE==='empresas') vEmpresas();}
   else{try{fr.contentWindow.postMessage(Object.assign({vt:'updRes'},res),'*');}catch(x){}}});
 /* liberação do painel pelo administrador */
 const awaitingRelease=C=>!!(C&&C.gen&&!USER.admin&&!C.bloqueado&&CONFIG.liberacao==='manual'&&!C.liberado);
@@ -2722,7 +2833,7 @@ async function openPanel(C,result){
   if(!canUse(USER)&&!USER.admin){toast('Ative a assinatura para abrir o painel.');location.hash='assinatura';return;}
   if(!await panelGate(C)) return;
   if(C.importado){const u=panelKey(C.owner||USER.email);const ps0=planState(USER);
-    let html;try{html=await importedHtml(C,{hide:ps0.plan?ps0.plan.hide:[],lockMsg:'Recurso disponível a partir do plano Profissional.',embedded:true,addUser:{u,p:C.secret,n:USER.nome,i:initials(USER.nome)},auto:{u,p:C.secret}});}catch(e){toast('Não foi possível abrir o painel importado neste navegador.');return;}
+    OPENC=C;let html;try{html=await importedHtml(C,{hide:ps0.plan?ps0.plan.hide:[],lockMsg:'Recurso disponível a partir do plano Profissional.',embedded:true,addUser:{u,p:C.secret,n:USER.nome,i:initials(USER.nome)},auto:{u,p:C.secret},upd:updInfo(C,result),det:true});}catch(e){toast('Não foi possível abrir o painel importado neste navegador.');return;}
     $('#ovT').textContent=C.empresa.nome+' · Vértice';$('#ovF').srcdoc=html;$('#ov').hidden=false;document.body.style.overflow='hidden';
     $('#ovN').onclick=()=>{try{const x=URL.createObjectURL(new Blob([html],{type:'text/html'}));const a=document.createElement('a');a.href=x;a.target='_blank';a.rel='noopener';document.body.appendChild(a);a.click();a.remove();}catch(e){toast('Não foi possível abrir outra aba.');}};
     return;}
@@ -2739,9 +2850,9 @@ async function downloadPanel(C){
    <div class="f"><label for="dpP">Senha do arquivo</label><input id="dpP" type="password" minlength="6"><small>Pelo menos 6 caracteres. Os usuários extras cadastrados na etapa Equipe e metas também entram.</small></div>
    <div class="acts"><button class="btn" data-close type="button">Cancelar</button><button class="btn primary" id="dpOk" type="button">Baixar</button></div>`,(b,close)=>{
     b.querySelector('#dpOk').onclick=()=>{const pw=b.querySelector('#dpP').value;if(pw.length<6){toast('Use uma senha com pelo menos 6 caracteres.');return;}
-      if(C.importado){const u=panelKey(USER.email);importedHtml(C,{addUser:{u,p:pw,n:USER.nome,i:initials(USER.nome)}}).then(h=>{download('Vertice_'+((C.gen.RAW&&C.gen.RAW.CFG&&C.gen.RAW.CFG.ns)||'empresa')+'.html',h,'text/html');close();toast('Painel baixado. Entre com o seu e-mail e a senha definida.');});return;}
+      if(C.importado){const u=panelKey(USER.email);importedHtml(C,{addUser:{u,p:pw,n:USER.nome,i:initials(USER.nome)},upd:updInfo(C,null,{offline:true}),det:true}).then(h=>{download('Vertice_'+((C.gen.RAW&&C.gen.RAW.CFG&&C.gen.RAW.CFG.ns)||'empresa')+'.html',h,'text/html');close();toast('Painel baixado. Entre com o seu e-mail e a senha definida.');});return;}
       const u=I.norm(USER.email).replace(/\s+/g,'');const U=JSON.parse(JSON.stringify(C.gen.USERS));if(U[u]) U[u].h=PARSE.sha256('cvl|'+u+'|'+pw);
-      const html=panelHtml(C,{users:U});download('Vertice_'+(C.gen.RAW.CFG.ns||'empresa')+'.html',html,'text/html');close();toast('Painel baixado. Entre com o seu e-mail e a senha definida.');};});
+      const html=panelHtml(C,{users:U,extra:{upd:updInfo(C,null,{offline:true})}});download('Vertice_'+(C.gen.RAW.CFG.ns||'empresa')+'.html',html,'text/html');close();toast('Painel baixado. Entre com o seu e-mail e a senha definida.');};});
 }
 
 /* ================= navegação ================= */
@@ -2933,7 +3044,7 @@ async function vNova(){
 
 /* ================= empresa: visão geral e etapas ================= */
 const STEPS=[['geral','Visão geral'],['empresa','Dados da empresa'],['bal','Balancetes'],['map','Plano de contas'],['conc','Conciliação bancária'],['vend','Vendas'],['gastos','Gastos'],['equipe','Informações da empresa'],['gerar','Gerar painel']];
-async function save(C,data){if(data!==false) C.rev=(C.rev||1)+1;await DB.put('companies',C);}
+async function save(C,data){if(data!==false) C.rev=(C.rev||1)+1;await (C.__adm?ADM.salvarDados(C):DB.put('companies',C));}
 async function vEmpresa(){
   const C=CUR;if(!C){go('empresas');return;}
   if(C.mode==='planilha'&&!['geral'].includes(STEP)) STEP='geral';
@@ -2943,9 +3054,10 @@ async function vEmpresa(){
   const steps=C.mode==='planilha'?[['geral','Visão geral']]:STEPS;
   $('#main').innerHTML=`<p class="crumb"><a href="#empresas">Empresas</a> › ${esc(C.empresa.nome||'Empresa')}</p>
    <div class="ph"><div style="display:flex;gap:14px;align-items:center;min-width:0"><span class="av" style="width:48px;height:48px;border-radius:13px;display:grid;place-items:center;color:#fff;font-weight:800;background:${avBg(C.empresa.nome)};overflow:hidden;flex:none">${C.logo?`<img src="${C.logo}" alt="" style="width:100%;height:100%;object-fit:contain;background:#fff">`:esc(initials(C.empresa.nome))}</span><div style="min-width:0"><h1 style="overflow:hidden;text-overflow:ellipsis">${esc(C.empresa.nome||'Empresa sem nome')}</h1><p>${C.gen?`Painel com ${C.gen.RAW.months.length} meses, de ${esc(C.gen.RAW.months[0].label)}/${C.gen.RAW.months[0].y} a ${esc(C.gen.RAW.months[C.gen.RAW.months.length-1].label)}/${C.gen.RAW.months[C.gen.RAW.months.length-1].y}`:'Envie os relatórios para gerar o painel'}</p></div></div>
-   <div class="acts">${C.gen?`<button class="btn primary" type="button" id="opB"><svg class="i" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"/></svg>Abrir painel</button>`:''}${!C.gen&&M.st.ready?`<button class="btn primary" type="button" data-step="gerar">Gerar painel</button>`:''}</div></div>
+   <div class="acts"><button class="btn" type="button" id="nmB">${IUP}Enviar dados de um novo mês</button>${C.gen?`<button class="btn primary" type="button" id="opB"><svg class="i" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"/></svg>Abrir painel</button>`:''}${!C.gen&&M.st.ready?`<button class="btn primary" type="button" data-step="gerar">Gerar painel</button>`:''}</div></div>
    <div class="flow"><nav class="stp" aria-label="Etapas">${steps.map(([k,t],i)=>`<button type="button" data-step="${k}" aria-current="${STEP===k?'step':'false'}"><span class="b ${stIcon(k)}">${k==='geral'?'<svg class="i" viewBox="0 0 24 24" style="width:14px;height:14px"><path d="M3 12l9-8 9 8M5 10v10h14V10"/></svg>':stIcon(k)==='ok'?'<svg class="i" viewBox="0 0 24 24" style="width:14px;height:14px"><path d="M20 6 9 17l-5-5"/></svg>':i}</span><span>${t}<small>${sub[k]}</small></span></button>`).join('')}</nav><div id="stepB" style="min-width:0"></div></div>`;
   const ob=$('#opB');if(ob) ob.onclick=()=>openPanel(C);
+  $('#nmB').onclick=()=>{STEP='geral';vEmpresa();const t=C.mode==='planilha'?$('#reX'):$('#cdrop');if(t){t.scrollIntoView({block:'center'});t.click();}};
   document.querySelectorAll('[data-step]').forEach(b=>b.onclick=()=>{STEP=b.dataset.step;vEmpresa();window.scrollTo(0,0);});
   ({geral:sGeral,empresa:sEmpresa,bal:sBal,map:sMap,conc:sConc,vend:sVend,gastos:sGastos,equipe:sEquipe,gerar:sGerar}[STEP]||sGeral)(C,M);
 }
@@ -3969,11 +4081,12 @@ function admTransferir(D,e){if(!e) return;const o=ownerOf(D,e);
     b.querySelector('#trOk').onclick=async()=>{const u=D.contas.find(x=>x.id===b.querySelector('#trU').value);if(!u) return;
       try{await ADM.transferir(e.id,u);await ADM.log(u.email,'admin',`Empresa transferida para esta conta: ${e.nome}`);admDirty();close();toast('Empresa transferida para '+u.email+'.');await admRefresh();}catch(x){toast(x.message);}};});
 }
-async function admOpenPanel(id){
-  const C=await ADM.empresa(id);if(!C||!C.gen){toast('Esta empresa ainda não tem painel gerado.');return;}
-  if(C.importado){const u=panelKey(C.owner);const h=await importedHtml(C,{embedded:true,addUser:{u,p:C.secret,n:'Administrador',i:'AD'},auto:{u,p:C.secret}});
+async function admOpenPanel(id,result,pre){
+  const C=pre||await ADM.empresa(id);if(!C||!C.gen){toast('Esta empresa ainda não tem painel gerado.');return;}
+  Object.defineProperty(C,'__adm',{value:true,enumerable:false,configurable:true});OPENC=C;
+  if(C.importado){const u=panelKey(C.owner);const h=await importedHtml(C,{embedded:true,addUser:{u,p:C.secret,n:'Administrador',i:'AD'},auto:{u,p:C.secret},upd:updInfo(C,result),det:true});
     $('#ovT').textContent=(C.empresa.nome||'Empresa')+' · visão do administrador';$('#ovF').srcdoc=h;$('#ov').hidden=false;document.body.style.overflow='hidden';return;}
-  const html=SITEPANEL.make(tpl(),{RAW:C.gen.RAW,USERS:C.gen.USERS},C.logo,Object.assign({hide:[],lockMsg:''},panelExtras(C),{embedded:true,auto:{u:I.norm(C.owner||'').replace(/\s+/g,''),p:C.secret}}));
+  const html=SITEPANEL.make(tpl(),{RAW:C.gen.RAW,USERS:C.gen.USERS},C.logo,Object.assign({hide:[],lockMsg:''},panelExtras(C),{embedded:true,auto:{u:I.norm(C.owner||'').replace(/\s+/g,''),p:C.secret},upd:updInfo(C,result)}));
   $('#ovT').textContent=(C.empresa.nome||'Empresa')+' · visão do administrador';$('#ovF').srcdoc=html;$('#ov').hidden=false;document.body.style.overflow='hidden';
   $('#ovN').onclick=()=>{try{const u=URL.createObjectURL(new Blob([html],{type:'text/html'}));const a=document.createElement('a');a.href=u;a.target='_blank';a.rel='noopener';document.body.appendChild(a);a.click();a.remove();}catch(e){toast('Não foi possível abrir outra aba.');}};
 }
