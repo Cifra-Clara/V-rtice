@@ -2893,7 +2893,7 @@ async function renderNav(){
   $('#navCos').innerHTML=cos.length?cos.map(c=>{const g=genState(c);return `<a href="#" data-co="${c.id}" aria-current="${ROUTE==='empresa'&&CUR&&CUR.id===c.id?'page':'false'}"><i class="st ${g==='ok'?'ok':g==='old'?'warn':''}"></i><span>${esc(c.empresa.nome||'Empresa sem nome')}</span></a>`;}).join(''):(USER.admin?'':'<span style="padding:6px 12px;font-size:12.5px;color:var(--on-deep-2)">Nenhuma empresa ainda</span>');
   $('#navCos').querySelectorAll('[data-co]').forEach(a=>a.onclick=e=>{e.preventDefault();openCompany(a.dataset.co);});
   const ps=planState(USER);
-  let ph='';if(USER.admin) ph='';/* escondido: menu em cima já cobre */ else if(ps.status==='sem') ph=`<b>Escolha um plano</b><span>Assine pelo WhatsApp ou por e-mail.</span><a href="#assinatura">Ver planos</a>`;
+  let ph='';if(USER.admin) ph='';/* escondido: menu em cima já cobre */ else if(ps.status==='sem') ph=`<b>Tem interesse em assinar?</b><span>Fale com a gente pelo WhatsApp ou por e-mail.</span><a href="#assinatura">Entrar em contato</a>`;
   else if(ps.status==='teste') ph=`<b>${ps.plan.nome} · teste grátis</b><span>${ps.left} de ${CONFIG.trialDias} dias restantes</span><div class="bar"><i style="width:${Math.max(4,100-ps.left/CONFIG.trialDias*100)}%"></i></div><a href="#assinatura">${ps.cartao?'Ver assinatura':'Ativar assinatura'}</a>`;
   else if(ps.status==='expirado') ph=`<b>Teste encerrado</b><span>Ative a assinatura para continuar.</span><a href="#assinatura">Ativar agora</a>`;
   else if(ps.admin) ph='';/* quadro escondido para admin — menu de administração já cobre */
@@ -2950,26 +2950,25 @@ function findCup(cod){cod=String(cod||'').toUpperCase();if(!cod) return null;con
 function aplicaCup(preco,cup,planoId){if(!cup) return preco;if(cup.planos&&!cup.planos.includes(planoId)) return preco;
   return cup.tipo==='pct'?Math.round(preco*(1-cup.valor/100)):Math.max(0,preco-cup.valor);}
 async function vAssinatura(){
-  cupoDaUrl();
-  const codStored=lsGet('cc-cup','');if(codStored&&!CUP) CUP=findCup(codStored);
-  const ps=planState(USER),cos=await myCompanies();const pre=lsGet('cc-plan','profissional');
-  const cur=ps.plan?ps.plan.id:null;
-  let top='';
-  if(ps.status==='sem') top=`<div class="tip">${IINFO}<span>Escolha o plano e fale com a gente pelo <b>WhatsApp</b> ou por <b>e-mail</b>. Combinamos o pagamento e liberamos o acesso nesta conta (${esc(USER.email)}).</span></div>`;
-  else if(ps.status==='teste') top=`<div class="tip">${IINFO}<span>Você está no período de teste do plano <b>${ps.plan.nome}</b>: falta${ps.left>1?'m':''} ${ps.left} dia${ps.left>1?'s':''}. Para continuar depois do teste, fale com a gente e assine o plano.</span></div>`;
-  else if(ps.status==='expirado') top=`<div class="alert warn">O período de teste terminou. Seus dados estão guardados; fale com a gente para assinar e voltar a gerar e abrir os painéis.</div>`;
-  else if(ps.admin) top=`<div class="alert info">Você está entrando como administrador. Acesso completo liberado, sem assinatura. Esta página é a visão do cliente.</div>`;
-  else top=`<div class="alert ok">Assinatura ativa no plano <b>${ps.plan.nome}</b> (${(USER.plano&&USER.plano.ciclo)==='anual'?'anual':'mensal'}).</div>`;
-  $('#main').innerHTML=`<div class="ph"><div><h1>Assinatura</h1><p>Planos com atualização mensal ilimitada e conferências automáticas.</p></div><div class="cyc" role="group" aria-label="Ciclo"><button type="button" data-cyc="mensal" aria-pressed="${CYC==='mensal'}">Mensal</button><button type="button" data-cyc="anual" aria-pressed="${CYC==='anual'}">Anual<em>2 meses grátis</em></button></div></div>
-   ${CONFIG.demo?`<div class="demo-b">${IINFO}<span>Ambiente de demonstração: a assinatura é ativada sem cobrança.</span></div>`:''}
-   ${top}
-   <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px"><div class="f" style="display:flex;gap:8px;align-items:center"><label for="cupF" style="margin:0">Cupom:</label><input id="cupF" placeholder="CÓDIGO" value="${esc(CUP?CUP.codigo:'')}" style="text-transform:uppercase;max-width:160px;padding:7px 10px;border:1px solid var(--line);border-radius:9px;background:var(--surface);font-weight:600;letter-spacing:.02em"><button class="btn sm" type="button" id="cupB">${CUP?'Trocar':'Aplicar'}</button>${CUP?`<span class="pill ok">${esc(CUP.codigo)}: ${CUP.tipo==='pct'?CUP.valor+'% off':fmtBRL(CUP.valor)+' off'}${CUP.ciclos?' por '+CUP.ciclos+(CUP.ciclos==1?' cobrança':' cobranças'):''}</span>`:''}</div></div>
-   <div class="plans">${PLANS.map(p=>{const isCur=cur===p.id;const sel=isCur||(!cur&&pre===p.id);const pMes=precoMes(p,CYC);const pDes=aplicaCup(pMes,CUP,p.id);return `<div class="plan${sel?' sel':''}">${isCur?'<span class="pill cur">Plano atual</span>':''}<h3>${p.nome}</h3><p class="para">${esc(p.para)}</p><div class="pr">${pDes!==pMes?`<del style="color:var(--ink-3);font-size:16px;margin-right:6px;font-weight:600">${fmtBRL(pMes)}</del>`:''}<b style="${pDes!==pMes?'color:var(--ok)':''}">${fmtBRL(pDes)}</b><span>/mês${CYC==='anual'?' · '+fmtBRL(p.preco*10)+' por ano':''}</span></div><ul>${p.itens.map(x=>`<li>${ICK}<span>${esc(x)}</span></li>`).join('')}</ul>
-     ${planBtn(p,ps,cos)}</div>`;}).join('')}</div>
-   <p style="margin-top:16px;color:var(--ink-3);font-size:13px">Mais de 15 empresas? O plano Sob medida é contratado com a equipe ${esc(CONFIG.marca)}.</p>`;
-  document.querySelectorAll('[data-cyc]').forEach(b=>b.onclick=()=>{CYC=b.dataset.cyc;lsSet('cc-cyc',CYC);vAssinatura();});
-  document.querySelectorAll('[data-pl]').forEach(b=>b.onclick=()=>choosePlan(planById(b.dataset.pl)));
-  const cb=$('#cupB');if(cb) cb.onclick=()=>{const v=$('#cupF').value.trim().toUpperCase();if(!v){CUP=null;lsSet('cc-cup','');vAssinatura();return;}const c=findCup(v);if(!c){toast('Cupom inválido ou expirado.');return;}CUP=c;lsSet('cc-cup',v);toast('Cupom '+v+' aplicado.');vAssinatura();};
+  const ps=planState(USER);
+  let st='';
+  if(ps.admin) st=`<div class="alert info" style="margin-bottom:16px">Você está entrando como administrador. Acesso completo liberado, sem assinatura. Esta página é a visão do cliente.</div>`;
+  else if(ps.status==='ativa') st=`<div class="alert ok" style="margin-bottom:16px">Assinatura ativa no plano <b>${esc(ps.plan.nome)}</b>${USER.plano&&USER.plano.ate?` até ${dataBR(USER.plano.ate)}`:''}.</div>`;
+  else if(ps.status==='teste') st=`<div class="alert info" style="margin-bottom:16px">Período de teste do plano <b>${esc(ps.plan.nome)}</b>: falta${ps.left>1?'m':''} ${ps.left} dia${ps.left>1?'s':''}.</div>`;
+  else if(ps.status==='expirado'||ps.status==='vencida') st=`<div class="alert warn" style="margin-bottom:16px">${ps.status==='expirado'?'O período de teste terminou':'O acesso venceu'}. Seus dados estão guardados: fale com a gente para continuar.</div>`;
+  else if(['suspensa','cancelada','bloqueada'].includes(ps.status)) st=`<div class="alert warn" style="margin-bottom:16px">${esc(ps.label)}. Fale com a gente para regularizar.</div>`;
+  const ativo=ps.status==='ativa'||ps.admin;
+  const msg=ativo?`Olá! Tenho uma dúvida sobre a minha assinatura do Vértice. Meu e-mail de cadastro é ${USER.email}.`:`Olá! Tenho interesse em assinar o Vértice. Meu e-mail de cadastro é ${USER.email}.`;
+  const ml=CONFIG.contato.email?'mailto:'+CONFIG.contato.email+'?subject='+encodeURIComponent(ativo?'Minha assinatura do Vértice':'Interesse em assinar o Vértice')+'&body='+encodeURIComponent(msg):'';
+  $('#main').innerHTML=`<div class="ph"><div><h1>Assinatura</h1><p>${ativo?'Dúvidas, mudança de plano ou renovação: fale com a gente.':'O acesso ao Vértice é liberado pela nossa equipe.'}</p></div></div>
+   ${st}
+   <div class="panel"><div class="bd" style="display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:28px;align-items:center;padding:30px clamp(18px,3vw,36px)" id="asBox">
+     <div><h2 style="font-size:22px;margin:0 0 8px">${ativo?'Precisa de algo na sua assinatura?':'Tem interesse em assinar?'}</h2><p style="color:var(--ink-2);margin:0">${ativo?'Para mudar de plano, incluir mais empresas ou renovar, entre em contato pelo WhatsApp ou por e-mail.':'Entre em contato pelo WhatsApp ou por e-mail. Conversamos sobre a sua empresa, combinamos o pagamento e liberamos o acesso nesta conta.'}</p>
+       <p style="color:var(--ink-3);font-size:13px;margin:10px 0 0">Conta: <b>${esc(USER.email)}</b></p></div>
+     <div style="display:grid;gap:10px">${CONFIG.contato.whatsapp?`<a class="btn primary" href="${esc(waLink(msg))}" target="_blank" rel="noopener" style="justify-content:center">Chamar no WhatsApp · ${esc(CONFIG.contato.whatsapp)}</a>`:''}${CONFIG.contato.email?`<a class="btn" href="${esc(ml)}" style="justify-content:center">Enviar e-mail · ${esc(CONFIG.contato.email)}</a>`:''}</div>
+   </div></div>
+   <style>@media (max-width:760px){#asBox{grid-template-columns:minmax(0,1fr)!important}}</style>`;
+  document.querySelectorAll('#asBox a').forEach(a=>a.addEventListener('click',()=>logEv('contato',ativo?'Contato sobre a assinatura':'Interesse em assinar')));
 }
 function planBtn(p,ps,cos){
   const cur=ps.plan&&ps.plan.id===p.id;
@@ -2993,8 +2992,8 @@ async function vEmpresas(){
       <div class="prog" title="Etapas do envio">${steps.map(s=>{const v=s==='map'?worst(M.st.map,M.st.plano):M.st[s];return `<i class="${v==='ok'?'ok':v==='warn'?'warn':''}"></i>`;}).join('')}</div>
       <div class="acts">${c.gen?`<button class="btn primary sm" type="button" data-open="${c.id}">Abrir painel</button>`:''}<button class="btn sm" type="button" data-go="${c.id}">${c.gen?'Atualizar dados':'Continuar envio'}</button>${c.mode==='planilha'?'':`<button class="btn sm" type="button" data-edit="${c.id}">Editar</button>`}<button class="btn sm" type="button" data-del="${c.id}" title="Excluir empresa" aria-label="Excluir empresa" style="margin-left:auto;color:var(--err);padding:6px 10px"><svg class="i" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6"/></svg></button></div></div>`;};
   const canNew=canUse(USER)&&cos.length<lim;
-  $('#main').innerHTML=`<div class="ph"><div><h1>Empresas</h1><p>${ps.admin?`Acesso de administrador: cadastre quantas empresas quiser para testes e análises.`:ps.plan?`${cos.length} de ${lim} empresa${lim>1?'s':''} no plano ${ps.plan.nome}.`:'Escolha um plano para cadastrar empresas.'}</p></div><div class="acts">${cos.length?`<button class="btn primary" type="button" id="newB">Nova empresa</button>`:''}</div></div>
-   ${ps.status==='expirado'?`<div class="alert warn" style="margin-bottom:16px">O teste grátis terminou. <a href="#assinatura">Ative a assinatura</a> para gerar e abrir os painéis.</div>`:''}
+  $('#main').innerHTML=`<div class="ph"><div><h1>Empresas</h1><p>${ps.admin?`Acesso de administrador: cadastre quantas empresas quiser para testes e análises.`:ps.plan?`${cos.length} de ${lim} empresa${lim>1?'s':''} no plano ${ps.plan.nome}.`:'Fale com a gente para liberar o acesso e cadastrar empresas.'}</p></div><div class="acts">${cos.length?`<button class="btn primary" type="button" id="newB">Nova empresa</button>`:''}</div></div>
+   ${ps.status==='expirado'?`<div class="alert warn" style="margin-bottom:16px">O período de teste terminou. <a href="#assinatura">Fale com a gente</a> para continuar gerando e abrindo os painéis.</div>`:''}
    ${cos.length?`<div class="cos-g">${cos.map(card).join('')}${canNew?`<button class="co new" type="button" id="newC"><span class="ill" style="width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:var(--tint);color:var(--brand)"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span><b>Cadastrar nova empresa</b><span>${lim-cos.length} vaga${lim-cos.length>1?'s':''} no seu plano</span></button>`:''}</div>`
    :`<div class="panel"><div class="empty"><span class="ill"><svg class="i" viewBox="0 0 24 24"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/></svg></span><h3>Cadastre sua primeira empresa</h3><p>Você vai precisar dos balancetes mensais (Excel ou CSV) e do relatório de vendas por produto. Se ainda não tem os arquivos, experimente com os dados de exemplo.</p>
       <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">${ps.plan||USER.admin?`<button class="btn primary" type="button" id="newB2">Cadastrar empresa</button><button class="btn" type="button" id="sampleB">Experimentar com dados de exemplo</button>`:`<a class="btn primary" href="#assinatura">Escolher plano</a>`}<a class="btn ghost" href="#ajuda">Quais relatórios pedir?</a></div></div></div>`}`;
@@ -3534,7 +3533,7 @@ function faltaGerar(C,M){const why={empresa:'Preencha nome, regime e unidade de 
   return {why,pend};}
 async function sGerar(C,M){
   const B=$('#stepB');
-  if(!canUse(USER)){B.innerHTML=`<div class="panel"><div class="empty"><span class="ill">${IWARN}</span><h3>${planState(USER).status==='sem'?'Escolha um plano':'O teste grátis terminou'}</h3><p>Para gerar o painel, ative um plano. Os dados enviados continuam guardados.</p><a class="btn primary" href="#assinatura">Ver planos</a></div></div>`;return;}
+  if(!canUse(USER)){B.innerHTML=`<div class="panel"><div class="empty"><span class="ill">${IWARN}</span><h3>${planState(USER).status==='sem'?'Tem interesse em assinar?':'O acesso não está ativo'}</h3><p>Para gerar o painel, fale com a gente e liberamos o acesso. Os dados enviados continuam guardados.</p><a class="btn primary" href="#assinatura">Entrar em contato</a></div></div>`;return;}
   if(!M.st.ready){const {why,pend}=faltaGerar(C,M);
     const onlyCtb=pend.every(([k])=>k==='map'||k==='bal'||k==='conc')&&M.st.vend==='ok'&&M.st.empresa==='ok';
     B.innerHTML=`<div class="panel"><div class="hd"><h2>Ainda falta</h2></div><div class="bd chks">${pend.map(([k,t])=>`<div class="c err">${IERR}<span><b>${t}</b> · ${why[k]} <a href="#" data-goto="${k}">Ir para a etapa</a></span></div>`).join('')}
