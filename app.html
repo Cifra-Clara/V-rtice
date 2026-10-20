@@ -1024,7 +1024,7 @@ root.ASSEMBLE={assemble};
 'use strict';
 const {LINES,MESES,MABR}=root.ENGINE;
 const LMAP={};LINES.forEach(([c,l,g,n])=>{LMAP[c]={c,l,g,n,sign:n==='D'?1:-1};});
-const norm=s=>String(s==null?'':s).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[−–—]/g,'-').replace(/\s+/g,' ').trim();
+const norm=s=>String(s==null?'':s).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[−–—]/g,'-').replace(/_+/g,' ').replace(/\s+/g,' ').trim();
 const p2=n=>String(n).padStart(2,'0');
 const r2=x=>Math.round((x+Number.EPSILON)*100)/100;
 const eom=(y,m)=>new Date(y,m+1,0);
@@ -1459,8 +1459,13 @@ function detectBalancete(rows){
   /* código hierárquico sem título reconhecido */
   if(col.cls==null){for(let c=0;c<W;c++) if(!Object.values(col).includes(c)&&P[c].code>.5){col.cls=c;break;}}
   if(col.cod==null&&col.cls==null){for(let c=0;c<(col.nome!=null?col.nome:W);c++) if(!Object.values(col).includes(c)&&P[c].num>.8){col.cod=c;break;}}
-  /* colunas D/C logo depois de uma coluna de valor */
-  const natOf={};for(let c=0;c<W;c++) if(P[c].dc>.6){for(const k of ['sant','deb','cred','sat']) if(col[k]===c-1||col[k]===c-2) natOf[k]=natOf[k]==null?c:natOf[k];}
+  /* código hierárquico (1.1.02) numa coluna "Código": é a classificação; o reduzido fica como código */
+  const hier=c=>{let n=0,k=0;for(let r=h+1;r<Math.min(rows.length,h+300);r++){const v=rows[r][c];if(v==null) continue;n++;if(typeof v==='string'&&/^\d+([.\-]\d+)+$/.test(v.trim())) k++;}return n>0&&k/n>.5;};
+  if(col.cls==null&&col.cod!=null&&(P[col.cod].code>.5||hier(col.cod))){col.cls=col.cod;delete col.cod;const r=find(/reduzid|^cod.*red|^red/,p=>p.num+p.code>.5);if(r>=0) col.cod=r;}
+  /* colunas D/C: primeiro pelo título (ex.: "Saldo atual D/C"), depois as que vêm logo depois de uma coluna de valor */
+  const natOf={},dcUsed=new Set();
+  for(let c=0;c<W;c++) if(P[c].dc>.6&&H[c]){const k=HB.sant.test(H[c])?'sant':HB.sat.test(H[c])?'sat':null;if(k&&natOf[k]==null){natOf[k]=c;dcUsed.add(c);}}
+  for(let c=0;c<W;c++) if(P[c].dc>.6&&!dcUsed.has(c)){for(const k of ['sant','deb','cred','sat']) if(natOf[k]==null&&(col[k]===c-1||col[k]===c-2)){natOf[k]=c;dcUsed.add(c);break;}}
   if(col.sat==null&&!(col.sant!=null&&col.deb!=null&&col.cred!=null)) return {ok:false,msg:'Não encontrei a coluna de saldo atual (ou saldo anterior, débito e crédito) no balancete.'};
   if(col.nome==null) return {ok:false,msg:'Não encontrei a coluna com o nome das contas.'};
   return {ok:true,h,col,natOf};
