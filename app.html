@@ -373,6 +373,7 @@ textarea.copy{width:100%;min-height:200px;border:1px solid var(--line);border-ra
     <div id="navCli">
       <a class="it" href="#empresas" data-r="empresas"><svg class="i" viewBox="0 0 24 24"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/></svg>Empresas</a>
       <a class="it" href="#assinatura" data-r="assinatura"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/></svg>Assinatura</a>
+      <a class="it" href="#reembolso" data-r="reembolso"><svg class="i" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/></svg>Reembolso</a>
       <a class="it" href="#conta" data-r="conta"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>Minha conta</a>
       <a class="it" href="#ajuda" data-r="ajuda"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6V14M12 17h.01"/></svg>Relatórios necessários</a>
     </div>
@@ -1815,6 +1816,40 @@ root.IMPORT={splitBalancete,readProdutos,readTable,parseCSV,money,toDate,detectM
 /* Monta o HTML do painel Vértice para o site: dados + extras (login automático, módulos do plano, voltar ao site, aviso de demonstração). */
 (function(root){
 'use strict';
+/* aba "Atualizar dados" dentro do painel aberto pelo site: envia os relatórios do próximo mês ao site, que recalcula tudo */
+function updPanel(O){
+  var U=O.upd;if(!U||typeof VIEWS==='undefined'||typeof NAVS==='undefined') return;
+  try{IC.atu='<path d="M20 11a8 8 0 0 0-14.9-3.5M4 4v4h4M4 13a8 8 0 0 0 14.9 3.5M20 20v-4h-4"/>';}catch(e){}
+  VIEWS.atu={g:'Visão geral',t:'Atualizar dados',d:'Envie os relatórios do próximo mês. O painel recalcula todo o período e todos os indicadores.',home:0};
+  var el=document.createElement('div');el.id='v-atu';el.className='hide';var ref=document.getElementById('v-ini');ref.parentNode.insertBefore(el,ref.nextSibling);
+  NAVS.splice(1,0,{k:'atu',single:'atu'});
+  var css=document.createElement('style');css.textContent='.vu{display:grid;gap:16px}.vu .vu-b{padding:18px 20px;display:grid;gap:14px}.vu-s{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}.vu-s div{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--surface)}.vu-s small{display:block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}.vu-s b{font-size:18px;color:var(--head)}.vu-f{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 14px;align-items:center;border:1px dashed var(--line);border-radius:12px;padding:12px 14px}.vu-f b{font-size:13.5px;color:var(--head)}.vu-f span{font-size:12px;color:var(--ink-3)}.vu-f .vu-n{grid-column:1/-1;font-size:12px;color:var(--accent-2)}.vu-f label{cursor:pointer;border:1px solid var(--line);border-radius:9px;padding:7px 12px;font-size:13px;font-weight:600;background:var(--surface);white-space:nowrap}.vu-f.req b:after{content:" · obrigatório";font-weight:500;color:var(--neg);font-size:12px}.vu-go{justify-self:start;border:0;border-radius:10px;padding:12px 18px;font:700 14px inherit;background:var(--accent);color:#fff;cursor:pointer;display:inline-flex;gap:8px;align-items:center}.vu-go[disabled]{opacity:.5;cursor:default}.vu-r{border-radius:12px;padding:14px 16px;font-size:13.5px;line-height:1.55}.vu-r.ok{background:rgba(29,122,78,.1);color:var(--pos)}.vu-r.err{background:var(--gold-l);color:var(--gold-ink)}.vu-r ul{margin:8px 0 0;padding-left:18px}.vu-r li{margin:3px 0;color:var(--ink-2)}.vu-sp{width:16px;height:16px;border-radius:50%;border:2.5px solid rgba(255,255,255,.4);border-top-color:#fff;animation:vtspin .8s linear infinite}@keyframes vtspin{to{transform:rotate(360deg)}}@media (max-width:600px){.vu-f{grid-template-columns:1fr}}';document.head.appendChild(css);
+  var E=function(x){return String(x==null?'':x).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});};
+  var SL=U.mode==='planilha'?[['xlsx','Planilha padrão Vértice atualizada','Com as abas preenchidas até '+U.next+'.','.xlsx',1,0]]:[
+    ['bal','Balancete de '+U.next,'Da contabilidade, em Excel ou CSV. Pode reenviar meses anteriores corrigidos.','.xlsx,.csv,.txt',1,1],
+    ['vend','Vendas de '+U.next,'Relatório por produto do sistema de vendas, em Excel ou CSV.','.xlsx,.csv,.txt',1,1],
+    ['ext','Extratos bancários de '+U.next,U.contas.length?'Um por conta: '+U.contas.join(', ')+'. OFX de preferência.':'Se a empresa tiver conta em banco. OFX de preferência.','.ofx,.qfx,.xlsx,.csv,.txt',U.contas.length?1:0,1],
+    ['plano','Plano de contas','Só se a contabilidade criou ou alterou contas.','.xlsx,.csv,.txt',0,0]];
+  var FS={};
+  function res(R){if(!R) return '';if(R.ok) return '<div class="vu-r ok"><b>Painel atualizado.</b> Período recalculado: '+E(R.win[0])+' a '+E(R.win[1])+' ('+R.n+' meses). Todos os indicadores, gráficos e tabelas usam os dados novos.'+(R.msgs&&R.msgs.length?'<ul>'+R.msgs.map(function(m){return '<li>'+E(m)+'</li>';}).join('')+'</ul>':'')+'</div>';
+    return '<div class="vu-r err"><b>'+E(R.titulo||'O painel ainda não foi atualizado.')+'</b>'+(R.pend&&R.pend.length?'<ul>'+R.pend.map(function(m){return '<li>'+E(m)+'</li>';}).join('')+'</ul>':'')+(R.saved?'<div style="margin-top:8px">Os arquivos enviados ficaram guardados. Envie o que falta aqui ou na área do cliente.</div>':'')+'</div>';}
+  function draw(R){
+    var req=SL.filter(function(x){return x[4]&&!(FS[x[0]]&&FS[x[0]].length);}).length,any=SL.some(function(x){return FS[x[0]]&&FS[x[0]].length;});
+    el.innerHTML='<div class="vu"><div class="panel"><div class="panel-head"><div><div class="panel-title">Atualizar com o próximo mês</div><div class="panel-sub">Envie os arquivos de '+E(U.next)+' e clique em Atualizar automaticamente. O Vértice confere os relatórios, refaz a conciliação e recalcula todo o período.</div></div></div><div class="vu-b">'+
+      '<div class="vu-s"><div><small>Dados até</small><b>'+E(U.last)+'</b></div><div><small>Próximo mês</small><b>'+E(U.next)+'</b></div><div><small>Meses no painel</small><b>'+E(U.n)+'</b></div><div><small>Histórico do plano</small><b>até '+E(U.max)+' meses</b></div></div>'+
+      SL.map(function(x){var f=FS[x[0]]||[];return '<div class="vu-f'+(x[4]?' req':'')+'"><div><b>'+E(x[1])+'</b><br><span>'+E(x[2])+'</span></div><label>Escolher arquivo'+(x[5]?'s':'')+'<input type="file" data-vu="'+x[0]+'" accept="'+x[3]+'"'+(x[5]?' multiple':'')+' hidden></label>'+(f.length?'<div class="vu-n">'+f.map(function(z){return E(z.name);}).join(' · ')+'</div>':'')+'</div>';}).join('')+
+      '<button class="vu-go" type="button" id="vuGo"'+(any?'':' disabled')+'>'+(BUSY?'<i class="vu-sp"></i>Recalculando o painel…':'Atualizar automaticamente')+'</button>'+
+      (any&&req?'<span style="font-size:12.5px;color:var(--ink-3)">Faltam arquivos obrigatórios; se já foram enviados pela área do cliente, pode atualizar assim mesmo.</span>':'')+
+      '<div id="vuR">'+res(R)+'</div></div></div></div>';
+    el.querySelectorAll('[data-vu]').forEach(function(i){i.onchange=function(){FS[i.dataset.vu]=[].slice.call(i.files);draw();};});
+    var g=el.querySelector('#vuGo');g.onclick=go;if(BUSY) g.disabled=true;}
+  var BUSY=false;
+  function go(){var L=[];SL.forEach(function(x){(FS[x[0]]||[]).forEach(function(f){L.push({kind:x[0],f:f});});});if(!L.length) return;BUSY=true;draw();
+    Promise.all(L.map(function(x){return x.f.arrayBuffer();})).then(function(bufs){parent.postMessage({vt:'upd',files:L.map(function(x,i){return {kind:x.kind,name:x.f.name,buf:bufs[i]};})},'*',bufs);});}
+  window.addEventListener('message',function(e){var d=e.data;if(e.source!==parent||!d||d.vt!=='updRes') return;BUSY=false;draw(d);try{window.scrollTo({top:0});}catch(x){}});
+  draw(U.result);
+  if(U.result){var _r=render;render=function(){var x=_r.apply(this,arguments);setTimeout(function(){show('atu');if(typeof toast==='function'&&U.result.ok) toast('Painel atualizado até '+U.result.win[1]+'.','ok');},30);return x;};}
+}
 function extras(O){
   const js=JSON.stringify(O).replace(/</g,'\\u003c');
   return `<script>
@@ -1827,6 +1862,7 @@ function extras(O){
  try{if(O.views&&O.views.length&&typeof VIEWS!=='undefined'){var anc=document.getElementById('v-con')||document.getElementById('v-dfc');var pos=0;O.views.forEach(function(v){VIEWS[v.k]={g:'Análise financeira',t:v.t,d:v.d};var el=document.createElement('div');el.id='v-'+v.k;el.className='hide';el.innerHTML=v.html;if(anc&&anc.parentNode){anc.parentNode.insertBefore(el,anc.nextSibling);anc=el;}
    NAVS.forEach(function(s){if(s.k==='fin'&&s.items){var i=-1;s.items.forEach(function(x,j){if(x.v==='con') i=j;});s.items.splice(i<0?s.items.length:i+1+pos,0,{v:v.k});}});pos++;});}}catch(e){}
  try{if(O.qual&&typeof panelQual==='function'){var _pq=panelQual;panelQual=function(){var h=_pq.apply(this,arguments);var i=h.indexOf('</tbody>');return i<0?h:h.slice(0,i)+O.qual+h.slice(i);};}}catch(e){}
+ try{if(O.upd) (${updPanel.toString()})(O);}catch(e){}
  try{if(O.addUser){var a=O.addUser;USERS[a.u]={p:a.p,h:sha256('cvl|'+a.u+'|'+a.p),n:a.n||'Cliente',i:a.i||'CL',r:a.r||'autor'};}}catch(e){}
  if(O.auto){var st=document.createElement('style');st.textContent='html.vt-auto #login{visibility:hidden}.vt-veil{position:fixed;inset:0;display:grid;place-items:center;background:#F4F5FA;z-index:9999;font:600 14px "Plus Jakarta Sans",Inter,system-ui,sans-serif;color:#4F46E5}.vt-veil div{display:flex;gap:10px;align-items:center}.vt-veil i{width:18px;height:18px;border-radius:50%;border:2.5px solid #C7D2FE;border-top-color:#4F46E5;animation:vtspin .8s linear infinite}@keyframes vtspin{to{transform:rotate(360deg)}}@media (prefers-color-scheme:dark){.vt-veil{background:#0F1424;color:#A5B4FC}}';
    document.head.appendChild(st);document.documentElement.classList.add('vt-auto');
@@ -1861,6 +1897,8 @@ const CONFIG={
   trialDias:7,
   /* o teste grátis exige cartão: começa pelo link de pagamento do plano, configurado no gateway com 7 dias grátis */
   trialCartao:true,
+  reembolsoDias:7,
+  reembolsoTxt:'Você pode pedir o reembolso integral em até 7 dias após a primeira cobrança (direito de arrependimento, art. 49 do Código de Defesa do Consumidor). Cobranças em duplicidade ou indevidas são devolvidas a qualquer tempo. Fora desses casos, a assinatura pode ser cancelada quando quiser, sem multa, e não há nova cobrança; o período já pago continua disponível até o fim.',
   /* deixe em branco para ocultar; preencha antes de publicar */
   contato:{email:'luizcorti669@gmail.com',whatsapp:'(49) 99123-8750',cidade:''},
   /* Pagamento: cole aqui o link de pagamento recorrente (assinatura) de cada plano, criado no painel do gateway
@@ -1928,6 +1966,8 @@ const CLOUD=(()=>{
     'SENHA_CURTA':'A senha precisa de pelo menos 8 caracteres.',
     'signups are disabled':'O cadastro de novas contas está desligado no momento. Fale com a nossa equipe.',
     'Signups not allowed':'O cadastro de novas contas está desligado no momento. Fale com a nossa equipe.',
+    'LIMITE_REEMBOLSO':'Você já tem um pedido de reembolso em análise. Aguarde a resposta da nossa equipe.',
+    'PEDIDO_GRANDE':'O pedido ficou grande demais. Resuma os detalhes.',
     'CADASTRO_FECHADO':'Os novos cadastros estão fechados no momento. Fale com a nossa equipe.'};
   const human=(t,code)=>{t=String(t||'');for(const k in MSG) if(t.includes(k)) return MSG[k];
     if(code===429||/rate limit|too many/i.test(t)) return 'Muitas tentativas em pouco tempo. Aguarde alguns minutos e tente de novo.';
@@ -1976,6 +2016,7 @@ function applySiteConfig(d){if(!d||typeof d!=='object') return;
   ['ativacao','liberacao','cadastro'].forEach(k=>{if(d[k]) CONFIG[k]=d[k];});
   if(Array.isArray(d.cupons)) CONFIG.cupons=d.cupons;
   CONFIG.aviso=d.aviso||null;
+  if(d.reembolso) CONFIG.reembolsoTxt=d.reembolso;
   if(d.planos) PLANS.forEach(p=>{const o=d.planos[p.id];if(!o) return;['preco','empresas','meses'].forEach(k=>{if(+o[k]>0) p[k]=+o[k];});
     p.itens=p.itens.map(t=>t.replace(/^(\d+) empresas?$/,()=>p.empresas===1?'1 empresa':p.empresas+' empresas').replace(/^Até \d+ empresas$/,()=>'Até '+p.empresas+' empresas').replace(/^Até \d+ meses de histórico$/,()=>'Até '+p.meses+' meses de histórico'));});
 }
@@ -2297,6 +2338,46 @@ function panelHtml(C,opts){
   return SITEPANEL.make(tpl(),{RAW:C.gen.RAW,USERS:opts.users||C.gen.USERS},logo,
     Object.assign({hide,lockMsg:'Recurso disponível a partir do plano Profissional.'},panelExtras(C),opts.extra||{}));
 }
+/* ---------- atualização pelo próprio painel (aba "Atualizar dados") ---------- */
+let OPENC=null;
+function updInfo(C,result){try{const ps=planState(USER);const M=C.mode==='planilha'?null:model(C);const w=C.gen.win;
+  return {mode:C.mode==='planilha'?'planilha':'normal',last:ML(w[1]),next:ML(w[1]+1),n:C.gen.RAW.months.length,max:ps.plan?ps.plan.meses:24,
+    contas:M?M.conc.filter(c=>!c.just).map(c=>c.a.nome):[],result:result||null};}catch(e){return null;}}
+async function applyUpdate(C,files){
+  if(!canUse(USER)&&!USER.admin) return {ok:false,titulo:'Ative a assinatura para atualizar o painel.',pend:[]};
+  const nextK=C.gen.win[1]+1,pend=[],lidos=[];
+  if(C.mode==='planilha'){const f=files.find(x=>x.kind==='xlsx');if(!f) return {ok:false,titulo:'Escolha a planilha padrão atualizada.',pend:[]};
+    try{const P=PARSE.parse(await XLSXR.readXlsx(f.buf));const er=P.MSG.filter(m=>m.l==='erro');if(er.length) return {ok:false,titulo:'A planilha tem erros.',pend:er.map(m=>m.t)};
+      const u=I.norm(USER.email).replace(/\s+/g,'');P.USERS[u]={h:PARSE.sha256('cvl|'+u+'|'+C.secret),n:USER.nome,i:initials(USER.nome),r:'autor'};const R=P.RAW;
+      C.gen.RAW=R;C.gen.USERS=P.USERS;C.gen.at=Date.now();C.gen.win=[R.months[0].y*12+R.months[0].m,R.months[R.months.length-1].y*12+R.months[R.months.length-1].m];delete C.importado;
+      C.hist.unshift({at:Date.now(),t:'Painel atualizado pelo próprio painel: '+f.name});await save(C,false);logEv('painel','Painel atualizado (planilha): '+C.empresa.nome);
+      return {ok:true,win:[ML(C.gen.win[0]),ML(C.gen.win[1])],n:R.months.length,msgs:P.MSG.filter(m=>m.l==='aviso').map(m=>m.t).slice(0,6)};}
+    catch(e){return {ok:false,titulo:'Não foi possível ler a planilha.',pend:[e.message]};}}
+  for(const f of files){
+    if(f.kind==='bal'){const parts=await readBalFiles(f.name,f.buf);const okp=parts.filter(r=>r.det.ok);
+      if(!okp.length){pend.push(`${f.name}: ${parts[0].det.msg}`);continue;}
+      okp.forEach(r=>{if(r.month==null&&okp.length===1) r.month=nextK;if(r.month==null){pend.push(`${r.name}: não identifiquei o mês do balancete.`);return;}
+        C.bal=C.bal.filter(x=>x.month!==r.month);C.bal.push(r);lidos.push('balancete de '+ML(r.month));});}
+    else if(f.kind==='vend'){const n=await readVendFile(f.name,f.buf);if(!n.det.ok){pend.push(`${f.name}: ${n.det.msg}`);continue;}
+      if(!n.months.length&&n.det.col.data==null){n.month=nextK;n.months=[nextK];}
+      const old=C.vend.filter(x=>x.name===n.name||(n.months.length&&vendMonths(x).some(m=>n.months.includes(m))));C.vend=C.vend.filter(x=>!old.includes(x));C.vend.push(n);lidos.push('vendas de '+n.months.map(ML).join(', '));}
+    else if(f.kind==='ext'){const r=await I.readExtratoFile(f.buf,f.name).catch(e=>({ok:false,msg:e.message}));if(!r.ok){pend.push(`${f.name}: ${r.msg}`);continue;}
+      C.ext=(C.ext||[]).filter(x=>x.name!==f.name);r.stmts.forEach((st,i)=>{st.trn=st.trn.slice(0,30000);C.ext.push({id:uid(),name:r.stmts.length>1?`${f.name} · ${st.conta||i+1}`:f.name,at:Date.now(),ok:true,s:st});});lidos.push('extrato '+f.name);}
+    else if(f.kind==='plano'){const r=await I.readPlanoFile(f.buf,f.name).catch(e=>({ok:false,msg:e.message}));if(!r.ok){pend.push(`${f.name}: ${r.msg}`);continue;}C.plano={name:f.name,at:Date.now(),accs:r.accs,info:r.info};lidos.push('plano de contas');}}
+  if(lidos.length){C.hist.unshift({at:Date.now(),t:'Enviado pelo painel: '+lidos.join(', ')});await save(C);}
+  if(pend.length) return {ok:false,titulo:'Alguns arquivos não foram lidos.',pend,saved:!!lidos.length};
+  const M=model(C);
+  if(!M.st.ready){const {why,pend:pp}=faltaGerar(C,M);return {ok:false,titulo:'Faltam informações para recalcular o painel.',pend:pp.map(([k,t])=>t+': '+why[k]),saved:true};}
+  const r=await generate(C);
+  if(!r.ok) return {ok:false,titulo:'O painel ainda não pode ser recalculado.',pend:(r.MSG||[]).filter(m=>m.l==='erro').map(m=>m.t),saved:true};
+  const R=C.gen.RAW;const avisos=C.gen.MSG.filter(m=>(m.l==='aviso'||/Conciliação bancária|Plano de contas/.test(m.t))&&!/total do relatório de vendas não informado/.test(m.t)).map(m=>m.t);
+  if(C.gen.win[1]<nextK) avisos.unshift(`As vendas de ${ML(nextK)} ainda não chegaram: o painel continua até ${ML(C.gen.win[1])}, com os dados enviados já recalculados.`);
+  return {ok:true,win:[ML(C.gen.win[0]),ML(C.gen.win[1])],n:R.months.length,msgs:avisos.slice(0,8)};
+}
+window.addEventListener('message',async e=>{const d=e.data;if(!d||d.vt!=='upd') return;const fr=$('#ovF');if(!fr||e.source!==fr.contentWindow||!OPENC) return;
+  const C=OPENC;let res;try{res=await applyUpdate(C,d.files||[]);}catch(x){res={ok:false,titulo:'Não foi possível atualizar.',pend:[x.message]};}
+  if(res.ok){toast('Painel atualizado até '+res.win[1]+'.');openPanel(C,res);if(ROUTE==='empresa'&&CUR&&CUR.id===C.id) vEmpresa();else if(ROUTE==='empresas') vEmpresas();}
+  else{try{fr.contentWindow.postMessage(Object.assign({vt:'updRes'},res),'*');}catch(x){}}});
 /* liberação do painel pelo administrador */
 const awaitingRelease=C=>!!(C&&C.gen&&!USER.admin&&!C.bloqueado&&CONFIG.liberacao==='manual'&&!C.liberado);
 async function panelGate(C){
@@ -2306,8 +2387,8 @@ async function panelGate(C){
   if(C.bloqueado){modal(`<h3>Painel bloqueado</h3><p style="color:var(--ink-2)">O acesso ao painel de <b>${esc(C.empresa.nome)}</b> está bloqueado. Fale com a equipe ${esc(CONFIG.marca)} para regularizar.</p><div class="acts"><button class="btn" data-close type="button">Fechar</button>${wa('Olá! O painel da empresa '+C.empresa.nome+' está bloqueado. E-mail: '+USER.email)}</div>`);return false;}
   if(awaitingRelease(C)){modal(`<h3>Painel aguardando liberação</h3><p style="color:var(--ink-2)">O painel de <b>${esc(C.empresa.nome)}</b> está pronto e passa por uma conferência da equipe ${esc(CONFIG.marca)} antes de ser liberado. Você recebe acesso em breve.</p><div class="acts"><button class="btn" data-close type="button">Fechar</button>${wa('Olá! Gerei o painel da empresa '+C.empresa.nome+' e aguardo a liberação. E-mail: '+USER.email)}</div>`);return false;}
   return true;}
-async function openPanel(C){
-  if(!C.gen) return;
+async function openPanel(C,result){
+  if(!C.gen) return;OPENC=null;
   if(!canUse(USER)&&!USER.admin){toast('Ative a assinatura para abrir o painel.');location.hash='assinatura';return;}
   if(!await panelGate(C)) return;
   if(C.importado){const u=panelKey(C.owner||USER.email);const ps0=planState(USER);
@@ -2315,7 +2396,7 @@ async function openPanel(C){
     $('#ovT').textContent=C.empresa.nome+' · Vértice';$('#ovF').srcdoc=html;$('#ov').hidden=false;document.body.style.overflow='hidden';
     $('#ovN').onclick=()=>{try{const x=URL.createObjectURL(new Blob([html],{type:'text/html'}));const a=document.createElement('a');a.href=x;a.target='_blank';a.rel='noopener';document.body.appendChild(a);a.click();a.remove();}catch(e){toast('Não foi possível abrir outra aba.');}};
     return;}
-  const html=panelHtml(C,{extra:{embedded:true,auto:{u:I.norm(USER.email).replace(/\s+/g,''),p:C.secret}}});
+  OPENC=C;const html=panelHtml(C,{extra:{embedded:true,auto:{u:I.norm(USER.email).replace(/\s+/g,''),p:C.secret},upd:updInfo(C,result)}});
   $('#ovT').textContent=C.empresa.nome+' · Vértice';$('#ovF').srcdoc=html;$('#ov').hidden=false;document.body.style.overflow='hidden';
   $('#ovN').onclick=()=>{try{const u=URL.createObjectURL(new Blob([html],{type:'text/html'}));const a=document.createElement('a');a.href=u;a.target='_blank';a.rel='noopener';document.body.appendChild(a);a.click();a.remove();}catch(e){toast('Não foi possível abrir outra aba.');}};
 }
@@ -2350,10 +2431,10 @@ async function route(){
   $('#auth').hidden=true;$('#shell').hidden=false;$('#nav').classList.remove('on');
   if(h==='pagamento-confirmado'){await confirmPayment();history.replaceState(null,'','#assinatura');}
   const isAdm=h.startsWith('adm')&&USER.admin&&ADMV[h];
-  ROUTE=isAdm?h:['empresas','assinatura','conta','ajuda','empresa','nova'].includes(h)?h:(h==='pagamento-confirmado'?'assinatura':(USER.admin&&!h?'adm':'empresas'));
+  ROUTE=isAdm?h:['empresas','assinatura','reembolso','conta','ajuda','empresa','nova'].includes(h)?h:(h==='pagamento-confirmado'?'assinatura':(USER.admin&&!h?'adm':'empresas'));
   if(ROUTE==='empresa'&&!CUR) ROUTE='empresas';
   await renderNav();
-  const v=ROUTE.startsWith('adm')?ADMV[ROUTE]:{empresas:vEmpresas,assinatura:vAssinatura,conta:vConta,ajuda:vAjuda,empresa:vEmpresa,nova:vNova}[ROUTE];
+  const v=ROUTE.startsWith('adm')?ADMV[ROUTE]:{empresas:vEmpresas,assinatura:vAssinatura,reembolso:vReembolso,conta:vConta,ajuda:vAjuda,empresa:vEmpresa,nova:vNova}[ROUTE];
   try{await v();}catch(e){$('#main').innerHTML=`<div class="alert err">Não foi possível carregar esta página: ${esc(e.message)}</div>`;}
   avisoBar();window.scrollTo(0,0);
 }
@@ -2378,7 +2459,7 @@ async function renderNav(){
   $('#outB').onclick=async()=>{await logout();location.hash='entrar';route();};
   const na=$('#navAdm');if(na){na.hidden=!USER.admin;if(USER.admin) await admNav(na);}
   const nc=$('#navCli');
-  if(USER.admin&&nc) nc.style.display='none';
+  if(nc) nc.style.display=USER.admin?'none':'';
 }
 $('#navB').onclick=()=>$('#nav').classList.toggle('on');
 async function openCompany(id,step){CUR=await DB.get('companies',id);STEP=step||(CUR&&CUR.gen?'geral':'empresa');if(location.hash==='#empresa') route();else location.hash='empresa';}
@@ -2479,7 +2560,7 @@ async function vEmpresas(){
     return `<div class="co"><div class="top"><span class="av" style="background:${avBg(c.empresa.nome)}">${c.logo?`<img src="${c.logo}" alt="">`:esc(initials(c.empresa.nome))}</span><div style="min-width:0"><h3>${esc(c.empresa.nome||'Empresa sem nome')}</h3><p class="meta">${esc(per)}</p></div></div>
       <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">${pill}${c.sample?'<span class="pill mute">Exemplo</span>':''}</div>
       <div class="prog" title="Etapas do envio">${steps.map(s=>{const v=s==='map'?worst(M.st.map,M.st.plano):M.st[s];return `<i class="${v==='ok'?'ok':v==='warn'?'warn':''}"></i>`;}).join('')}</div>
-      <div class="acts">${c.gen?`<button class="btn primary sm" type="button" data-open="${c.id}">Abrir painel</button>`:''}<button class="btn sm" type="button" data-go="${c.id}">${c.gen?'Atualizar dados':'Continuar envio'}</button><button class="btn sm" type="button" data-del="${c.id}" title="Excluir empresa" aria-label="Excluir empresa" style="margin-left:auto;color:var(--err);padding:6px 10px"><svg class="i" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6"/></svg></button></div></div>`;};
+      <div class="acts">${c.gen?`<button class="btn primary sm" type="button" data-open="${c.id}">Abrir painel</button>`:''}<button class="btn sm" type="button" data-go="${c.id}">${c.gen?'Atualizar dados':'Continuar envio'}</button>${c.mode==='planilha'?'':`<button class="btn sm" type="button" data-edit="${c.id}">Editar</button>`}<button class="btn sm" type="button" data-del="${c.id}" title="Excluir empresa" aria-label="Excluir empresa" style="margin-left:auto;color:var(--err);padding:6px 10px"><svg class="i" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6"/></svg></button></div></div>`;};
   const canNew=canUse(USER)&&cos.length<lim;
   $('#main').innerHTML=`<div class="ph"><div><h1>Empresas</h1><p>${ps.admin?`Acesso de administrador: cadastre quantas empresas quiser para testes e análises.`:ps.plan?`${cos.length} de ${lim} empresa${lim>1?'s':''} no plano ${ps.plan.nome}.`:'Escolha um plano para cadastrar empresas.'}</p></div><div class="acts">${cos.length?`<button class="btn primary" type="button" id="newB">Nova empresa</button>`:''}</div></div>
    ${ps.status==='expirado'?`<div class="alert warn" style="margin-bottom:16px">O teste grátis terminou. <a href="#assinatura">Ative a assinatura</a> para gerar e abrir os painéis.</div>`:''}
@@ -2494,6 +2575,7 @@ async function vEmpresas(){
     if(!await confirmBox('Excluir empresa',`A empresa <b>${esc(C.empresa.nome||'(sem nome)')}</b>, os relatórios enviados e o painel serão apagados. Essa ação não pode ser desfeita.`,'Excluir',true)) return;
     try{await DB.del('companies',C.id);await logEv('exclusao','Empresa excluída pela lista: '+C.empresa.nome);if(CUR&&CUR.id===C.id) CUR=null;toast('Empresa excluída.');vEmpresas();}catch(x){toast(x.message);}});
   document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>openCompany(b.dataset.go));
+  document.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>openCompany(b.dataset.edit,'empresa'));
 }
 async function vNova(){
   const ps=planState(USER),cos=await myCompanies();
@@ -2527,7 +2609,7 @@ async function vEmpresa(){
   if(C.mode==='planilha'&&!['geral'].includes(STEP)) STEP='geral';
   const M=model(C),g=genState(C);
   const stIcon=k=>{if(k==='geral') return g==='ok'?'ok':g==='old'?'warn':'';if(k==='gerar') return g==='ok'?'ok':g==='old'?'warn':'';const s=k==='map'?worst(M.st.map,M.st.plano):M.st[k];return s==='ok'?'ok':s==='warn'?'warn':s==='err'?'err':'';};
-  const sub={geral:g==='ok'?'painel atualizado':g==='old'?'dados mudaram':'resumo',empresa:'identificação',bal:C.bal.length?`${M.months.length} mês(es)`:'obrigatório',map:!C.plano?'envie o arquivo':M.rel.length?`${M.rel.length} contas`:'arquivo recebido',conc:!M.rel.length?'após os balancetes':M.conc.length?`${M.conc.filter(c=>concStatus(c)[0]==='ok').length} de ${M.conc.length} contas`:'sem contas bancárias',vend:C.vend.length?`${M.vm.length} mês(es)`:'obrigatório',gastos:M.gastos.length?`${M.gastos.length} contas`:'automático',equipe:`${infoState(C).filter(x=>x[2]).length} de 6 itens`,gerar:M.st.ready?'pronto':'aguardando'};
+  const sub={geral:g==='ok'?'painel atualizado':g==='old'?'dados mudaram':'resumo',empresa:'identificação',bal:C.bal.length?`${M.months.length} mês(es)`:'obrigatório',map:!C.plano?'envie o arquivo':M.rel.length?`${M.rel.length} contas`:'arquivo recebido',conc:!M.rel.length?((C.ext||[]).length?`${(C.ext||[]).length} extrato(s)`:'extratos do banco'):M.conc.length?`${M.conc.filter(c=>concStatus(c)[0]==='ok').length} de ${M.conc.length} contas`:'sem contas bancárias',vend:C.vend.length?`${M.vm.length} mês(es)`:'obrigatório',gastos:M.gastos.length?`${M.gastos.length} contas`:'automático',equipe:`${infoState(C).filter(x=>x[2]).length} de 6 itens`,gerar:M.st.ready?'pronto':'aguardando'};
   const steps=C.mode==='planilha'?[['geral','Visão geral']]:STEPS;
   $('#main').innerHTML=`<p class="crumb"><a href="#empresas">Empresas</a> › ${esc(C.empresa.nome||'Empresa')}</p>
    <div class="ph"><div style="display:flex;gap:14px;align-items:center;min-width:0"><span class="av" style="width:48px;height:48px;border-radius:13px;display:grid;place-items:center;color:#fff;font-weight:800;background:${avBg(C.empresa.nome)};overflow:hidden;flex:none">${C.logo?`<img src="${C.logo}" alt="" style="width:100%;height:100%;object-fit:contain;background:#fff">`:esc(initials(C.empresa.nome))}</span><div style="min-width:0"><h1 style="overflow:hidden;text-overflow:ellipsis">${esc(C.empresa.nome||'Empresa sem nome')}</h1><p>${C.gen?`Painel com ${C.gen.RAW.months.length} meses, de ${esc(C.gen.RAW.months[0].label)}/${C.gen.RAW.months[0].y} a ${esc(C.gen.RAW.months[C.gen.RAW.months.length-1].label)}/${C.gen.RAW.months[C.gen.RAW.months.length-1].y}`:'Envie os relatórios para gerar o painel'}</p></div></div>
@@ -2763,7 +2845,7 @@ function concStatus(c){if(c.sem) return c.just?['warn','Sem extrato (justificada
   if(c.R.div) return ['warn',`${c.R.div} data${c.R.div>1?'s':''} com diferença`];if(c.R.falta.length) return ['warn',`${c.R.falta.length} mês(es) sem extrato`];if(c.incons&&c.incons.length) return ['warn','Extrato incompleto'];return ['ok','Conciliada'];}
 function sConc(C,M){
   const B=$('#stepB');
-  if(!M.rel.length){B.innerHTML=`<div class="panel"><div class="empty"><span class="ill">${IUP}</span><h3>Envie os balancetes primeiro</h3><p>A conciliação compara o saldo de cada conta bancária no balancete com o saldo do extrato no fim de cada mês.</p>${nextBtn('bal','Ir para Balancetes')}</div></div>`;bindNext();return;}
+  const semBal=!M.rel.length;
   const exts=C.ext||[];const ex=new Map(M.exts.map(x=>[x.id,x]));
   const opts=(sel)=>`<option value="">— ligar a uma conta —</option>${M.disp.map(a=>`<option value="${esc(a.key)}"${a.key===sel?' selected':''}>${esc(accLabel(a))}</option>`).join('')}<option value="__none"${sel==='__none'?' selected':''}>Não usar este extrato</option>`;
   const nC=M.conc.length,okC=M.conc.filter(c=>concStatus(c)[0]==='ok').length;
@@ -2771,12 +2853,13 @@ function sConc(C,M){
     <div class="drop" id="xdrop" tabindex="0" role="button" aria-label="Enviar extratos">${IUP}<b>Arraste os extratos aqui ou clique para escolher</b><span>OFX, Excel (.xlsx) ou CSV · um arquivo por conta ou por mês · PDF não é lido</span></div>
     ${exts.length?`<div class="files">${exts.map(x=>{const m=ex.get(x.id);if(!x.ok) return `<div class="file bad"><span class="fi">${esc((x.name.split('.').pop()||'').toUpperCase().slice(0,4))}</span><div class="nm"><b>${esc(x.name)}</b><span style="color:var(--err)">${esc(x.msg)}</span></div><span></span><span><button class="btn sm ghost" type="button" data-xrm="${x.id}">Remover</button></span></div>`;
       const la=lastAnch(x.s);const sel=x.link===''?'__none':m.lk||'';
-      return `<div class="file${!m.lk&&x.link!==''?' bad':''}" style="grid-template-columns:auto minmax(0,1fr) auto"><span class="fi">${esc(x.s.fmt==='OFX'?'OFX':(x.name.split('.').pop()||'').toUpperCase().slice(0,4))}</span><div class="nm"><b>${esc(x.name)}</b><span>${esc(extDesc(x.s))}</span>${(x.s.avisos||[]).map(t=>`<span style="display:block;color:var(--warn)">${esc(t)}</span>`).join('')}</div>
+      return `<div class="file${!semBal&&!m.lk&&x.link!==''?' bad':''}" style="grid-template-columns:auto minmax(0,1fr) auto"><span class="fi">${esc(x.s.fmt==='OFX'?'OFX':(x.name.split('.').pop()||'').toUpperCase().slice(0,4))}</span><div class="nm"><b>${esc(x.name)}</b><span>${esc(extDesc(x.s))}</span>${(x.s.avisos||[]).map(t=>`<span style="display:block;color:var(--warn)">${esc(t)}</span>`).join('')}</div>
         <span style="display:flex;gap:4px"><button class="btn sm ghost" type="button" data-xrm="${x.id}" aria-label="Remover ${esc(x.name)}">Remover</button></span>
-        <div style="grid-column:2/-1;display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-size:13px"><label style="display:flex;gap:6px;align-items:center">Conta no balancete <select data-xl="${x.id}" aria-label="Conta do balancete para ${esc(x.name)}">${opts(sel)}</select></label>${x.link==null&&m.sug?'<span class="pill mute">sugestão automática</span>':''}
+        <div style="grid-column:2/-1;display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-size:13px">${semBal?'<span class="pill mute">Ligado à conta do balancete quando os balancetes forem enviados</span>':`<label style="display:flex;gap:6px;align-items:center">Conta no balancete <select data-xl="${x.id}" aria-label="Conta do balancete para ${esc(x.name)}">${opts(sel)}</select></label>${x.link==null&&m.sug?'<span class="pill mute">sugestão automática</span>':''}`}
           ${la||x.saldoFim!=null?`<label style="display:flex;gap:6px;align-items:center">Saldo em ${I.dfmt(x.s.fim)} <input data-xs="${x.id}" inputmode="decimal" value="${f2(x.saldoFim!=null?x.saldoFim:la[1])}" style="width:130px;border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--surface);font:500 13px var(--mono)"></label>${x.saldoFim!=null?'<span class="pill mute">informado por você</span>':''}`:`<label style="display:flex;gap:6px;align-items:center">O arquivo não traz saldo. Saldo em ${I.dfmt(x.s.fim)} <input data-xs="${x.id}" inputmode="decimal" placeholder="0,00" style="width:130px;border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--surface);font:500 13px var(--mono)"></label>`}</div></div>`;}).join('')}</div>`:''}
   </div></div>`;
-  if(!M.conc.length) h+=`<div class="panel"><div class="bd"><p style="margin:0;color:var(--ink-2)">Nenhuma conta bancária ou aplicação com saldo no período. Se a empresa tem conta em banco, confira no de/para se ela está na linha <b>Bancos</b> ou <b>Aplicações financeiras</b>.</p></div></div>`;
+  if(semBal) h+=`<div class="panel"><div class="bd" style="display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap"><p style="margin:0;color:var(--ink-2);font-size:13.5px">Os extratos já ficam guardados. Quando os balancetes chegarem, o Vértice liga cada extrato à conta bancária certa e compara os saldos no fim de cada mês.</p>${nextBtn('bal','Enviar os balancetes')}</div></div>`;
+  else if(!M.conc.length) h+=`<div class="panel"><div class="bd"><p style="margin:0;color:var(--ink-2)">Nenhuma conta bancária ou aplicação com saldo no período. Se a empresa tem conta em banco, confira no de/para se ela está na linha <b>Bancos</b> ou <b>Aplicações financeiras</b>.</p></div></div>`;
   M.conc.forEach(c=>{const [k,t]=concStatus(c);const a=c.a;
     h+=`<div class="panel"><div class="hd"><div><h2>${esc(a.nome)}</h2><p>${esc(((a.plano&&a.plano.cls)||a.cls||a.cod||'')+' · '+LINE_L(a.line))}${c.its.length?' · '+c.its.length+' extrato'+(c.its.length>1?'s':''):''}</p></div><span class="pill ${k}">${t}</span></div><div class="bd">`;
     if(c.sem){h+=`<p style="margin:0 0 10px;color:var(--ink-2);font-size:13.5px">Envie o extrato desta conta acima e ligue-o a ela. Se a conta não tem extrato no período, explique o motivo; o painel mostra a conta como não conciliada.</p>
@@ -2795,10 +2878,10 @@ function sConc(C,M){
       if(R.falta.length) h+=`<p style="color:var(--warn);font-size:13px;margin-top:10px">Sem extrato para o saldo de ${R.falta.map(ML).join(', ')}. Envie o extrato que cobre esses meses.</p>`;
       h+=`<p style="font-size:12.5px;color:var(--ink-3);margin-top:10px">Diferença = saldo contábil − saldo do extrato no último dia do mês. "Surgiu no mês" mostra onde a diferença começou; é ali que está o lançamento a acertar com a contabilidade.</p>`;}
     h+=`</div></div>`;});
-  const solto=M.extSolto.filter(x=>x.x.link!=='');
+  const solto=semBal?[]:M.extSolto.filter(x=>x.x.link!=='');
   if(solto.length) h+=`<div class="alert warn">${solto.length} extrato${solto.length>1?'s':''} sem conta ligada. Escolha a conta do balancete em cada um ou marque "Não usar este extrato".</div>`;
   if(M.st.conc==='err'||(C.semContabil&&M.st.semCtb)) h+=`<div class="panel"><div class="hd"><div><h2>Sem os extratos agora?</h2><p>Você pode gerar o painel só com a parte gerencial (vendas, margem, ponto de equilíbrio e custos) e concluir a conciliação depois.</p></div><label class="chk" style="font-weight:600"><input type="checkbox" id="semCtb2"${C.semContabil?' checked':''}> Gerar sem a parte contábil</label></div></div>`;
-  h+=`<div class="bar-acts"><span>${M.conc.some(c=>!c.sem)?`<button class="btn sm ghost" type="button" id="xCsv">Baixar relatório de conciliação</button>`:''}</span>${['ok','warn'].includes(M.st.conc)||C.semContabil?nextBtn('vend','Continuar para Vendas'):''}</div>`;
+  h+=`<div class="bar-acts"><span>${M.conc.some(c=>!c.sem)?`<button class="btn sm ghost" type="button" id="xCsv">Baixar relatório de conciliação</button>`:''}</span>${!semBal&&(['ok','warn'].includes(M.st.conc)||C.semContabil)?nextBtn('vend','Continuar para Vendas'):''}</div>`;
   B.innerHTML=h;
   bindDrop($('#xdrop'),'.ofx,.qfx,.xlsx,.csv,.txt',async fs=>{toast('Lendo '+fs.length+' extrato'+(fs.length>1?'s':'')+'…');let n=0,bad=0;
     for(const f of fs){const r=await I.readExtratoFile(await f.arrayBuffer(),f.name).catch(e=>({ok:false,msg:e.message}));
@@ -2973,11 +3056,13 @@ function sEquipe(C){
 }
 
 /* ---------- 7. gerar ---------- */
+function faltaGerar(C,M){const why={empresa:'Preencha nome, regime e unidade de medida.',bal:C.bal.length?'Algum arquivo não foi lido ou está sem mês.':'Envie o arquivo de balancetes.',map:!C.plano?'Envie o plano de contas da contabilidade.':M.unmapped.length?`${M.unmapped.length} conta(s) sem linha do painel.`:'O balancete não fecha em alguma data.',conc:M.conc.filter(c=>c.sem&&!c.just).length?`Falta o extrato de: ${M.conc.filter(c=>c.sem&&!c.just).map(c=>c.a.nome).join(', ')}.`:'Envie os balancetes para conciliar.',vend:C.vend.length?'Escolha o mês do arquivo de vendas.':'Envie o relatório de vendas.'};
+  const pend=[['empresa','Dados da empresa'],['bal','Balancetes'],['map','Plano de contas'],['conc','Conciliação bancária'],['vend','Vendas']].filter(([k])=>!['ok','warn'].includes(k==='map'?worst(M.st.map,M.st.plano):M.st[k]));
+  return {why,pend};}
 async function sGerar(C,M){
   const B=$('#stepB');
   if(!canUse(USER)){B.innerHTML=`<div class="panel"><div class="empty"><span class="ill">${IWARN}</span><h3>${planState(USER).status==='sem'?'Escolha um plano':'O teste grátis terminou'}</h3><p>Para gerar o painel, ative um plano. Os dados enviados continuam guardados.</p><a class="btn primary" href="#assinatura">Ver planos</a></div></div>`;return;}
-  if(!M.st.ready){const why={empresa:'Preencha nome, regime e unidade de medida.',bal:C.bal.length?'Algum arquivo não foi lido ou está sem mês.':'Envie o arquivo de balancetes.',map:!C.plano?'Envie o plano de contas da contabilidade.':M.unmapped.length?`${M.unmapped.length} conta(s) sem linha do painel.`:'O balancete não fecha em alguma data.',conc:M.conc.filter(c=>c.sem&&!c.just).length?`Falta o extrato de: ${M.conc.filter(c=>c.sem&&!c.just).map(c=>c.a.nome).join(', ')}.`:'Envie os balancetes para conciliar.',vend:C.vend.length?'Escolha o mês do arquivo de vendas.':'Envie o relatório de vendas.'};
-    const pend=[['empresa','Dados da empresa'],['bal','Balancetes'],['map','Plano de contas'],['conc','Conciliação bancária'],['vend','Vendas']].filter(([k])=>!['ok','warn'].includes(k==='map'?worst(M.st.map,M.st.plano):M.st[k]));
+  if(!M.st.ready){const {why,pend}=faltaGerar(C,M);
     const onlyCtb=pend.every(([k])=>k==='map'||k==='bal'||k==='conc')&&M.st.vend==='ok'&&M.st.empresa==='ok';
     B.innerHTML=`<div class="panel"><div class="hd"><h2>Ainda falta</h2></div><div class="bd chks">${pend.map(([k,t])=>`<div class="c err">${IERR}<span><b>${t}</b> · ${why[k]} <a href="#" data-goto="${k}">Ir para a etapa</a></span></div>`).join('')}
       ${onlyCtb?`<div class="tip" style="margin-top:8px">${IINFO}<span>As vendas e os dados da empresa estão completos. Você pode gerar o painel agora só com a parte gerencial e acertar o balancete depois.<br><button class="btn sm primary" type="button" id="goSem" style="margin-top:10px">Gerar sem a parte contábil</button></span></div>`:''}</div></div>`;
@@ -3045,6 +3130,61 @@ function vAjuda(){
   $('#cpM').onclick=e=>{copyText(m,e.currentTarget);$('#msgT').select();};
 }
 
+/* ================= reembolso (cliente) ================= */
+const MOTIVOS=[['arrependimento','Desisti da assinatura (direito de arrependimento)'],['duplicidade','Cobrança em duplicidade'],['indevida','Cobrança indevida ou valor errado'],['servico','O serviço não atendeu ao que foi prometido'],['outro','Outro motivo']];
+const REEMB_ST={aberta:['warn','Em análise'],aprovada:['','Aprovado · estorno em andamento'],reembolsada:['ok','Reembolsado'],recusada:['err','Não aprovado'],resolvida:['ok','Concluído']};
+const dISO=t=>{const d=new Date(t);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
+const dBR=s=>{const m=String(s||'').match(/^(\d{4})-(\d{2})-(\d{2})/);return m?m[3]+'/'+m[2]+'/'+m[1]:'—';};
+/* dias corridos entre a cobrança e o pedido (o dia da cobrança conta como dia 0) */
+const diasDesde=(iso,ate)=>{const m=String(iso||'').match(/^(\d{4})-(\d{2})-(\d{2})/);if(!m) return null;const a=new Date(+m[1],+m[2]-1,+m[3]);const b=new Date(ate||Date.now());b.setHours(0,0,0,0);return Math.round((b-a)/864e5);};
+async function meusReembolsos(){
+  if(CLOUD.on){try{return ((await CLOUD.rpc('meus_reembolsos'))||[]).map(s=>Object.assign(s,{at:Date.parse(s.at)}));}catch(e){return [];}}
+  try{return (await LDB.all('solic')).filter(s=>s.tipo==='reembolso'&&I.norm(s.email)===I.norm(USER.email)).sort((a,b)=>b.at-a.at);}catch(e){return [];}
+}
+async function vReembolso(){
+  const L=await meusReembolsos();const p=USER.plano||{};const pl=planById(p.id);const ciclo=p.ciclo||'mensal';
+  const v0=pl?(ciclo==='anual'?pl.preco*10:pl.preco):0;const D=CONFIG.reembolsoDias||7;
+  $('#main').innerHTML=`<div class="ph"><div><h1>Reembolso</h1><p>Peça a devolução de uma cobrança da assinatura. A resposta chega em até 5 dias úteis, por e-mail ou WhatsApp.</p></div></div>
+   <div class="grid2"><div class="panel"><div class="hd"><div><h2>Pedir reembolso</h2><p>${pl?`Plano ${esc(pl.nome)} · ${ciclo==='anual'?'anual':'mensal'}`:'Informe os dados da cobrança'}</p></div></div><div class="bd" style="display:grid;gap:14px">
+     <div class="grid2"><div class="f"><label for="rbV">Valor cobrado (R$)</label><input id="rbV" inputmode="decimal" value="${v0?f2(v0):''}" placeholder="0,00"></div>
+       <div class="f"><label for="rbD">Data da cobrança</label><input id="rbD" type="date" max="${dISO(Date.now())}"></div></div>
+     <div class="f"><label for="rbM">Motivo</label><select id="rbM"><option value="">Escolha o motivo</option>${MOTIVOS.map(([k,t])=>`<option value="${k}">${esc(t)}</option>`).join('')}</select></div>
+     <p id="rbH" class="alert info" style="font-size:13px;margin:0" hidden></p>
+     <div class="f"><label for="rbT">Detalhes</label><textarea id="rbT" rows="3" maxlength="1500" placeholder="Conte o que aconteceu. Em cobrança duplicada, informe as duas datas."></textarea></div>
+     <div class="f"><label for="rbF">Como receber</label><select id="rbF"><option value="cartao">Estorno no cartão de crédito usado na assinatura</option><option value="pix">PIX</option></select><small>O estorno no cartão aparece na fatura em até duas faturas, conforme o banco emissor.</small></div>
+     <div class="f" id="rbPW" hidden><label for="rbP">Chave PIX</label><input id="rbP" maxlength="120" placeholder="CPF, CNPJ, e-mail, celular ou chave aleatória"><small>A conta da chave precisa ser do titular da assinatura.</small></div>
+     <label class="chk"><input type="checkbox" id="rbC" checked> Cancelar também a assinatura (sem novas cobranças)</label>
+     <p class="err" id="rbE" hidden></p>
+     <button class="btn primary" type="button" id="rbOk">Enviar pedido</button></div></div>
+   <div class="panel"><div class="hd"><h2>Política de reembolso</h2></div><div class="bd" style="display:grid;gap:12px;font-size:14px;color:var(--ink-2)">
+     <p style="margin:0">${esc(CONFIG.reembolsoTxt||'')}</p>
+     <div class="chks"><div class="c ok">${ICK}<span><b>1. Você envia o pedido</b><br><span style="color:var(--ink-3)">Com o valor, a data da cobrança e o motivo.</span></span></div>
+       <div class="c ok">${ICK}<span><b>2. A equipe analisa</b><br><span style="color:var(--ink-3)">Em até 5 dias úteis. A resposta aparece aqui em "Meus pedidos".</span></span></div>
+       <div class="c ok">${ICK}<span><b>3. O valor é devolvido</b><br><span style="color:var(--ink-3)">Estorno no cartão ou PIX para a chave informada.</span></span></div></div>
+     <p style="margin:0;font-size:13px"><a href="legal.html#termos" target="_blank" rel="noopener">Ler os termos de uso</a></p></div></div></div>
+   <div class="panel" style="margin-top:16px"><div class="hd"><h2>Meus pedidos</h2></div><div class="bd">${L.length?`<div class="tw"><table class="t"><thead><tr><th>Pedido em</th><th>Cobrança</th><th class="r">Valor</th><th>Motivo</th><th>Situação</th><th>Resposta</th></tr></thead><tbody>
+     ${L.map(s=>{const d=s.dados||{};const st=REEMB_ST[s.status]||['mute',s.status];const m=MOTIVOS.find(x=>x[0]===d.motivo);
+       return `<tr><td>${new Date(s.at).toLocaleDateString('pt-BR')}</td><td>${dBR(d.dataCobranca)}</td><td class="r mono">${f2(s.status==='reembolsada'&&d.valorPago!=null?d.valorPago:d.valor||0)}</td><td>${esc(m?m[1]:d.motivo||'—')}</td><td><span class="pill ${st[0]}">${st[1]}</span></td><td style="max-width:280px;white-space:normal;font-size:13px">${esc(d.resposta||'')}${s.status==='reembolsada'&&d.pagoEm?`<div style="color:var(--ink-3)">Devolvido em ${dBR(d.pagoEm)}${d.formaPaga?' · '+esc(d.formaPaga):''}</div>`:''}</td></tr>`;}).join('')}</tbody></table></div>`:'<p style="margin:0;color:var(--ink-3)">Nenhum pedido de reembolso.</p>'}</div></div>`;
+  const hint=()=>{const h=$('#rbH'),dd=diasDesde($('#rbD').value),mo=$('#rbM').value;if(dd==null||!mo){h.hidden=true;return;}h.hidden=false;
+    if(['duplicidade','indevida'].includes(mo)){h.className='alert info';h.textContent='Cobranças em duplicidade ou indevidas são devolvidas a qualquer tempo, depois de conferidas.';}
+    else if(dd<=D){h.className='alert info';h.textContent=`Dentro do prazo de ${D} dias da cobrança (${dd} dia${dd===1?'':'s'}): o reembolso é integral.`;}
+    else{h.className='alert warn';h.textContent=`A cobrança foi há ${dd} dias, fora do prazo de ${D} dias do direito de arrependimento. O pedido será analisado pela equipe; a assinatura pode ser cancelada sem multa.`;}};
+  ['#rbD','#rbM'].forEach(s=>$(s).onchange=hint);
+  $('#rbF').onchange=()=>{$('#rbPW').hidden=$('#rbF').value!=='pix';};
+  $('#rbOk').onclick=async()=>{const er=$('#rbE');er.hidden=true;const fail=t=>{er.textContent=t;er.hidden=false;};
+    const m=I.money($('#rbV').value);const valor=m?Math.round(m.v*100)/100:0;const dc=$('#rbD').value,mo=$('#rbM').value,txt=$('#rbT').value.trim(),fo=$('#rbF').value,pix=$('#rbP').value.trim();
+    if(!(valor>0)) return fail('Informe o valor cobrado.');if(valor>50000) return fail('Confira o valor informado.');
+    const dd=diasDesde(dc);if(dd==null) return fail('Informe a data da cobrança.');if(dd<0) return fail('A data da cobrança não pode ser no futuro.');if(dd>730) return fail('A cobrança tem mais de 2 anos. Fale com a nossa equipe.');
+    if(!mo) return fail('Escolha o motivo.');if(mo==='outro'&&txt.length<10) return fail('Conte o motivo nos detalhes.');if(fo==='pix'&&pix.length<5) return fail('Informe a chave PIX.');
+    const mt=MOTIVOS.find(x=>x[0]===mo);const cancelar=$('#rbC').checked;
+    const dados={plano:pl?pl.nome:'',planoId:p.id||'',ciclo,valor,dataCobranca:dc,motivo:mo,motivoTxt:mt?mt[1]:mo,forma:fo,pix:fo==='pix'?pix:'',cancelar,dias:dd,noPrazo:dd<=D};
+    const b=$('#rbOk');b.disabled=true;b.textContent='Enviando…';
+    try{if(CLOUD.on) await CLOUD.rpc('pedir_reembolso',{p_dados:dados,p_msg:txt});
+      else{const abertos=(await meusReembolsos()).filter(s=>['aberta','aprovada'].includes(s.status));if(abertos.length>=2) throw new Error('Você já tem um pedido de reembolso em análise. Aguarde a resposta da nossa equipe.');
+        await LDB.put('solic',{at:Date.now(),tipo:'reembolso',email:USER.email,nome:USER.nome,telefone:USER.telefone||'',mensagem:txt,dados,status:'aberta'});}
+      logEv('reembolso',`Pedido de reembolso: R$ ${f2(valor)} (${mt?mt[1]:mo})`);toast('Pedido de reembolso enviado. Você recebe a resposta em até 5 dias úteis.');vReembolso();}
+    catch(x){fail(x.message);b.disabled=false;b.textContent='Enviar pedido';}};
+}
 /* ================= dados de exemplo ================= */
 function b64buf(b){const s=atob(b),u=new Uint8Array(s.length);for(let i=0;i<s.length;i++) u[i]=s.charCodeAt(i);return u.buffer;}
 async function loadSample(){
@@ -3109,14 +3249,16 @@ const ADM=(()=>{
       await CLOUD.rest('empresas',{method:'POST',body:{id:C.id,owner:u.id,dados:d,liberado:true,liberado_em:new Date().toISOString()},prefer:'return=minimal'});},
     async transferir(id,u){const r=await CLOUD.rest('empresas?id=eq.'+q(id)+'&select=dados');if(!r[0]) throw new Error('Empresa não encontrada.');const d=r[0].dados;d.owner=u.email;
       await CLOUD.rest('empresas?id=eq.'+q(id),{method:'PATCH',body:{owner:u.id,dados:d},prefer:'return=minimal'});},
+    async salvarDados(C){const d=Object.assign({},C);['liberado','bloqueado','_cloud','id'].forEach(k=>delete d[k]);await CLOUD.rest('empresas?id=eq.'+q(C.id),{method:'PATCH',body:{nome:C.empresa.nome||'',dados:d},prefer:'return=minimal'});},
     async delConta(u){await CLOUD.rpc('admin_excluir_conta',{p_id:u.id});},
     async senha(u,pw){await CLOUD.rpc('admin_definir_senha',{p_id:u.id,p_senha:pw});},
     async linkSenha(email){await CLOUD.auth.recover(email,appUrl());},
     async eventos(){return (await CLOUD.rest('eventos?select=*&order=at.desc&limit=1000')).map(e=>Object.assign(e,{at:Date.parse(e.at)}));},
     async solic(){return (await CLOUD.rest('solicitacoes?select=*&order=at.desc&limit=1000')).map(e=>Object.assign(e,{at:Date.parse(e.at),resolvido_em:e.resolvido_em?Date.parse(e.resolvido_em):null}));},
-    async setSolic(id,patch){const b=Object.assign({},patch);if(b.status==='resolvida') b.resolvido_em=new Date().toISOString();if(b.status==='aberta') b.resolvido_em=null;
+    async setSolic(id,patch){const b=Object.assign({},patch);if(['resolvida','recusada','reembolsada'].includes(b.status)) b.resolvido_em=new Date().toISOString();if(b.status==='aberta') b.resolvido_em=null;
       await CLOUD.rest('solicitacoes?id=eq.'+id,{method:'PATCH',body:b,prefer:'return=minimal'});},
     async delSolic(id){await CLOUD.rest('solicitacoes?id=eq.'+id,{method:'DELETE'});},
+    async addSolic(x){await CLOUD.rest('solicitacoes',{method:'POST',body:x,prefer:'return=minimal'});},
     async config(){const r=await CLOUD.rest('config?id=eq.1&select=data');return r[0]?r[0].data||{}:{};},
     async setConfig(d){await CLOUD.rest('config?id=eq.1',{method:'PATCH',body:{data:d,atualizado:new Date().toISOString()},prefer:'return=minimal'});},
     async admins(){return (await CLOUD.rest('admins?select=email')).map(x=>x.email);},
@@ -3130,6 +3272,7 @@ const ADM=(()=>{
     async setEmpresa(id,patch){const C=await LDB.get('companies',id);if(!C) return;Object.assign(C,patch);if(patch.liberado===true) C.liberadoEm=Date.now();await LDB.put('companies',C);},
     async delEmpresa(id){await LDB.del('companies',id);},
     async criarEmpresa(C,u){C.owner=u.email;C.liberado=true;C.liberadoEm=Date.now();await LDB.put('companies',C);},
+    async salvarDados(C){const o=await LDB.get('companies',C.id);await LDB.put('companies',Object.assign(C,{liberado:o?o.liberado:C.liberado,bloqueado:o?o.bloqueado:C.bloqueado}));},
     async transferir(id,u){const C=await LDB.get('companies',id);if(!C) throw new Error('Empresa não encontrada.');C.owner=u.email;await LDB.put('companies',C);},
     async delConta(u){for(const C of await LDB.all('companies')) if(C.owner===u.email) await LDB.del('companies',C.id);await LDB.del('users',u.email);},
     async senha(u,pw){const x=await LDB.get('users',u.email);x.salt=uid();x.hash=pwHash(pw,x.salt,2);await LDB.put('users',x);},
@@ -3138,6 +3281,7 @@ const ADM=(()=>{
     async solic(){await pullLanding();return (await LDB.all('solic')).sort((a,b)=>b.at-a.at);},
     async setSolic(id,patch){const x=await LDB.get('solic',id);if(!x) return;Object.assign(x,patch);if(patch.status==='resolvida') x.resolvido_em=Date.now();await LDB.put('solic',x);},
     async delSolic(id){await LDB.del('solic',id);},
+    async addSolic(x){await LDB.put('solic',Object.assign({at:Date.now()},x));},
     async config(){try{return JSON.parse(lsGet('cc-config','{}'));}catch(e){return {};}},
     async setConfig(d){lsSet('cc-config',JSON.stringify(d));await LDB.put('config',{id:1,data:d});},
     async admins(){return CONFIG.admins||[];},
@@ -3160,7 +3304,7 @@ const mrrOf=u=>{const ps=planState(u);if(ps.status!=='ativa'||!ps.plan) return 0
 const painelAguarda=e=>!!(e.gerado&&!e.liberado&&!e.bloqueado&&CONFIG.liberacao==='manual');
 function pendencias(D){
   return {pag:D.contas.filter(u=>u.plano&&u.plano.aguardando),pain:D.empresas.filter(painelAguarda),
-    senha:D.solic.filter(s=>s.tipo==='senha'&&s.status==='aberta'),contato:D.solic.filter(s=>['contato','suporte'].includes(s.tipo)&&s.status==='aberta')};}
+    senha:D.solic.filter(s=>s.tipo==='senha'&&s.status==='aberta'),contato:D.solic.filter(s=>['contato','suporte'].includes(s.tipo)&&s.status==='aberta'),reemb:D.solic.filter(s=>s.tipo==='reembolso'&&s.status==='aberta')};}
 function stPill(u){const ps=planState(u);const m={sem:'mute',teste:'',expirado:'err',ativa:'ok',aguardando:'warn',suspensa:'err',cancelada:'mute',vencida:'err',bloqueada:'err'};
   const l=ps.status==='teste'?`Teste · ${ps.left} dia${ps.left>1?'s':''}`:ps.label;
   return `<span class="pill ${m[ps.status]||''}">${esc(l)}</span>`+(u.plano&&u.plano.aguardando&&ps.status!=='aguardando'?' <span class="pill warn">Pagamento a conferir</span>':'');}
@@ -3185,13 +3329,14 @@ const ADMI={
   'adm-financeiro':['Financeiro',ICN.dinh],
   'adm-msg':['Mensagens em massa',ICN.send],
   'adm-cupons':['Cupons de desconto',ICN.cup],
+  'adm-reemb':['Reembolsos','<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/>'],
   'adm-senhas':['Senhas',ICN.cad],
   'adm-contatos':['Contatos do site',ICN.chat],
   'adm-site':['Configurações do site',ICN.cfg],
   'adm-log':['Atividade',ICN.log]};
-const ADMG=[['Painel',['adm']],['Clientes',['adm-contas','adm-empresas','adm-lib']],['Negócio',['adm-financeiro','adm-msg','adm-cupons']],['Suporte',['adm-senhas','adm-contatos']],['Sistema',['adm-site','adm-log']]];
-async function admNav(na){let P={pag:[],pain:[],senha:[],contato:[]};try{P=pendencias(await admData());}catch(e){}
-  const bd={'adm-lib':P.pag.length+P.pain.length,'adm-senhas':P.senha.length,'adm-contatos':P.contato.length};
+const ADMG=[['Painel',['adm']],['Clientes',['adm-contas','adm-empresas','adm-lib']],['Negócio',['adm-financeiro','adm-reemb','adm-msg','adm-cupons']],['Suporte',['adm-senhas','adm-contatos']],['Sistema',['adm-site','adm-log']]];
+async function admNav(na){let P={pag:[],pain:[],senha:[],contato:[],reemb:[]};try{P=pendencias(await admData());}catch(e){}
+  const bd={'adm-lib':P.pag.length+P.pain.length,'adm-senhas':P.senha.length,'adm-contatos':P.contato.length,'adm-reemb':P.reemb.length};
   na.innerHTML=ADMG.map(([t,ks])=>`<div class="grp">${t}</div>`+ks.map(k=>{const [n,ic]=ADMI[k];return `<a class="it" href="#${k}" aria-current="${ROUTE===k?'page':'false'}"><svg class="i" viewBox="0 0 24 24">${ic}</svg>${n}${bd[k]?`<span class="bdg">${bd[k]}</span>`:''}</a>`;}).join('')).join('');}
 
 /* ---------- visão geral ---------- */
@@ -3199,7 +3344,7 @@ async function vAdm(){
   const D=await admData(true),P=pendencias(D),now=Date.now();
   const ativos=D.contas.filter(u=>planState(u).status==='ativa'),teste=D.contas.filter(u=>planState(u).status==='teste');
   const mrr=ativos.reduce((t,u)=>t+mrrOf(u),0),novos30=D.contas.filter(u=>u.criado>now-30*DAY).length;
-  const acaba=teste.filter(u=>u.plano.fim-now<3*DAY).length,nPend=P.pag.length+P.pain.length+P.senha.length+P.contato.length;
+  const acaba=teste.filter(u=>u.plano.fim-now<3*DAY).length,nPend=P.pag.length+P.pain.length+P.senha.length+P.contato.length+P.reemb.length;
   const gerados=D.empresas.filter(e=>e.gerado).length;
   const meses=[];const d0=new Date();for(let i=11;i>=0;i--){const d=new Date(d0.getFullYear(),d0.getMonth()-i,1);meses.push({y:d.getFullYear(),m:d.getMonth(),n:0});}
   D.contas.forEach(u=>{const d=new Date(u.criado);const x=meses.find(k=>k.y===d.getFullYear()&&k.m===d.getMonth());if(x) x.n++;});
@@ -3208,7 +3353,8 @@ async function vAdm(){
   const pendL=[...P.pag.map(u=>({t:`Pagamento a conferir · ${u.nome||u.email}`,s:`${(planById(u.plano.aguardando.id)||{}).nome||''} ${u.plano.aguardando.ciclo}${u.plano.aguardando.trial?' · teste com cartão':''}`,h:'#adm-lib'})),
     ...P.pain.map(e=>{const o=ownerOf(D,e);return {t:`Painel aguardando liberação · ${e.nome}`,s:o?o.email:'',h:'#adm-lib'};}),
     ...P.senha.map(s=>({t:`Senha esquecida · ${s.email}`,s:fmtDT(s.at),h:'#adm-senhas'})),
-    ...P.contato.map(s=>({t:`Contato do site · ${s.nome||s.email}`,s:(s.mensagem||'').slice(0,80),h:'#adm-contatos'}))];
+    ...P.contato.map(s=>({t:`Contato do site · ${s.nome||s.email}`,s:(s.mensagem||'').slice(0,80),h:'#adm-contatos'})),
+    ...P.reemb.map(s=>({t:`Reembolso · ${s.nome||s.email} · R$ ${f2((s.dados||{}).valor||0)}`,s:((s.dados||{}).motivoTxt||'')+' · '+fmtDT(s.at),h:'#adm-reemb'}))];
   $('#main').innerHTML=admHead('Administração',`${CLOUD.on?'Banco on-line':'Modo local'} · atualizado agora`,'<button class="btn sm" type="button" id="aRf">Atualizar</button>')+`
    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px">
      <a class="btn primary sm" href="#empresas" style="display:inline-flex;align-items:center;gap:6px"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Gerar painel</a>
@@ -3222,7 +3368,7 @@ async function vAdm(){
     <div class="kpi"><small>Contas</small><b>${D.contas.length}</b><em>+${novos30} nos últimos 30 dias</em></div>
     <div class="kpi"><small>Assinantes ativos</small><b>${ativos.length}</b><em>${fmtBRL(mrr)} por mês (estimado)</em></div>
     <div class="kpi"><small>Em teste grátis</small><b>${teste.length}</b><em>${acaba} terminam em até 3 dias</em></div>
-    <div class="kpi${nPend?' hot':''}"><small>Pendências</small><b>${nPend}</b><em>${P.pag.length} pagamento(s) · ${P.pain.length} painel(is) · ${P.senha.length} senha(s) · ${P.contato.length} contato(s)</em></div>
+    <div class="kpi${nPend?' hot':''}"><small>Pendências</small><b>${nPend}</b><em>${P.pag.length} pagamento(s) · ${P.pain.length} painel(is) · ${P.senha.length} senha(s) · ${P.contato.length} contato(s)${P.reemb.length?' · '+P.reemb.length+' reembolso(s)':''}</em></div>
     <div class="kpi"><small>Empresas</small><b>${D.empresas.length}</b><em>${gerados} com painel gerado</em></div>
     <div class="kpi"><small>Conversão</small><b>${D.contas.length?pct(ativos.length/D.contas.length):'—'}</b><em>contas que viraram assinatura</em></div>
    </div>
@@ -3290,7 +3436,7 @@ async function admConta(id){
     <div class="f"><label for="xO">Observações internas (o cliente não vê)</label><textarea id="xO">${esc(u.obs||'')}</textarea></div>
     <div><button class="btn sm" type="button" id="xSaveD">Salvar dados</button></div></div>
    <div class="adm-sec"><h4>Empresas (${emps.length})</h4>${emps.length?`<div class="lst">${emps.map(e=>`<div class="it2"><div class="tx"><b>${esc(e.nome)}</b><span>${e.win?esc(ML(e.win[0])+' a '+ML(e.win[1])):'sem painel'} · ${e.bloqueado?'bloqueado':e.liberado?'liberado':e.gerado?(CONFIG.liberacao==='manual'?'aguardando liberação':'aberto'):'sem painel'}</span></div><div class="qa">
-      ${e.gerado?`<button class="btn sm" type="button" data-op="${esc(e.id)}">Abrir</button>`:''}${e.gerado&&!e.liberado&&!e.bloqueado?`<button class="btn sm primary" type="button" data-lib="${esc(e.id)}">Liberar</button>`:''}<button class="btn sm" type="button" data-blq="${esc(e.id)}" data-v="${e.bloqueado?0:1}">${e.bloqueado?'Desbloquear':'Bloquear'}</button></div></div>`).join('')}</div>`:'<p style="color:var(--ink-3);font-size:13.5px">Nenhuma empresa cadastrada.</p>'}</div>
+      ${e.gerado?`<button class="btn sm" type="button" data-op="${esc(e.id)}">Abrir</button>`:''}<button class="btn sm" type="button" data-ed="${esc(e.id)}">Editar</button>${e.gerado&&!e.liberado&&!e.bloqueado?`<button class="btn sm primary" type="button" data-lib="${esc(e.id)}">Liberar</button>`:''}<button class="btn sm" type="button" data-blq="${esc(e.id)}" data-v="${e.bloqueado?0:1}">${e.bloqueado?'Desbloquear':'Bloquear'}</button></div></div>`).join('')}</div>`:'<p style="color:var(--ink-3);font-size:13.5px">Nenhuma empresa cadastrada.</p>'}</div>
    <div class="adm-sec"><h4>Histórico</h4>${evs.length?`<div class="tw"><table class="t adm-t"><tbody>${evs.map(e=>`<tr><td style="white-space:nowrap;color:var(--ink-3)">${fmtDT(e.at)}</td><td><span class="pill mute">${esc(e.tipo)}</span></td><td>${esc(e.detalhe||'')}</td></tr>`).join('')}</tbody></table></div>`:'<p style="color:var(--ink-3);font-size:13.5px">Sem registros.</p>'}</div>
    <div class="acts" style="justify-content:space-between"><button class="btn sm" type="button" data-a="excluir" style="color:var(--err)">Excluir conta</button><button class="btn" data-close type="button">Fechar</button></div>`,(b,close)=>{
     b.classList.add('wide');
@@ -3362,7 +3508,7 @@ async function vAdmEmpresas(){
   const draw=()=>{const qq=normE(ADMF.eq||'');const L=D.empresas.filter(e=>filtraEmp(e,ADMF.emp)&&(!qq||normE(e.nome+' '+((ownerOf(D,e)||{}).email||'')).includes(qq)));
     $('#aBody').innerHTML=L.length?`<table class="t adm-t"><thead><tr><th>Empresa</th><th>Cliente</th><th>Período do painel</th><th>Gerado em</th><th>Situação</th><th class="r">Ações</th></tr></thead><tbody>${L.map(e=>{const o=ownerOf(D,e);
       return `<tr><td><b>${esc(e.nome)}</b>${e.sample?' <span class="pill mute">exemplo</span>':''}</td><td>${o?`<a href="#" data-u="${esc(o.id)}">${esc(o.nome||o.email)}</a><span class="sub2">${esc(o.email)}</span>`:'—'}</td><td>${e.win?esc(ML(e.win[0])+' a '+ML(e.win[1])):'—'}</td><td>${fmtDT(e.gerado)}</td><td>${empSit(e)}</td>
-       <td><div class="acts2">${e.gerado?`<button class="btn sm" type="button" data-op="${esc(e.id)}">Abrir</button>`:''}${e.gerado&&!e.liberado&&!e.bloqueado?`<button class="btn sm primary" type="button" data-lib="${esc(e.id)}">Liberar</button>`:''}${e.liberado&&!e.bloqueado?`<button class="btn sm" type="button" data-unlib="${esc(e.id)}">Revogar</button>`:''}<button class="btn sm" type="button" data-blq="${esc(e.id)}" data-v="${e.bloqueado?0:1}">${e.bloqueado?'Desbloquear':'Bloquear'}</button><button class="btn sm" type="button" data-tr="${esc(e.id)}">Transferir</button><button class="btn sm" type="button" data-del="${esc(e.id)}" title="Excluir" style="color:var(--err)">Excluir</button></div></td></tr>`;}).join('')}</tbody></table>`:'<div class="empty" style="padding:28px"><p>Nenhuma empresa neste filtro.</p></div>';
+       <td><div class="acts2">${e.gerado?`<button class="btn sm" type="button" data-op="${esc(e.id)}">Abrir</button>`:''}<button class="btn sm" type="button" data-ed="${esc(e.id)}">Editar</button>${e.gerado&&!e.liberado&&!e.bloqueado?`<button class="btn sm primary" type="button" data-lib="${esc(e.id)}">Liberar</button>`:''}${e.liberado&&!e.bloqueado?`<button class="btn sm" type="button" data-unlib="${esc(e.id)}">Revogar</button>`:''}<button class="btn sm" type="button" data-blq="${esc(e.id)}" data-v="${e.bloqueado?0:1}">${e.bloqueado?'Desbloquear':'Bloquear'}</button><button class="btn sm" type="button" data-tr="${esc(e.id)}">Transferir</button><button class="btn sm" type="button" data-del="${esc(e.id)}" title="Excluir" style="color:var(--err)">Excluir</button></div></td></tr>`;}).join('')}</tbody></table>`:'<div class="empty" style="padding:28px"><p>Nenhuma empresa neste filtro.</p></div>';
     bindEmp($('#aBody'),D);};
   $('#main').innerHTML=admHead('Empresas e painéis',`Liberação de painéis: <b>${CONFIG.liberacao==='manual'?'manual (cada painel novo espera você liberar)':'automática'}</b> · <a href="#adm-site">mudar</a>`,`<button class="btn sm primary" type="button" id="aImp">Importar painel pronto</button>`+(nAg?` <button class="btn sm" type="button" id="aLibAll">Liberar todos os ${nAg} aguardando</button>`:''))+`
    <div class="adm-bar"><input class="srch" id="aQ" placeholder="Buscar empresa ou cliente" value="${esc(ADMF.eq||'')}"></div>
@@ -3382,6 +3528,7 @@ function bindEmp(root,D){
   root.querySelectorAll('[data-unlib]').forEach(x=>x.onclick=()=>admSetEmp(x.dataset.unlib,{liberado:false}));
   root.querySelectorAll('[data-blq]').forEach(x=>x.onclick=()=>admSetEmp(x.dataset.blq,{bloqueado:x.dataset.v==='1'}));
   root.querySelectorAll('[data-tr]').forEach(x=>x.onclick=()=>admTransferir(D,D.empresas.find(k=>k.id===x.dataset.tr)));
+  root.querySelectorAll('[data-ed]').forEach(x=>x.onclick=()=>admEditar(D,D.empresas.find(k=>k.id===x.dataset.ed)));
   root.querySelectorAll('[data-del]').forEach(x=>x.onclick=async()=>{const e=D.empresas.find(k=>k.id===x.dataset.del);
     if(!await confirmBox('Excluir empresa',`A empresa <b>${esc(e.nome)}</b>, os relatórios e o painel serão apagados. Não pode ser desfeito.`,'Excluir',true)) return;
     try{await ADM.delEmpresa(e.id);const o=ownerOf(D,e);await ADM.log(o?o.email:'','exclusao','Empresa excluída pelo administrador: '+e.nome);admDirty();toast('Empresa excluída.');await admRefresh();}catch(z){toast(z.message);}});
@@ -3413,6 +3560,35 @@ function admImportar(D){
         await ADM.criarEmpresa(C,u);await ADM.log(u.email,'painel',`Painel importado: ${nome} (${fname})`);
         admDirty();close();toast('Painel importado para '+u.email+'.');await admRefresh();}
       catch(e){er.textContent=e.message;er.hidden=false;bt.disabled=false;bt.textContent='Importar';}};});
+}
+/* editar os dados de uma empresa (e trocar o arquivo de um painel importado) */
+async function admEditar(D,e){if(!e) return;const C=await ADM.empresa(e.id);if(!C){toast('Empresa não encontrada.');return;}const E0=C.empresa||{};const o=ownerOf(D,e);
+  const fld=(id,l,v,ph)=>`<div class="f"><label for="ed_${id}">${l}</label><input id="ed_${id}" value="${esc(v||'')}" placeholder="${esc(ph||'')}"></div>`;
+  modal(`<h3>Editar empresa</h3><p style="color:var(--ink-2)">Conta: ${esc(o?((o.nome?o.nome+' · ':'')+o.email):'—')}${C.importado?` · painel importado de <b>${esc(C.importado.arquivo||'arquivo .html')}</b>`:''}</p>
+   <div style="display:grid;gap:12px;grid-template-columns:1fr 1fr">${fld('nome','Nome da empresa',E0.nome,'Ex.: Madeireira Negri Ltda')}${fld('curto','Nome curto (menu do painel)',E0.curto,'Até 24 caracteres')}
+   <div class="f"><label for="ed_regime">Regime tributário</label><select id="ed_regime">${['Simples Nacional','Lucro Presumido','Lucro Real','MEI'].map(x=>`<option${x===E0.regime?' selected':''}>${x}</option>`).join('')}</select></div>${fld('cidade','Cidade / UF',E0.cidade,'Ex.: São Miguel do Oeste (SC)')}
+   ${fld('setor','Setor',E0.setor,'Ex.: Madeira e serraria')}${fld('atividade','Atividade principal',E0.atividade,'Ex.: Serraria e venda de madeira')}
+   ${C.mode==='planilha'?'':fld('un','Unidade de medida das vendas',E0.un,'kg, m³, un…')}</div>
+   ${C.importado?`<div class="f" style="margin-top:12px"><label for="ed_f">Trocar o arquivo do painel (.html) <span style="font-weight:500;color:var(--ink-3)">opcional</span></label><input id="ed_f" type="file" accept=".html,.htm,text/html"><small>Use para colocar uma versão nova do painel importado. A empresa continua liberada e na mesma conta.</small></div>`:''}
+   <p class="err" id="edE" hidden></p>
+   <div class="acts"><button class="btn" data-close type="button">Cancelar</button><button class="btn primary" type="button" id="edOk">Salvar</button></div>`,(b,close)=>{
+    let html=null,raw=null,fname='';const er=b.querySelector('#edE');
+    const fi=b.querySelector('#ed_f');if(fi) fi.onchange=async ev=>{er.hidden=true;const f=ev.target.files[0];if(!f){html=null;return;}html=await f.text();fname=f.name;raw=rawFromPanelHtml(html);
+      if(!raw||!raw.months||!/doLogin/.test(html)){html=null;er.textContent='Este arquivo não parece um painel Vértice.';er.hidden=false;}};
+    b.querySelector('#edOk').onclick=async()=>{er.hidden=true;const v=k=>{const x=b.querySelector('#ed_'+k);return x?x.value.trim():'';};
+      if(v('nome').length<2){er.textContent='Informe o nome da empresa.';er.hidden=false;return;}
+      if(fi&&fi.files[0]&&!html){er.textContent='O arquivo escolhido não é um painel Vértice.';er.hidden=false;return;}
+      const bt=b.querySelector('#edOk');bt.disabled=true;bt.textContent='Salvando…';
+      try{const N={nome:v('nome'),curto:v('curto')||v('nome').slice(0,24),regime:b.querySelector('#ed_regime').value,cidade:v('cidade'),setor:v('setor'),atividade:v('atividade')};if(C.mode!=='planilha'&&v('un')) N.un=v('un');
+        const mud=Object.keys(N).filter(k=>(E0[k]||'')!==N[k]);C.empresa=Object.assign({},E0,N);
+        /* o painel já gerado mostra o nome novo sem precisar gerar de novo */
+        const CFG=C.gen&&C.gen.RAW&&C.gen.RAW.CFG;if(CFG&&!C.importado){['nome','curto','setor','atividade','cidade','regime'].forEach(k=>{if(k in CFG||N[k]) CFG[k]=N[k];});}
+        const now=Date.now();C.hist=C.hist||[];
+        if(html){const ks=raw.months.map(m=>m.y*12+m.m);C.importado={html:await gzB64(html),arquivo:fname,at:now};C.gen=Object.assign({},C.gen,{RAW:raw,at:now,win:[ks[0],ks[ks.length-1]],importado:true});C.hist.unshift({at:now,t:'Arquivo do painel trocado pela administração: '+fname});}
+        if(mud.length) C.hist.unshift({at:now,t:'Dados da empresa editados pela administração ('+mud.join(', ')+')'});
+        await ADM.salvarDados(C);await ADM.log(o?o.email:'','admin',`Empresa editada: ${N.nome}${html?' (novo arquivo do painel)':''}`);
+        admDirty();close();toast('Empresa atualizada.');await admRefresh();}
+      catch(x){er.textContent=x.message;er.hidden=false;bt.disabled=false;bt.textContent='Salvar';}};});
 }
 /* transferir uma empresa para outra conta */
 function admTransferir(D,e){if(!e) return;const o=ownerOf(D,e);
@@ -3472,6 +3648,73 @@ function bindSolic(){
   document.querySelectorAll('[data-rm]').forEach(b=>b.onclick=async()=>{if(!await confirmBox('Excluir pedido','O registro será apagado.','Excluir',true)) return;await ADM.delSolic(solIdOf(b.dataset.rm));admDirty();await admRefresh();});
 }
 
+/* ---------- reembolsos ---------- */
+async function vAdmReemb(){
+  const D=await admData(true);const all=D.solic.filter(s=>s.tipo==='reembolso');const F=ADMF.rb||'aberta';
+  const L=all.filter(s=>F==='todos'||s.status===F);const dv=s=>+((s.dados||{}).valor)||0;
+  const ab=all.filter(s=>s.status==='aberta'),ap=all.filter(s=>s.status==='aprovada'),pg=all.filter(s=>s.status==='reembolsada'&&s.at>Date.now()-365*DAY);
+  const pago=pg.reduce((t,s)=>t+(+((s.dados||{}).valorPago)||dv(s)),0);
+  const contaDe=s=>D.contas.find(u=>normE(u.email)===normE(s.email));
+  $('#main').innerHTML=admHead('Reembolsos','Pedidos de devolução feitos pelos clientes na aba Reembolso. O estorno é feito no gateway (Asaas: Cobranças → abra a cobrança → Estornar); aqui você registra a decisão e o cliente acompanha.','<button class="btn sm" type="button" id="rbNew">Registrar reembolso</button><button class="btn sm" type="button" id="rbCsv">Exportar planilha</button>')+`
+   <div class="kpis" style="margin-bottom:16px"><div class="kpi${ab.length?' hot':''}"><small>Em análise</small><b>${ab.length}</b><em>R$ ${f2(ab.reduce((t,s)=>t+dv(s),0))}</em></div>
+    <div class="kpi"><small>Aprovados, aguardando estorno</small><b>${ap.length}</b><em>R$ ${f2(ap.reduce((t,s)=>t+(+((s.dados||{}).valorAprovado)||dv(s)),0))}</em></div>
+    <div class="kpi"><small>Reembolsado em 12 meses</small><b>R$ ${f0(pago)}</b><em>${pg.length} pedido${pg.length===1?'':'s'}</em></div>
+    <div class="kpi"><small>Dentro dos ${CONFIG.reembolsoDias||7} dias</small><b>${all.filter(s=>(s.dados||{}).noPrazo).length}</b><em>de ${all.length} pedido${all.length===1?'':'s'} no total</em></div></div>
+   <div class="filters" style="margin-bottom:12px">${[['aberta',`Em análise (${ab.length})`],['aprovada',`Aprovados (${ap.length})`],['reembolsada','Reembolsados'],['recusada','Recusados'],['todos','Todos']].map(([k,t])=>`<button type="button" data-rbf="${k}" aria-pressed="${F===k}">${t}</button>`).join('')}</div>
+   ${L.length?`<div class="lst">${L.map(s=>{const d=s.dados||{};const st=REEMB_ST[s.status]||['mute',s.status];const u=contaDe(s);
+     const wa=waTo(s.telefone||(u&&u.telefone),`Olá, ${(s.nome||'').split(' ')[0]}! Aqui é da ${CONFIG.marca}, sobre o seu pedido de reembolso de R$ ${f2(d.valor||0)}.`);
+     const prazo=['duplicidade','indevida'].includes(d.motivo)?'<span class="pill">Cobrança indevida</span>':d.noPrazo?`<span class="pill ok">Dentro dos ${CONFIG.reembolsoDias||7} dias (${d.dias} d)</span>`:`<span class="pill warn">Fora do prazo (${d.dias!=null?d.dias+' dias':'—'})</span>`;
+     return `<div class="it2" style="align-items:flex-start"><div class="tx"><b>${esc(s.nome||s.email)} · R$ ${f2(d.valor||0)}</b><span>Pedido em ${fmtDT(s.at)} · ${esc(s.email)}${d.plano?' · plano '+esc(d.plano)+' '+esc(d.ciclo||''):''}${d.registradoPor?' · registrado pela administração':''}</span>
+       <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px"><span class="pill ${st[0]}">${st[1]}</span>${prazo}<span class="pill mute">Cobrança de ${dBR(d.dataCobranca)}</span><span class="pill mute">${d.forma==='pix'?'PIX: '+esc(d.pix||''):'Estorno no cartão'}</span>${d.cancelar?'<span class="pill mute">Pediu cancelamento</span>':''}</div>
+       <p style="margin-top:8px;color:var(--ink-2)"><b>${esc(d.motivoTxt||d.motivo||'')}</b>${s.mensagem?`<span style="display:block;white-space:pre-wrap;margin-top:2px">${esc(s.mensagem)}</span>`:''}</p>
+       ${d.resposta||d.pagoEm?`<p style="margin-top:6px;font-size:13px;color:var(--ink-3)">${d.valorAprovado!=null?'Aprovado: R$ '+f2(d.valorAprovado)+'. ':''}${d.pagoEm?'Devolvido em '+dBR(d.pagoEm)+(d.valorPago!=null?' · R$ '+f2(d.valorPago):'')+(d.formaPaga?' · '+esc(d.formaPaga):'')+'. ':''}${d.resposta?'Resposta: '+esc(d.resposta):''}</p>`:''}</div>
+      <div class="qa">${s.status==='aberta'?`<button class="btn sm primary" type="button" data-rbok="${esc(s.id)}">Aprovar</button><button class="btn sm" type="button" data-rbno="${esc(s.id)}">Recusar</button>`:''}${['aberta','aprovada'].includes(s.status)?`<button class="btn sm${s.status==='aprovada'?' primary':''}" type="button" data-rbpg="${esc(s.id)}">Marcar reembolsado</button>`:''}${['recusada','reembolsada'].includes(s.status)?`<button class="btn sm" type="button" data-rbre="${esc(s.id)}">Reabrir</button>`:''}
+        ${u?`<button class="btn sm" type="button" data-rbu="${esc(u.id)}">Ficha do cliente</button>`:''}${wa?`<a class="btn sm" href="${esc(wa)}" target="_blank" rel="noopener">WhatsApp</a>`:''}<a class="btn sm" href="mailto:${esc(s.email)}">E-mail</a><button class="btn sm" type="button" data-rm="${esc(s.id)}" style="color:var(--err)">Excluir</button></div></div>`;}).join('')}</div>`:'<div class="panel"><div class="empty" style="padding:28px"><p>Nenhum pedido neste filtro.</p></div></div>'}`;
+  const byId=id=>all.find(s=>String(s.id)===String(id));
+  const upd=async(s,status,patch,ev)=>{const d=Object.assign({},s.dados||{},patch,{decididoEm:Date.now()});await ADM.setSolic(s.id,{status,dados:d});await ADM.log(s.email,'reembolso',ev);admDirty();await admRefresh();};
+  const cancelaConta=async(s)=>{const u=contaDe(s);if(!u||!u.plano||u.plano.status==='cancelada') return false;await ADM.setConta(u,{plano:Object.assign({},u.plano,{status:'cancelada',fim:Date.now()})});await ADM.log(u.email,'admin','Assinatura cancelada junto com o reembolso');return true;};
+  document.querySelectorAll('[data-rbf]').forEach(b=>b.onclick=()=>{ADMF.rb=b.dataset.rbf;vAdmReemb();});
+  document.querySelectorAll('[data-rbu]').forEach(b=>b.onclick=()=>admConta(b.dataset.rbu));
+  document.querySelectorAll('[data-rbre]').forEach(b=>b.onclick=async()=>{const s=byId(b.dataset.rbre);await ADM.setSolic(s.id,{status:'aberta'});admDirty();await admRefresh();});
+  document.querySelectorAll('[data-rbok]').forEach(b=>b.onclick=()=>{const s=byId(b.dataset.rbok),d=s.dados||{};
+    modal(`<h3>Aprovar reembolso</h3><p style="color:var(--ink-2)">${esc(s.nome||s.email)} · cobrança de ${dBR(d.dataCobranca)} · ${d.forma==='pix'?'PIX '+esc(d.pix||''):'estorno no cartão'}</p>
+      <div class="f"><label for="raV">Valor aprovado (R$)</label><input id="raV" inputmode="decimal" value="${f2(d.valor||0)}"></div>
+      <div class="f"><label for="raT">Resposta ao cliente</label><textarea id="raT" rows="3">Seu reembolso foi aprovado. ${d.forma==='pix'?'O PIX será feito em até 5 dias úteis.':'O estorno foi pedido à operadora do cartão e aparece na fatura em até duas faturas.'}</textarea></div>
+      <label class="chk"><input type="checkbox" id="raC"${d.cancelar?' checked':''}> Cancelar a assinatura do cliente agora</label>
+      <p style="font-size:13px;color:var(--ink-3)">Faça o estorno no Asaas (Cobranças → abra a cobrança → Estornar) ou o PIX, e depois use "Marcar reembolsado".</p>
+      <div class="acts"><button class="btn" data-close type="button">Cancelar</button><button class="btn primary" type="button" id="raOk">Aprovar</button></div>`,(m,close)=>{
+      m.querySelector('#raOk').onclick=async()=>{const v=I.money(m.querySelector('#raV').value);if(!v||!(v.v>0)){toast('Informe o valor aprovado.');return;}
+        const canc=m.querySelector('#raC').checked;const resp=m.querySelector('#raT').value.trim();close();if(canc) await cancelaConta(s);
+        await upd(s,'aprovada',{valorAprovado:Math.round(v.v*100)/100,resposta:resp,assinaturaCancelada:canc||!!d.assinaturaCancelada},`Reembolso aprovado: R$ ${f2(v.v)}${canc?' (assinatura cancelada)':''}`);toast('Reembolso aprovado.');};});});
+  document.querySelectorAll('[data-rbno]').forEach(b=>b.onclick=()=>{const s=byId(b.dataset.rbno);
+    modal(`<h3>Recusar reembolso</h3><p style="color:var(--ink-2)">O cliente vê a resposta na aba Reembolso.</p><div class="f"><label for="rnT">Motivo da recusa</label><textarea id="rnT" rows="3" placeholder="Ex.: a cobrança foi feita há mais de 7 dias e o serviço foi usado normalmente. A assinatura foi cancelada e não haverá novas cobranças."></textarea></div>
+      <div class="acts"><button class="btn" data-close type="button">Cancelar</button><button class="btn primary" type="button" id="rnOk">Recusar</button></div>`,(m,close)=>{
+      m.querySelector('#rnOk').onclick=async()=>{const t=m.querySelector('#rnT').value.trim();if(t.length<10){toast('Explique o motivo ao cliente.');return;}close();await upd(s,'recusada',{resposta:t},'Reembolso recusado');toast('Pedido recusado.');};});});
+  document.querySelectorAll('[data-rbpg]').forEach(b=>b.onclick=()=>{const s=byId(b.dataset.rbpg),d=s.dados||{};
+    modal(`<h3>Registrar reembolso feito</h3><p style="color:var(--ink-2)">${esc(s.nome||s.email)}</p>
+      <div class="grid2"><div class="f"><label for="rpV">Valor devolvido (R$)</label><input id="rpV" inputmode="decimal" value="${f2(d.valorAprovado!=null?d.valorAprovado:d.valor||0)}"></div><div class="f"><label for="rpD">Data</label><input id="rpD" type="date" value="${dISO(Date.now())}"></div></div>
+      <div class="f"><label for="rpF">Forma</label><select id="rpF">${['Estorno no cartão (Asaas)','PIX','Transferência bancária'].map(x=>`<option${(d.forma==='pix'&&x==='PIX')?' selected':''}>${x}</option>`).join('')}</select></div>
+      <div class="f"><label for="rpT">Mensagem ao cliente</label><textarea id="rpT" rows="2">${esc(d.resposta||'Reembolso realizado.')}</textarea></div>
+      ${!d.assinaturaCancelada&&d.cancelar?`<label class="chk"><input type="checkbox" id="rpC" checked> Cancelar a assinatura do cliente</label>`:''}
+      <div class="acts"><button class="btn" data-close type="button">Cancelar</button><button class="btn primary" type="button" id="rpOk">Registrar</button></div>`,(m,close)=>{
+      m.querySelector('#rpOk').onclick=async()=>{const v=I.money(m.querySelector('#rpV').value);if(!v||!(v.v>0)){toast('Informe o valor devolvido.');return;}
+        const cc=m.querySelector('#rpC');const canc=cc&&cc.checked;const pe=m.querySelector('#rpD').value||dISO(Date.now()),fp=m.querySelector('#rpF').value,rs=m.querySelector('#rpT').value.trim();close();if(canc) await cancelaConta(s);
+        await upd(s,'reembolsada',{valorPago:Math.round(v.v*100)/100,pagoEm:pe,formaPaga:fp,resposta:rs,assinaturaCancelada:!!(d.assinaturaCancelada||canc)},`Reembolso pago: R$ ${f2(v.v)}`);toast('Reembolso registrado.');};});});
+  $('#rbNew').onclick=()=>{if(!D.contas.length){toast('Nenhuma conta cadastrada.');return;}
+    modal(`<h3>Registrar reembolso</h3><p style="color:var(--ink-2)">Para pedidos que chegaram por WhatsApp ou e-mail.</p>
+      <div class="f"><label for="rrU">Cliente</label><select id="rrU">${D.contas.map(x=>`<option value="${esc(x.id)}">${esc((x.nome?x.nome+' · ':'')+x.email)}</option>`).join('')}</select></div>
+      <div class="grid2"><div class="f"><label for="rrV">Valor cobrado (R$)</label><input id="rrV" inputmode="decimal"></div><div class="f"><label for="rrD">Data da cobrança</label><input id="rrD" type="date" max="${dISO(Date.now())}"></div></div>
+      <div class="f"><label for="rrM">Motivo</label><select id="rrM">${MOTIVOS.map(([k,t])=>`<option value="${k}">${esc(t)}</option>`).join('')}</select></div>
+      <div class="f"><label for="rrT">Detalhes</label><textarea id="rrT" rows="2"></textarea></div>
+      <div class="acts"><button class="btn" data-close type="button">Cancelar</button><button class="btn primary" type="button" id="rrOk">Registrar</button></div>`,(m,close)=>{
+      m.querySelector('#rrOk').onclick=async()=>{const u=D.contas.find(x=>x.id===m.querySelector('#rrU').value);const v=I.money(m.querySelector('#rrV').value);const dc=m.querySelector('#rrD').value;const dd=diasDesde(dc);
+        if(!v||!(v.v>0)||dd==null){toast('Informe o valor e a data da cobrança.');return;}const mo=m.querySelector('#rrM').value;const mt=MOTIVOS.find(x=>x[0]===mo);const pl=u.plano&&planById(u.plano.id);
+        const dados={plano:pl?pl.nome:'',planoId:(u.plano||{}).id||'',ciclo:(u.plano||{}).ciclo||'',valor:Math.round(v.v*100)/100,dataCobranca:dc,motivo:mo,motivoTxt:mt?mt[1]:mo,forma:'cartao',pix:'',cancelar:false,dias:dd,noPrazo:dd<=(CONFIG.reembolsoDias||7),registradoPor:USER.email};
+        try{await ADM.addSolic({tipo:'reembolso',email:u.email,nome:u.nome||'',telefone:u.telefone||'',mensagem:m.querySelector('#rrT').value.trim(),dados,status:'aberta'});await ADM.log(u.email,'reembolso','Reembolso registrado pela administração');close();admDirty();toast('Pedido registrado.');await admRefresh();}catch(x){toast(x.message);}};});};
+  $('#rbCsv').onclick=()=>csv('reembolsos.csv',['Pedido em','Cliente','E-mail','Plano','Valor cobrado','Data da cobrança','Dias','Motivo','Detalhes','Forma','Chave PIX','Situação','Valor aprovado','Valor devolvido','Devolvido em','Resposta'],
+    all.map(s=>{const d=s.dados||{};return [fmtDT(s.at),s.nome,s.email,d.plano,f2(d.valor||0),dBR(d.dataCobranca),d.dias,d.motivoTxt,s.mensagem,d.forma==='pix'?'PIX':'Cartão',d.pix,(REEMB_ST[s.status]||[0,s.status])[1],d.valorAprovado!=null?f2(d.valorAprovado):'',d.valorPago!=null?f2(d.valorPago):'',d.pagoEm?dBR(d.pagoEm):'',d.resposta];}));
+  bindSolic();
+}
 /* ---------- contatos do site ---------- */
 async function vAdmContatos(){
   const D=await admData(true);const all=D.solic.filter(s=>['contato','suporte'].includes(s.tipo));
@@ -3512,15 +3755,16 @@ async function vAdmSite(){
      <label class="chk"><input type="checkbox" id="sVo"${av.on?' checked':''}> Mostrar aviso</label>
      <div class="f"><label for="sVt">Texto</label><input id="sVt" value="${esc(av.texto||'')}" maxlength="220" placeholder="Ex.: Atendimento em recesso de 24/12 a 02/01."></div>
      <div class="f"><label for="sVk">Tipo</label>${sel('sVk',av.tipo||'info',[['info','Informativo'],['warn','Atenção']])}</div></div></div>
+   <div class="panel" style="margin-top:16px"><div class="hd"><div><h2>Política de reembolso</h2><p>Texto mostrado ao cliente na aba Reembolso. Mantenha igual ao item 6 dos termos de uso.</p></div></div><div class="bd"><div class="f"><textarea id="sRb" rows="4" maxlength="1200">${esc(d.reembolso||CONFIG.reembolsoTxt||'')}</textarea></div></div></div>
    <div class="panel" style="margin-top:16px"><div class="hd"><div><h2>Administradores</h2><p>${CLOUD.on?'No banco on-line, a lista fica na tabela "admins" do Supabase.':'No modo local, a lista fica em CONFIG.admins.'}</p></div></div><div class="bd">${admins.map(a=>`<span class="pill" style="margin:0 6px 6px 0">${esc(a)}</span>`).join('')||'—'}</div></div>
    <div style="display:flex;justify-content:flex-end;margin-top:16px;position:sticky;bottom:12px"><button class="btn primary lg" type="button" id="sSave">Salvar configurações</button></div>`;
   $('#sSave').onclick=async()=>{const v=id=>$('#'+id).value.trim();
     const nd={contato:{email:v('sE'),whatsapp:v('sW'),cidade:v('sC')},trialDias:Math.max(1,Math.min(60,+v('sT')||7)),ativacao:v('sA'),liberacao:v('sL'),cadastro:v('sR'),
-      aviso:{on:$('#sVo').checked,texto:v('sVt'),tipo:v('sVk')},planos:{},links:{}};
+      aviso:{on:$('#sVo').checked,texto:v('sVt'),tipo:v('sVk')},reembolso:v('sRb'),planos:{},links:{}};
     PLANS.forEach(p=>{nd.planos[p.id]={preco:+document.querySelector(`[data-pp="${p.id}"]`).value||p.preco,empresas:+document.querySelector(`[data-pe="${p.id}"]`).value||p.empresas,meses:Math.min(24,+document.querySelector(`[data-pm="${p.id}"]`).value||p.meses)};nd.links[p.id]={mensal:'',anual:''};});
     let bad=false;document.querySelectorAll('[data-lk]').forEach(i=>{const [id,cy]=i.dataset.lk.split(':');const x=i.value.trim();if(x&&!/^https:\/\//.test(x)) bad=true;nd.links[id][cy]=x;});
     if(bad){toast('Os links de pagamento precisam começar com https://');return;}
-    try{await ADM.setConfig(nd);lsSet('cc-config',JSON.stringify(nd));applySiteConfig(nd);await ADM.log(USER.email,'admin','Configurações do site salvas');toast('Configurações salvas.');await admRefresh();}catch(e){toast(e.message);}};
+    const keep=Object.assign({},d,nd);try{await ADM.setConfig(keep);lsSet('cc-config',JSON.stringify(keep));applySiteConfig(keep);await ADM.log(USER.email,'admin','Configurações do site salvas');toast('Configurações salvas.');await admRefresh();}catch(e){toast(e.message);}};
   $('#aBk').onclick=async()=>{const [contas,empresas,solic,eventos]=await Promise.all([ADM.contas(),ADM.empresas(),ADM.solic(),ADM.eventos()]);
     download('cifra_clara_backup_'+dIn(Date.now())+'.json',JSON.stringify({gerado:new Date().toISOString(),config:d,contas:contas.map(u=>{const x=Object.assign({},u);delete x.hash;delete x.salt;return x;}),empresas,solicitacoes:solic,eventos},null,1),'application/json');};
 }
@@ -3548,7 +3792,7 @@ async function admPrecos(){
     b.classList.add('wide');
     b.querySelector('#prOk').onclick=async()=>{const nd=Object.assign({},d);nd.planos=Object.assign({},pl);
       PLANS.forEach(p=>{nd.planos[p.id]=Object.assign({},pl[p.id]||{},{preco:+b.querySelector(`[data-pp="${p.id}"]`).value||p.preco,empresas:+b.querySelector(`[data-pe="${p.id}"]`).value||p.empresas,meses:Math.min(24,+b.querySelector(`[data-pm="${p.id}"]`).value||p.meses)});});
-      try{await ADM.setConfig(nd);lsSet('cc-config',JSON.stringify(nd));applySiteConfig(nd);await ADM.log(USER.email,'admin','Preços dos planos atualizados pelo painel de administração');close();toast('Preços atualizados. O site já mostra os novos valores.');await admRefresh();}catch(e){toast(e.message);}};});
+      const keep=Object.assign({},d,nd);try{await ADM.setConfig(keep);lsSet('cc-config',JSON.stringify(keep));applySiteConfig(keep);await ADM.log(USER.email,'admin','Preços dos planos atualizados pelo painel de administração');close();toast('Preços atualizados. O site já mostra os novos valores.');await admRefresh();}catch(e){toast(e.message);}};});
 }
 /* ================= Financeiro ================= */
 async function vAdmFin(){
@@ -3672,7 +3916,7 @@ async function vAdmCupons(){
   document.querySelectorAll('[data-cl]').forEach(b=>b.onclick=e=>{const c=cup[+b.dataset.cl];const u=appUrl()+'#assinatura?cupom='+encodeURIComponent(c.codigo);copyText(u,e.currentTarget);});
 }
 
-const ADMV={adm:vAdm,'adm-contas':vAdmContas,'adm-empresas':vAdmEmpresas,'adm-lib':vAdmLib,'adm-senhas':vAdmSenhas,'adm-contatos':vAdmContatos,'adm-site':vAdmSite,'adm-log':vAdmLog,'adm-financeiro':vAdmFin,'adm-msg':vAdmMsg,'adm-cupons':vAdmCupons};
+const ADMV={adm:vAdm,'adm-contas':vAdmContas,'adm-empresas':vAdmEmpresas,'adm-lib':vAdmLib,'adm-senhas':vAdmSenhas,'adm-contatos':vAdmContatos,'adm-site':vAdmSite,'adm-log':vAdmLog,'adm-financeiro':vAdmFin,'adm-msg':vAdmMsg,'adm-cupons':vAdmCupons,'adm-reemb':vAdmReemb};
 
 </script>
 

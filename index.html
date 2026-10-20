@@ -593,6 +593,8 @@ const CONFIG={
   trialDias:7,
   /* o teste grátis exige cartão: começa pelo link de pagamento do plano, configurado no gateway com 7 dias grátis */
   trialCartao:true,
+  reembolsoDias:7,
+  reembolsoTxt:'Você pode pedir o reembolso integral em até 7 dias após a primeira cobrança (direito de arrependimento, art. 49 do Código de Defesa do Consumidor). Cobranças em duplicidade ou indevidas são devolvidas a qualquer tempo. Fora desses casos, a assinatura pode ser cancelada quando quiser, sem multa, e não há nova cobrança; o período já pago continua disponível até o fim.',
   /* deixe em branco para ocultar; preencha antes de publicar */
   contato:{email:'luizcorti669@gmail.com',whatsapp:'(49) 99123-8750',cidade:''},
   /* Pagamento: cole aqui o link de pagamento recorrente (assinatura) de cada plano, criado no painel do gateway
@@ -660,6 +662,8 @@ const CLOUD=(()=>{
     'SENHA_CURTA':'A senha precisa de pelo menos 8 caracteres.',
     'signups are disabled':'O cadastro de novas contas está desligado no momento. Fale com a nossa equipe.',
     'Signups not allowed':'O cadastro de novas contas está desligado no momento. Fale com a nossa equipe.',
+    'LIMITE_REEMBOLSO':'Você já tem um pedido de reembolso em análise. Aguarde a resposta da nossa equipe.',
+    'PEDIDO_GRANDE':'O pedido ficou grande demais. Resuma os detalhes.',
     'CADASTRO_FECHADO':'Os novos cadastros estão fechados no momento. Fale com a nossa equipe.'};
   const human=(t,code)=>{t=String(t||'');for(const k in MSG) if(t.includes(k)) return MSG[k];
     if(code===429||/rate limit|too many/i.test(t)) return 'Muitas tentativas em pouco tempo. Aguarde alguns minutos e tente de novo.';
@@ -708,6 +712,7 @@ function applySiteConfig(d){if(!d||typeof d!=='object') return;
   ['ativacao','liberacao','cadastro'].forEach(k=>{if(d[k]) CONFIG[k]=d[k];});
   if(Array.isArray(d.cupons)) CONFIG.cupons=d.cupons;
   CONFIG.aviso=d.aviso||null;
+  if(d.reembolso) CONFIG.reembolsoTxt=d.reembolso;
   if(d.planos) PLANS.forEach(p=>{const o=d.planos[p.id];if(!o) return;['preco','empresas','meses'].forEach(k=>{if(+o[k]>0) p[k]=+o[k];});
     p.itens=p.itens.map(t=>t.replace(/^(\d+) empresas?$/,()=>p.empresas===1?'1 empresa':p.empresas+' empresas').replace(/^Até \d+ empresas$/,()=>'Até '+p.empresas+' empresas').replace(/^Até \d+ meses de histórico$/,()=>'Até '+p.meses+' meses de histórico'));});
 }
