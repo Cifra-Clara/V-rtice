@@ -267,6 +267,57 @@ section{padding-block:clamp(72px,10vw,128px)}
 .row:hover h3{color:var(--brand)}
 @media (max-width:760px){.row{grid-template-columns:1fr auto}.row p{grid-column:1/-1;grid-row:2}.row:hover{padding-left:0}}
 
+
+/* ---------- explorador de setores ---------- */
+.sx{--sa:#A47C28;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:clamp(24px,4vw,56px);align-items:start;margin-bottom:40px}
+.sx-q{display:flex;align-items:center;gap:10px;padding:0 16px;height:52px;border:1px solid var(--line);border-radius:14px;background:var(--bg);transition:border-color .25s,box-shadow .25s}
+.sx-q:focus-within{border-color:color-mix(in srgb,var(--sa) 55%,var(--line));box-shadow:0 0 0 4px color-mix(in srgb,var(--sa) 14%,transparent)}
+.sx-q svg{width:18px;height:18px;fill:none;stroke:var(--ink-3);stroke-width:2;stroke-linecap:round;flex:none}
+.sx-q input{flex:1;min-width:0;border:0;outline:0;background:none;font:inherit;font-size:15.5px;color:var(--ink)}
+.sx-hit{min-height:22px;margin:10px 2px 6px;font-size:13.5px;color:var(--ink-3)}.sx-hit b{color:var(--ink)}
+.sx-gs{display:grid;gap:18px}
+.sx-g h4{font:600 11.5px var(--font);letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);margin:0 0 9px}
+.sx-ch{display:flex;flex-wrap:wrap;gap:7px}
+.sx-ch button{--c:#A47C28;display:inline-flex;align-items:center;gap:7px;padding:7px 12px 7px 8px;border-radius:999px;border:1px solid var(--line);background:var(--bg);font:inherit;font-size:13.5px;color:var(--ink-2);cursor:pointer;transition:transform .25s var(--ease),border-color .25s,background .25s,color .25s,box-shadow .25s}
+.sx-ch button svg{width:20px;height:20px;padding:3px;border-radius:50%;fill:none;stroke:var(--c);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;background:color-mix(in srgb,var(--c) 12%,transparent);transition:background .25s,stroke .25s}
+.sx-ch button:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--c) 45%,var(--line));color:var(--ink)}
+.sx-ch button[aria-pressed="true"]{background:color-mix(in srgb,var(--c) 10%,var(--bg));border-color:var(--c);color:var(--ink);box-shadow:0 8px 20px -14px var(--c)}
+.sx-ch button[aria-pressed="true"] svg{background:var(--c);stroke:#fff}
+.sx-ch button.dim{display:none}.sx-g.none{display:none}
+.sx-q input::-webkit-search-cancel-button{filter:grayscale(1);opacity:.6}
+.sx-c{position:sticky;top:96px;border-radius:22px;padding:26px;border:1px solid color-mix(in srgb,var(--sa) 30%,var(--line));background:radial-gradient(130% 100% at 100% 0%,color-mix(in srgb,var(--sa) 13%,var(--bg)) 0%,var(--bg) 55%);box-shadow:0 30px 60px -40px color-mix(in srgb,var(--sa) 70%,transparent);transition:border-color .5s,background .5s,box-shadow .5s;overflow:hidden}
+.sx-c .in{animation:sxin .55s var(--ease) both}
+@keyframes sxin{from{opacity:0;transform:translateY(10px)}}
+.sx-hd{display:flex;gap:14px;align-items:center}
+.sx-ic{width:54px;height:54px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(140deg,color-mix(in srgb,var(--sa) 65%,#fff),var(--sa));box-shadow:0 14px 26px -14px var(--sa);flex:none}
+.sx-ic svg{width:28px;height:28px;fill:none;stroke:#fff;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.sx-hd small{display:block;font:600 11.5px var(--font);letter-spacing:.09em;text-transform:uppercase;color:var(--sa)}
+.sx-hd h3{font-size:clamp(21px,2.2vw,26px);letter-spacing:-.03em;font-weight:600;margin:2px 0 0}
+.sx-un{margin-left:auto;font:500 12.5px var(--mono);padding:5px 10px;border-radius:999px;background:color-mix(in srgb,var(--sa) 10%,transparent);color:color-mix(in srgb,var(--sa) 75%,var(--ink));white-space:nowrap}
+.sx-mock{margin:20px 0 4px;padding:14px 14px 8px;border-radius:14px;background:var(--bg);border:1px solid var(--line)}
+.sx-mock .tp{display:flex;justify-content:space-between;font-size:11.5px;color:var(--ink-3);margin-bottom:8px}
+.sx-mock svg{display:block;width:100%;height:96px}
+.sx-mock rect{fill:var(--sa);transform-box:fill-box;transform-origin:bottom;animation:sxbar .8s var(--ease) both}
+.sx-mock rect.lo{fill:color-mix(in srgb,var(--cost) 55%,#fff)}
+.sx-mock line{stroke:var(--ink-2);stroke-width:1.2;stroke-dasharray:4 4}
+@keyframes sxbar{from{transform:scaleY(0)}}
+.sx-k{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:16px}
+.sx-k div{padding:11px 12px;border-radius:12px;background:color-mix(in srgb,var(--sa) 5%,var(--bg));border:1px solid color-mix(in srgb,var(--sa) 14%,var(--line));animation:sxin .5s var(--ease) both}
+.sx-k b{display:block;font-size:13.5px;font-weight:600;letter-spacing:-.01em}
+.sx-k span{display:block;font-size:12px;color:var(--ink-3);margin-top:2px;line-height:1.4}
+.sx-l2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:18px}
+.sx-l2 h5{font-size:12.5px;font-weight:600;margin:0 0 6px;color:var(--ink)}
+.sx-l2 ul{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.sx-l2 li{position:relative;padding-left:14px;font-size:13px;color:var(--ink-2);line-height:1.45}
+.sx-l2 li::before{content:"";position:absolute;left:0;top:7px;width:6px;height:6px;border-radius:50%;background:var(--sa)}
+.sx-l2 .at li::before{background:var(--cost)}
+.sx-qs{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px}
+.sx-qs span{font-size:12px;padding:4px 10px;border-radius:999px;border:1px dashed color-mix(in srgb,var(--sa) 40%,var(--line));color:var(--ink-2)}
+.sx-ft{margin-top:18px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--ink-3)}
+.sx-rows{margin-top:8px}
+@media (max-width:900px){.sx{grid-template-columns:minmax(0,1fr)}.sx-c{position:relative;top:0}.sx-ch{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:0 calc(var(--gut)*-1);padding:2px var(--gut) 6px}.sx-ch::-webkit-scrollbar{display:none}.sx-ch button{flex:none}.sx-gs{gap:12px}}
+@media (max-width:520px){.sx-k,.sx-l2{grid-template-columns:minmax(0,1fr)}.sx-c{padding:20px}.sx-un{display:none}}
+@media (prefers-reduced-motion:reduce){.sx-c .in,.sx-k div,.sx-mock rect{animation:none}}
 /* ---------- quem somos ---------- */
 .about{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:clamp(32px,6vw,88px);align-items:start}
 .about figure{margin:0;position:sticky;top:96px}
@@ -518,15 +569,17 @@ dialog[open]{animation:dlg .4s var(--ease)}
 
 <section id="setores" aria-labelledby="eT">
   <div class="wrap">
-    <div class="shd"><div><h2 class="h2" id="eT">Cada setor mede o resultado do seu jeito.</h2><p class="lede">O Vértice trabalha na unidade que faz sentido para o negócio e respeita o plano de contas da sua contabilidade.</p></div></div>
-    <div class="rows">
-      <div class="row"><h3>Indústria</h3><p>Custo de matéria-prima e mão de obra, margem por linha de produto e volume mínimo de produção.</p><span class="u">t, un, kg</span></div>
-      <div class="row"><h3>Comércio</h3><p>Margem por categoria, giro de estoque, prazos de clientes e fornecedores e o efeito do mix nas vendas.</p><span class="u">un, R$</span></div>
-      <div class="row"><h3>Serviços</h3><p>Margem por tipo de serviço, peso da folha nos gastos fixos e faturamento mínimo para cobrir a estrutura.</p><span class="u">h, contratos</span></div>
-      <div class="row"><h3>Agronegócio</h3><p>Sazonalidade da receita, capital de giro entre safras e endividamento com financiamentos.</p><span class="u">sc, t, ha</span></div>
-      <div class="row"><h3>Construção e madeira</h3><p>Preço realizado por metro cúbico, curva ABC dos produtos e ponto de equilíbrio em volume.</p><span class="u">m³, m²</span></div>
-      <div class="row"><h3>Alimentação</h3><p>Custo de insumos e embalagens, margem por produto e metas mensais de venda em quilos.</p><span class="u">kg, un</span></div>
-      <div class="row" id="escritorios"><h3>Escritórios contábeis</h3><p>Até 15 empresas em uma só conta, com a logo de cada cliente no painel. Leve análise, não só obrigação.</p><span class="u">carteira</span></div>
+    <div class="shd"><div><h2 class="h2" id="eT">Cada setor mede o resultado do seu jeito.</h2><p class="lede">O painel se ajusta ao ramo da empresa: escolhe os indicadores, a unidade de medida, as referências e os pontos de atenção do setor. Escolha o seu e veja.</p></div></div>
+    <div class="sx rv" id="sx">
+      <div class="sx-l">
+        <label class="sx-q"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><input id="sxQ" type="search" placeholder="Digite o ramo da sua empresa: padaria, transportadora, clínica…" aria-label="Ramo da sua empresa" autocomplete="off"></label>
+        <p class="sx-hit" id="sxHit" aria-live="polite"></p>
+        <div class="sx-gs" id="sxG"></div>
+      </div>
+      <article class="sx-c tlt" id="sxC" aria-live="polite"></article>
+    </div>
+    <div class="rows sx-rows">
+      <div class="row" id="escritorios"><h3>Escritórios contábeis</h3><p>Até 15 empresas em uma só conta, cada painel com a logo e o setor do cliente. Leve análise, não só obrigação.</p><span class="u">carteira</span></div>
     </div>
   </div>
 </section>
@@ -831,6 +884,180 @@ $('#ctF').addEventListener('submit',e=>{e.preventDefault();const v=id=>$('#'+id)
   const a=document.createElement('a');a.href=url;a.target='_blank';a.rel='noopener';document.body.appendChild(a);a.click();a.remove();
   $('#ctLink').href=url;$('#ctFields').hidden=true;$('#ctOk').hidden=false;});
 $('#ctNew').onclick=()=>{$('#ctF').reset();$('#ctFields').hidden=false;$('#ctOk').hidden=true;};
+})();
+
+/* ---------- explorador de setores ---------- */
+/* Segmentos de empresa: identificação pelo setor informado e personalização do painel e do site.
+   As faixas de margem são indicativas (variam por porte, região e modelo de negócio). */
+var CCSEG=[
+ {k:'madeira',n:'Madeireira e serraria',g:'Indústria',c:'#8A5A2B',re:'madeir|serrari|compensad|laminad|\\bpinus\\b|eucalipt|\\btoras?\\b|beneficiamento de madeira',un:'m³',it:'nota',ic:'M4 19h16M6 19V9l6-5 6 5v10M9 19v-5h6v5',kp:['pr','cvu','mcu','pev','mpp','ms'],mc:[.25,.45],
+  dc:['Acompanhe o rendimento da tora: cada ponto de aproveitamento reduz o custo por m³.','Separe o preço por espécie e bitola para ver quais linhas pagam os gastos fixos.','Compre matéria-prima com antecedência para os meses de maior procura da construção.'],
+  rk:['Matéria-prima acima de metade da receita aperta a margem.','Madeira parada no pátio prende caixa e perde qualidade.'],q:['Quanto custa produzir cada m³?','Quantos m³ preciso vender para empatar?','Quais espécies dão mais margem?']},
+ {k:'moveis',n:'Móveis e marcenaria',g:'Indústria',c:'#7A4E2D',re:'movel|moveis|marcenar|planejad|estofad|colchoes|colchao',un:'peça',it:'pedido',ic:'M4 11h16v5H4zM6 16v3M18 16v3M6 11V7a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v4',kp:['tk','cvu','mcp','mpp','ped','ms'],mc:[.30,.50],
+  dc:['Calcule a margem de cada projeto antes de fechar o orçamento.','Cobre sinal na encomenda para financiar a matéria-prima.','Padronize módulos para ganhar escala na produção.'],
+  rk:['Projetos sob medida com retrabalho consomem a margem.','Prazo longo de entrega com pagamento no fim pressiona o caixa.'],q:['Qual o ticket médio por pedido?','Quanto da receita vai para chapas e ferragens?','Quanto preciso vender por dia?']},
+ {k:'matcon',n:'Materiais de construção',g:'Comércio',c:'#9A6B2F',re:'materia(?:l|is) de constru|home ?center|ferragen|ferrament|depósito de constru|deposito de constru',un:'un',it:'venda',ic:'M3 21h18M5 21V10l7-5 7 5v11M9 21v-6h6v6M3 10l9-6 9 6',kp:['tk','rd','mcp','ped','cfp','ms'],mc:[.22,.35],
+  dc:['Destaque no mix os itens de giro rápido e margem alta.','Ofereça entrega programada para obras e garanta recorrência.','Acompanhe o prazo médio de recebimento das vendas a prazo.'],
+  rk:['Estoque amplo e lento imobiliza capital.','Vendas a prazo sem limite de crédito aumentam a inadimplência.'],q:['Qual o ticket médio?','Quanto preciso vender por dia?','Quais linhas sustentam a loja?']},
+ {k:'construcao',n:'Construção civil',g:'Indústria',c:'#A2652A',re:'constru|\\bobras?\\b|engenhari|incorpora|empreite|reforma',un:'m²',it:'contrato',ic:'M3 21h18M6 21V8h12v13M9 12h2M13 12h2M9 16h2M13 16h2M6 8l6-5 6 5',kp:['pr','cvu','mcu','pev','cfp','ms'],mc:[.18,.35],
+  dc:['Acompanhe o custo por m² de cada obra contra o orçamento.','Faça medições frequentes para receber em dia.','Negocie insumos por etapa da obra.'],
+  rk:['Variação do preço dos insumos durante a obra.','Receita concentrada em poucos contratos.'],q:['Quanto custa cada m² executado?','Quantos m² por mês pagam a estrutura?','Qual a margem por obra?']},
+ {k:'hotel',n:'Hotelaria e turismo',g:'Serviços',c:'#2E6E8E',re:'hotel|pousad|hostel|turism|agencia de viag|viagens|resort|camping|hosped|motel',un:'diária',it:'reserva',ic:'M3 20V8M3 14h18v6M21 20v-6a3 3 0 0 0-3-3h-7v3M7 11a2 2 0 1 0 0-.01',kp:['pr','rd','cfd','mcp','ped','ms'],mc:[.60,.80],
+  dc:['Acompanhe a taxa de ocupação e a diária média.','Ajuste preços em alta e baixa temporada.','Canais diretos evitam comissões de plataformas.'],
+  rk:['Sazonalidade forte entre temporadas.','Comissões de plataformas de reserva.'],q:['Qual a diária média?','Quanto faturar por dia para empatar?','Quanto custa manter as portas abertas?']},
+ {k:'agroinsumos',n:'Agropecuária e insumos',g:'Agronegócio',c:'#5F7A23',re:'agropecuaria|insumos agr|defensiv|fertiliz|sementes|revenda agr|casa agropec',un:'un',it:'venda',ic:'M12 21V11M12 11c0-4 3-7 7-7 0 4-3 7-7 7zM12 14c0-3-2-5-5-5 0 3 2 5 5 5zM5 21h14',kp:['tk','mcp','fin','cfp','rd','ms'],mc:[.15,.28],
+  dc:['Alinhe compras ao calendário de plantio da região.','Controle as vendas a prazo safra com garantia.','Acompanhe a margem por linha: sementes, defensivos e nutrição.'],
+  rk:['Recebimento concentrado na colheita.','Juros de financiamento de estoque.'],q:['Qual a margem por linha?','Quanto as despesas financeiras pesam?','Quanto vender por dia útil?']},
+ {k:'agroind',n:'Agroindústria e frigorífico',g:'Agronegócio',c:'#6B6A1F',re:'frigorif|\\babate|agroindustr|cooperativ|moinho|ervateir|beneficiamento de gr|cerealist|erva-mate|erva mate',un:'kg',it:'nota',ic:'M4 20h16M6 20V10h12v10M9 10V6h6v4M10 14h4',kp:['pr','cvu','mcu','pev','mpp','ms'],mc:[.12,.25],
+  dc:['Acompanhe o rendimento da matéria-prima por lote.','Monitore o custo por kg produzido mês a mês.','Use a capacidade ociosa para linhas de maior valor.'],
+  rk:['Preço da matéria-prima ligado a commodities.','Margem estreita: pequenas variações mudam o resultado.'],q:['Quanto custa cada kg produzido?','Quantos kg pagam a estrutura?','Qual linha tem melhor margem?']},
+ {k:'pecuaria',n:'Pecuária e leite',g:'Agronegócio',c:'#6E7B2C',re:'pecuar|\\bleite\\b|laticin|\\bgado\\b|bovin|suin|\\baves\\b|avicult|piscicult|apicult',un:'L',it:'entrega',ic:'M5 10c0-3 3-5 7-5s7 2 7 5v4a5 5 0 0 1-5 5h-4a5 5 0 0 1-5-5zM9 12h.01M15 12h.01M10 16h4',kp:['pr','cvu','mcu','pev','mpp','ms'],mc:[.20,.40],
+  dc:['Acompanhe o custo de alimentação por litro ou por cabeça.','Compare o preço recebido com a média dos últimos meses.','Planeje a reposição de animais com o fluxo de caixa.'],
+  rk:['Ração e insumos com preço volátil.','Sazonalidade da produção e do preço.'],q:['Qual o custo por litro?','Quantos litros pagam a propriedade?','Como varia o preço recebido?']},
+ {k:'agro',n:'Agricultura',g:'Agronegócio',c:'#4E7A2A',re:'agric|lavoura|\\bsoja\\b|\\bmilho\\b|\\bgraos?\\b|cafeicult|cafe em grao|\\bcana\\b|hortifrut|fruticult|\\bsafra|produtor rural|\\bfazenda|\\bsitio\\b|horticult|silvicult|reflorest',un:'sc',it:'venda',ic:'M12 21V8M12 8c-3 0-5-2-5-5 3 0 5 2 5 5zM12 8c3 0 5-2 5-5-3 0-5 2-5 5zM12 13c-3 0-5-2-5-5M12 13c3 0 5-2 5-5M5 21h14',kp:['pr','cvu','mcu','pev','fin','ms'],mc:[.25,.50],
+  dc:['Calcule o custo por saca antes de travar preço de venda.','Distribua vendas ao longo do ano para reduzir risco de preço.','Compare o custo financeiro do custeio com o retorno da lavoura.'],
+  rk:['Clima e preço internacional fora do controle.','Receita concentrada em poucos meses.'],q:['Qual o custo por saca?','Quantas sacas pagam a safra?','Quanto pesam os juros do custeio?']},
+ {k:'bebidas',n:'Bebidas e distribuidora',g:'Comércio',c:'#7A2E3A',re:'bebida|cervej|chopp|adega|vinicol|vinho|distribuidora de beb|refrigerant|\\bagua mineral',un:'L',it:'pedido',ic:'M8 3h8l-1 6a4 4 0 0 1-3 4 4 4 0 0 1-3-4zM12 13v8M8 21h8',kp:['pr','cvu','mcu','pev','tk','ms'],mc:[.20,.40],
+  dc:['Acompanhe a margem por marca e por embalagem.','Planeje o estoque para as datas de pico.','Controle o custo de entrega por pedido.'],
+  rk:['Sazonalidade forte em verão e datas festivas.','Logística consome a margem em pedidos pequenos.'],q:['Qual a margem por litro?','Quanto vender para empatar?','Qual o ticket por pedido?']},
+ {k:'atacado',n:'Atacado e distribuição',g:'Comércio',c:'#3F5F8A',re:'atacad|distribui|representac|representante comerc|importac|exportac|trading',un:'un',it:'pedido',ic:'M3 7l9-4 9 4v10l-9 4-9-4zM3 7l9 4 9-4M12 11v10',kp:['tk','mcp','fin','cfp','rpf','ms'],mc:[.10,.22],
+  dc:['Margem curta: controle preço, prazo e frete de cada pedido.','Acompanhe a concentração de vendas por cliente.','Negocie prazo com fornecedores maior que o dado aos clientes.'],
+  rk:['Capital de giro alto e juros.','Inadimplência de grandes clientes.'],q:['Qual o ticket por pedido?','Quanto pesam os juros?','Quanto cada vendedor gera?']},
+ {k:'restaurante',n:'Restaurante, bar e lanchonete',g:'Alimentação',c:'#B4462E',re:'restaur|lanchon|\\bbar\\b|pizzar|hamburg|cafeteri|delivery|marmit|food ?truck|bistro|churrascar|sorvet|acai|pastelar|sushi|gastronom',un:'refeição',it:'comanda',ic:'M7 3v8a2 2 0 0 0 2 2v8M5 3v5a2 2 0 0 0 2 2M9 3v5a2 2 0 0 1-2 2M17 3c-2 0-3 3-3 6s1 4 3 4v8',kp:['tk','rd','ped','cvp','cfd','ms'],mc:[.55,.70],
+  dc:['Mantenha o CMV (custos variáveis) sob controle com ficha técnica de cada prato.','Use o faturamento por dia para escalar a equipe.','Revise o cardápio pela engenharia de menu: margem × saída.'],
+  rk:['Desperdício e porções sem padrão elevam o CMV.','Taxas de aplicativo de entrega reduzem a margem.'],q:['Qual o ticket médio por comanda?','Quanto preciso vender por dia?','Quanto o CMV pesa na receita?']},
+ {k:'alimentos',n:'Alimentos, padaria e confeitaria',g:'Alimentação',c:'#A8552F',re:'aliment|confeit|\\bdoces?\\b|padari|panific|\\bbolos?\\b|chocolat|biscoit|\\bmassas\\b|salgad|laticinio|conserva',un:'kg',it:'venda',ic:'M4 14a8 6 0 0 1 16 0v2H4zM6 16v3h12v-3M9 10V7M12 9V5M15 10V7',kp:['pr','cvu','mcu','pev','mpp','ms'],mc:[.35,.55],
+  dc:['Monte a ficha técnica de cada produto e atualize os custos todo mês.','Acompanhe as perdas e sobras de produção.','Use datas sazonais para lançar linhas de maior margem.'],
+  rk:['Insumos como farinha, açúcar e leite oscilam de preço.','Validade curta exige produção alinhada à venda.'],q:['Qual o custo por kg?','Quantos kg pagam os gastos fixos?','Que produtos dão mais margem?']},
+ {k:'supermercado',n:'Supermercado e mercearia',g:'Comércio',c:'#2F7A4E',re:'supermerc|hipermerc|\\bmercado\\b|mercear|atacarej|minimerc|acougue|sacolao|emporio|conveniencia',un:'un',it:'cupom',ic:'M3 4h2l2 11h11l2-8H6M9 20a1 1 0 1 0 0-.01M17 20a1 1 0 1 0 0-.01',kp:['tk','rd','cvp','mcp','cfd','ms'],mc:[.18,.28],
+  dc:['Acompanhe a margem por seção: perecíveis, mercearia, bebidas e limpeza.','Controle quebras e perdas, que corroem a margem curta.','Use o ticket médio para medir campanhas e promoções.'],
+  rk:['Margem curta: um ponto de perda muda o resultado.','Gasto com energia e folha cresce mais rápido que a venda.'],q:['Qual o ticket médio do cupom?','Quanto vender por dia para empatar?','Quanto sobra de cada real vendido?']},
+ {k:'farmacia',n:'Farmácia e drogaria',g:'Saúde',c:'#2E7D6B',re:'farmac|drogar|manipulac|perfumar',un:'un',it:'cupom',ic:'M10 3h4v7h7v4h-7v7h-4v-7H3v-4h7z',kp:['tk','rd','mcp','cfp','ped','ms'],mc:[.25,.38],
+  dc:['Separe a margem de medicamentos e de perfumaria.','Acompanhe o giro dos itens de maior valor.','Programas de fidelidade elevam a recorrência.'],
+  rk:['Preços de medicamentos regulados limitam a margem.','Estoque de alto valor e validade exige controle.'],q:['Qual o ticket médio?','Quanto vender por dia?','Quanto pesa a estrutura fixa?']},
+ {k:'pet',n:'Pet shop e veterinária',g:'Serviços',c:'#B0603A',re:'\\bpet\\b|pet ?shop|veterin|banho e tosa|\\bracao\\b|clinica vet',un:'atend.',it:'atendimento',ic:'M7 10a2 2 0 1 0 0-.01M17 10a2 2 0 1 0 0-.01M10 6a2 2 0 1 0 0-.01M14 6a2 2 0 1 0 0-.01M8 17c0-3 2-5 4-5s4 2 4 5a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2z',kp:['tk','rd','mcp','rpf','cfp','ms'],mc:[.40,.60],
+  dc:['Combine serviços recorrentes (banho, consultas) com venda de produtos.','Acompanhe a margem separada de serviços e mercadorias.','Planos mensais estabilizam a receita.'],
+  rk:['Dependência de poucos profissionais.','Estoque de ração com margem baixa.'],q:['Qual o ticket por atendimento?','Quanto cada colaborador gera?','Quanto vender por dia?']},
+ {k:'beleza',n:'Beleza e estética',g:'Serviços',c:'#B0477A',re:'beleza|\\bsalao|cabelei|barbear|estetic|manicur|\\bspa\\b|depilac|sobrancelh|maquiag',un:'atend.',it:'atendimento',ic:'M12 3c3 3 4 6 4 9a4 4 0 0 1-8 0c0-3 1-6 4-9zM12 16v5M9 21h6',kp:['tk','rd','rpf','mcp','cfd','ms'],mc:[.45,.65],
+  dc:['Meça a ocupação da agenda de cada profissional.','Pacotes e assinaturas aumentam o retorno do cliente.','Separe comissão (variável) de salário (fixo).'],
+  rk:['Agenda ociosa custa o mesmo que agenda cheia.','Comissões altas reduzem a margem de contribuição.'],q:['Qual o ticket por atendimento?','Quanto cada profissional gera?','Quantos atendimentos por dia pagam o salão?']},
+ {k:'saude',n:'Clínica e saúde',g:'Saúde',c:'#2B6F8C',re:'clinic|saude|medic|odonto|dentist|fisiot|laborator|hospital|psicolog|nutricion|fonoaud|consultorio|exames|diagnostic',un:'atend.',it:'atendimento',ic:'M12 21s-7-4.5-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 11c0 5.5-7 10-7 10zM9 12h2v-2h2v2h2v2h-2v2h-2v-2H9z',kp:['tk','rd','rpf','mcp','cfp','ms'],mc:[.50,.75],
+  dc:['Acompanhe a receita por profissional e por sala.','Separe convênios e particulares: prazos e margens são diferentes.','Reduza faltas com confirmação de agenda.'],
+  rk:['Glosas e atraso dos convênios.','Equipamentos caros com baixa ocupação.'],q:['Qual o ticket por atendimento?','Quanto cada profissional gera por mês?','Quantos atendimentos por dia pagam a clínica?']},
+ {k:'academia',n:'Academia e esportes',g:'Serviços',c:'#C0552A',re:'academi|fitness|crossfit|pilates|esport|\\bclube\\b|ginast|natac|\\byoga\\b|funcional|artes marciais',un:'aluno',it:'mensalidade',ic:'M6 8v8M18 8v8M3 10v4M21 10v4M6 12h12',kp:['tk','cfp','mcp','rpf','ped','ms'],mc:[.65,.85],
+  dc:['Acompanhe alunos ativos e cancelamentos todo mês.','Planos anuais garantem caixa e reduzem evasão.','Use horários ociosos para turmas especiais.'],
+  rk:['Estrutura fixa alta: poucos alunos a menos derrubam o resultado.','Evasão no meio do ano.'],q:['Qual a mensalidade média?','Quanto da receita é gasto fixo?','Quanto falta para o equilíbrio?']},
+ {k:'educacao',n:'Educação e cursos',g:'Serviços',c:'#3A5BA0',re:'escola|educa|ensino|\\bcursos?\\b|colegio|faculdad|idioma|treinament|creche|preparatori|reforco escolar',un:'aluno',it:'mensalidade',ic:'M2 9l10-5 10 5-10 5zM6 11v5c0 1 3 3 6 3s6-2 6-3v-5M22 9v6',kp:['tk','cfp','mcp','rpf','ped','ms'],mc:[.60,.85],
+  dc:['Acompanhe matrículas, rematrículas e inadimplência.','Turmas cheias diluem o custo fixo do professor e da sala.','Cursos livres e de férias usam a estrutura ociosa.'],
+  rk:['Inadimplência das mensalidades.','Receita concentrada no início do ano letivo.'],q:['Qual a mensalidade média?','Quanto da receita é estrutura?','Quantos alunos pagam a escola?']},
+ {k:'contabil',n:'Escritório contábil',g:'Serviços',c:'#5A4FA0',re:'contab|escritorio contab|\\bbpo\\b|assessoria fiscal|auditori|pericia',un:'cliente',it:'honorário',ic:'M5 3h11l3 3v15H5zM9 8h6M9 12h6M9 16h4',kp:['tk','rpf','mcp','cfp','gao','ms'],mc:[.55,.80],
+  dc:['Acompanhe o honorário médio e a rentabilidade por cliente.','Revise contratos com escopo que cresceu.','Automatize rotinas para atender mais clientes por colaborador.'],
+  rk:['Clientes com honorário defasado.','Picos de trabalho em obrigações acessórias.'],q:['Qual o honorário médio?','Quanto cada colaborador gera?','Quanto do faturamento é estrutura fixa?']},
+ {k:'tecnologia',n:'Tecnologia e software',g:'Serviços',c:'#3C5FB4',re:'tecnolog|software|\\bsaas\\b|desenvolviment|aplicativ|informatic|\\bti\\b|internet|provedor|startup|dados|automac',un:'licença',it:'assinatura',ic:'M4 5h16v11H4zM8 20h8M12 16v4M9 9l-2 2 2 2M15 9l2 2-2 2',kp:['tk','mcp','cfp','rpf','gao','ms'],mc:[.70,.90],
+  dc:['Acompanhe a receita recorrente e o cancelamento de clientes.','Compare o custo de aquisição com o valor do cliente ao longo do tempo.','Equipe é o maior gasto: meça a receita por pessoa.'],
+  rk:['Alavancagem alta: receita cai e o resultado despenca.','Concentração em poucos clientes grandes.'],q:['Qual a receita média por cliente?','Quanto cada pessoa da equipe gera?','Qual a alavancagem operacional?']},
+ {k:'grafica',n:'Gráfica e comunicação visual',g:'Indústria',c:'#9A3F6A',re:'grafic|impress|comunicacao visual|editora|sinaliz|brindes|serigraf|plotag',un:'un',it:'pedido',ic:'M7 8V3h10v5M6 17H4V9h16v8h-2M7 14h10v7H7z',kp:['tk','cvp','mcp','mpp','ped','ms'],mc:[.35,.55],
+  dc:['Orce cada trabalho com o custo real de papel, tinta e máquina.','Acompanhe a ocupação das máquinas.','Cobre sinal em pedidos grandes.'],
+  rk:['Papel e insumos importados com preço variável.','Retrabalho por erro de arte.'],q:['Qual o ticket por pedido?','Quanto pesa a matéria-prima?','Quanto vender por dia?']},
+ {k:'transporte',n:'Transporte e logística',g:'Serviços',c:'#2F6A8A',re:'transport|logistic|\\bfretes?\\b|\\bcargas?\\b|mudanc|armazen|courier|onibus|fretamento|rodoviari',un:'km',it:'viagem',ic:'M3 6h11v9H3zM14 9h4l3 3v3h-7M7 18a2 2 0 1 0 0-.01M17 18a2 2 0 1 0 0-.01',kp:['pr','cvu','mcu','pev','fin','ms'],mc:[.20,.40],
+  dc:['Calcule o custo por km de cada veículo.','Reduza o retorno vazio com cargas de volta.','Acompanhe pneus, manutenção e diesel por viagem.'],
+  rk:['Diesel e pedágio sobem sem aviso.','Financiamento de frota pesa nas despesas financeiras.'],q:['Qual a receita por km?','Quantos km por mês pagam a frota?','Quanto pesam os juros?']},
+ {k:'automotivo',n:'Oficina, autopeças e veículos',g:'Serviços',c:'#4A5A6A',re:'automot|autopec|oficin|\\bmecanic|veicul|concessionar|funilar|\\bpneus?\\b|lava.?jato|lava.?car|auto ?center|motos?\\b',un:'OS',it:'ordem de serviço',ic:'M5 13l2-5h10l2 5M4 13h16v4H4zM7 17v2M17 17v2M7 15h.01M17 15h.01',kp:['tk','rd','mcp','rpf','cfp','ms'],mc:[.35,.55],
+  dc:['Separe a margem de peças e de mão de obra.','Acompanhe as horas vendidas por mecânico.','Revisões programadas trazem o cliente de volta.'],
+  rk:['Peças paradas no estoque.','Retrabalho e garantia sem controle.'],q:['Qual o ticket por ordem de serviço?','Quanto cada mecânico gera?','Quanto vender por dia?']},
+ {k:'combustivel',n:'Posto de combustível',g:'Comércio',c:'#B04A2A',re:'\\bposto\\b|combustiv|gasolin|\\betanol\\b|\\bgnv\\b|conveniencia de posto',un:'L',it:'abastecimento',ic:'M4 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16M3 21h12M6 8h6M14 10h2a2 2 0 0 1 2 2v4a1 1 0 0 0 2 0V8l-3-3',kp:['pr','cvu','mcu','pev','rd','ms'],mc:[.06,.14],
+  dc:['A margem por litro é pequena: acompanhe-a todo dia.','Loja de conveniência e serviços aumentam a margem total.','Controle as perdas por evaporação e aferição.'],
+  rk:['Margem muito estreita por litro.','Prazo das bandeiras de cartão.'],q:['Qual a margem por litro?','Quantos litros por mês pagam o posto?','Quanto vender por dia?']},
+ {k:'metal',n:'Metalurgia e metalmecânica',g:'Indústria',c:'#55606E',re:'metal|siderurg|usinag|caldeirar|serralher|\\bferro\\b|\\baco\\b|estrutura metal|fundic|estamparia|solda',un:'kg',it:'pedido',ic:'M12 3l8 4.5v9L12 21l-8-4.5v-9zM12 12l8-4.5M12 12v9M12 12L4 7.5',kp:['pr','cvu','mcu','pev','mpp','ms'],mc:[.25,.45],
+  dc:['Acompanhe o custo do aço por kg vendido.','Meça a ocupação de máquinas e turnos.','Orce com o preço de reposição da matéria-prima.'],
+  rk:['Preço do aço segue o dólar.','Máquina parada é gasto fixo sem receita.'],q:['Qual o custo por kg?','Quantos kg pagam a fábrica?','Quanto a matéria-prima pesa?']},
+ {k:'quimica',n:'Química, plásticos e embalagens',g:'Indústria',c:'#2F7F86',re:'quimic|plastic|embalag|borracha|resina|cosmetic|fabricacao de tintas|higiene|saneant|detergent',un:'kg',it:'pedido',ic:'M9 3h6M10 3v6L5 19a1 1 0 0 0 1 2h12a1 1 0 0 0 1-2l-5-10V3M7.5 15h9',kp:['pr','cvu','mcu','pev','mpp','ms'],mc:[.25,.45],
+  dc:['Controle o custo das resinas e insumos importados.','Padronize fórmulas para reduzir perdas.','Busque contratos de fornecimento com reajuste previsto.'],
+  rk:['Insumos atrelados ao petróleo e ao dólar.','Exigências regulatórias e de licenças.'],q:['Qual o custo por kg?','Quantos kg pagam a fábrica?','Qual produto dá mais margem?']},
+ {k:'textil',n:'Indústria têxtil',g:'Indústria',c:'#8A4F7A',re:'textil|fiacao|tecelag|malhari|tinturari|estamparia de tec|bordad',un:'kg',it:'pedido',ic:'M4 4h16v16H4zM4 9h16M4 14h16M9 4v16M14 4v16',kp:['pr','cvu','mcu','pev','mpp','ms'],mc:[.25,.40],
+  dc:['Acompanhe o rendimento do fio e as perdas.','Programe a produção pelas coleções dos clientes.','Meça o custo por kg de cada artigo.'],
+  rk:['Algodão e fios com preço volátil.','Concorrência de importados.'],q:['Qual o custo por kg?','Quantos kg pagam a fábrica?','Quais artigos dão margem?']},
+ {k:'moda',n:'Moda e confecção',g:'Comércio',c:'#A0457A',re:'\\bmoda\\b|vestuar|confecc|roupa|jeans|lingeri|calcad|bolsas|acessori|boutique',un:'peça',it:'venda',ic:'M8 3l4 3 4-3 4 4-3 3v11H7V10L4 7z',kp:['tk','pr','mcp','ped','cfp','ms'],mc:[.45,.65],
+  dc:['Planeje compras por coleção e acompanhe o giro.','Liquide o estoque de fim de estação antes da próxima.','Acompanhe a margem real depois dos descontos.'],
+  rk:['Estoque encalhado de coleção passada.','Promoções frequentes corroem a margem.'],q:['Qual o ticket médio?','Qual o preço médio por peça?','Quanto vender por dia?']},
+ {k:'imob',n:'Imobiliária e aluguel',g:'Serviços',c:'#3E6B5A',re:'imobiliar|corretor|corretag|\\baluguel|locacao de imov|condomin|administracao de imov|loteament',un:'contrato',it:'contrato',ic:'M3 11l9-7 9 7M5 10v10h14V10M10 20v-5h4v5',kp:['tk','cfp','mcp','rpf','fin','ms'],mc:[.60,.85],
+  dc:['Acompanhe a carteira de contratos de administração.','Separe receita recorrente (aluguel) de eventual (venda).','Controle a inadimplência dos inquilinos.'],
+  rk:['Vendas concentradas em poucos negócios.','Inadimplência e vacância.'],q:['Qual a receita média por contrato?','Quanto cada corretor gera?','Quanto é estrutura fixa?']},
+ {k:'energia',n:'Energia e saneamento',g:'Indústria',c:'#B08A1E',re:'energi|\\bsolar\\b|fotovolt|eletric|saneament|biogas|hidreletr',un:'kWh',it:'contrato',ic:'M13 2L4 14h7l-1 8 9-12h-7z',kp:['tk','mcp','fin','cfp','gao','ms'],mc:[.30,.55],
+  dc:['Acompanhe o prazo entre a instalação e o recebimento.','Controle o custo dos equipamentos importados.','Contratos de manutenção trazem receita recorrente.'],
+  rk:['Equipamentos com preço em dólar.','Projetos grandes concentram o caixa.'],q:['Qual o ticket por projeto?','Quanto pesam os juros?','Qual a alavancagem operacional?']},
+ {k:'eventos',n:'Eventos e entretenimento',g:'Serviços',c:'#A0428A',re:'evento|buffet|\\bfestas?\\b|casa de show|entretenim|cinema|fotograf|cerimonial|decorac|som e luz',un:'evento',it:'evento',ic:'M4 21l4-12 7 7zM14 4l1 2M19 5l-2 2M20 10l-2-1M10 3l.5 2',kp:['tk','cvp','mcp','cfp','ped','ms'],mc:[.35,.60],
+  dc:['Orce cada evento com todos os custos variáveis.','Cobre sinal na reserva da data.','Use dias de semana para eventos menores.'],
+  rk:['Receita concentrada em fins de semana e temporadas.','Cancelamentos de última hora.'],q:['Qual o ticket por evento?','Quanto custa cada evento?','Quantos eventos pagam a estrutura?']},
+ {k:'limpeza',n:'Limpeza, segurança e facilities',g:'Serviços',c:'#3D6E7E',re:'limpeza|conservac|vigilan|seguranca patrimon|portaria|facilit|terceiriz|dedetiz|jardinag',un:'posto',it:'contrato',ic:'M12 3l7 3v6c0 4-3 7-7 9-4-2-7-5-7-9V6z',kp:['tk','rpf','mcp','cfp','fin','ms'],mc:[.20,.35],
+  dc:['A folha é o principal custo: acompanhe a receita por colaborador.','Inclua reajustes da convenção nos contratos.','Controle horas extras e substituições.'],
+  rk:['Margem estreita sobre a mão de obra.','Atraso de pagamento dos contratantes.'],q:['Qual a receita média por contrato?','Quanto cada colaborador gera?','Quanto pesam os juros?']},
+ {k:'varejo',n:'Varejo e lojas',g:'Comércio',c:'#A0622A',re:'varej|\\blojas?\\b|comercio|presentes|papelar|otica|utilidad|eletrodom|eletron|celular|livrari|brinqued|perfum|joalheri|floricult',un:'un',it:'venda',ic:'M4 8h16l-1 12H5zM8 8V6a4 4 0 0 1 8 0v2',kp:['tk','rd','mcp','ped','cfp','ms'],mc:[.35,.55],
+  dc:['Acompanhe o ticket médio e o número de vendas por dia.','Use a curva ABC para decidir compras.','Meça o resultado das promoções sobre a margem.'],
+  rk:['Aluguel do ponto pesa nos gastos fixos.','Estoque parado prende o caixa.'],q:['Qual o ticket médio?','Quanto vender por dia?','Quais produtos sustentam a loja?']},
+ {k:'servicos',n:'Serviços profissionais e consultoria',g:'Serviços',c:'#4F5BA0',re:'servic|consult|assessori|agencia|marketing|publicid|advoca|juridic|arquitet|design|engenharia consult|traducao|coworking',un:'h',it:'projeto',ic:'M4 8h16v11H4zM9 8V5h6v3M4 13h16',kp:['pr','rpf','mcp','cfp','gao','ms'],mc:[.50,.80],
+  dc:['Acompanhe as horas faturáveis de cada pessoa.','Precifique pelo valor entregue, não só pelas horas.','Contratos mensais estabilizam a receita.'],
+  rk:['Horas não faturadas consomem a margem.','Dependência de poucos clientes.'],q:['Qual o preço médio da hora?','Quanto cada pessoa gera?','Quanto é estrutura fixa?']},
+ {k:'industria',n:'Indústria em geral',g:'Indústria',c:'#6A5A3A',re:'industr|fabric|manufat|transformac|producao de',un:'un',it:'pedido',ic:'M3 21V10l6 4V10l6 4V6l6 3v12zM7 18h2M12 18h2M17 18h2',kp:['pr','cvu','mcu','pev','mpp','ms'],mc:[.25,.45],
+  dc:['Acompanhe o custo unitário de produção mês a mês.','Use a capacidade ociosa para produtos de maior margem.','Revise preços quando a matéria-prima subir.'],
+  rk:['Matéria-prima com preço volátil.','Capacidade ociosa é gasto fixo sem receita.'],q:['Qual o custo por unidade?','Quantas unidades pagam a fábrica?','Quanto a matéria-prima pesa?']},
+ {k:'geral',n:'Empresa em geral',g:'Outros',c:'#A47C28',re:'',un:'un',it:'venda',ic:'M4 20V10M10 20V4M16 20v-7M2 20h20',kp:['pr','tk','mcp','ped','cfp','ms'],mc:[.30,.55],
+  dc:['Acompanhe a margem de contribuição e o ponto de equilíbrio todo mês.','Use a curva ABC para concentrar esforço no que sustenta a empresa.','Mantenha uma reserva de caixa para os meses mais fracos.'],
+  rk:['Gastos fixos crescendo mais que a receita.','Margem de segurança baixa deixa pouca folga.'],q:['Quanto preciso vender para empatar?','Quanto sobra de cada real vendido?','Que produtos sustentam a empresa?']}
+];
+var CCSEG_KPI={
+ pr:['Preço médio por {un}','Receita ÷ volume vendido'],
+ cvu:['Custo variável por {un}','Custos variáveis ÷ volume'],
+ mcu:['Margem por {un}','(Preço − custo variável) por unidade vendida'],
+ pev:['{un} por mês para empatar','Ponto de equilíbrio ÷ preço médio'],
+ tk:['Ticket médio por {it}','Receita ÷ quantidade de {its}'],
+ rd:['Faturamento por dia','Receita do mês ÷ dias de operação'],
+ ped:['Vender por dia para empatar','Ponto de equilíbrio ÷ dias de operação'],
+ cfd:['Gasto fixo por dia','Gastos fixos do mês ÷ dias de operação'],
+ mcp:['Margem de contribuição','Quanto sobra de cada R$ 100 vendidos para pagar os gastos fixos'],
+ ms:['Margem de segurança','Quanto a receita pode cair antes do prejuízo'],
+ cvp:['Custos variáveis sobre a receita','Custos que acompanham as vendas ÷ receita'],
+ mpp:['Matéria-prima sobre a receita','Matéria-prima ÷ receita'],
+ cfp:['Gastos fixos sobre a receita','Gastos fixos ÷ receita'],
+ fin:['Despesas financeiras sobre a receita','Juros e tarifas ÷ receita'],
+ rpf:['Receita por colaborador no mês','Receita mensal ÷ número de colaboradores'],
+ gao:['Alavancagem operacional','Quanto o resultado varia para cada 1% de variação nas vendas']
+};
+var CCSEG_DIAS={restaurante:30,hotel:30,combustivel:30,supermercado:30,pecuaria:30,academia:26,beleza:26,varejo:26,farmacia:28,pet:26,bebidas:26,matcon:26,moda:26,automotivo:24,saude:22,educacao:22};
+function ccNorm(s){return String(s==null?'':s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');}
+function ccSegGet(k){for(var i=0;i<CCSEG.length;i++) if(CCSEG[i].k===k) return CCSEG[i];return CCSEG[CCSEG.length-1];}
+function ccSegDetect(txts){var L=(txts||[]).map(ccNorm);for(var j=0;j<L.length;j++){if(!L[j]) continue;for(var i=0;i<CCSEG.length;i++){var s=CCSEG[i];if(s.re&&new RegExp(s.re).test(L[j])) return s;}}return CCSEG[CCSEG.length-1];}
+function ccSegFind(cfg){cfg=cfg||{};if(cfg.segmento){var f=CCSEG.filter(function(s){return s.k===cfg.segmento;})[0];if(f) return f;}return ccSegDetect([cfg.setor,cfg.atividade,cfg.nome,cfg.curto]);}
+
+(()=>{const G=document.getElementById('sxG'),C=document.getElementById('sxC'),Q=document.getElementById('sxQ'),H=document.getElementById('sxHit'),W=document.getElementById('sx');if(!G||typeof CCSEG==='undefined') return;
+  const es=t=>String(t).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  const ico=s=>`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${s.ic}"/></svg>`;
+  const L=CCSEG.filter(s=>s.k!=='geral'),grp={};L.forEach(s=>(grp[s.g]=grp[s.g]||[]).push(s));
+  G.innerHTML=Object.keys(grp).map(g=>`<div class="sx-g"><h4>${es(g)}</h4><div class="sx-ch">${grp[g].map(s=>`<button type="button" data-k="${s.k}" aria-pressed="false" style="--c:${s.c}">${ico(s)}${es(s.n)}</button>`).join('')}</div></div>`).join('');
+  const lab=(k,s)=>CCSEG_KPI[k][0].replace('{un}',s.un).replace('{it}',s.it);
+  const hint=k=>CCSEG_KPI[k][1].replace('{its}','vendas');
+  const hash=k=>[...k].reduce((a,c)=>(a*31+c.charCodeAt(0))>>>0,7);
+  const mock=s=>{let h=hash(s.k),bars='';const n=12,pe=.55;for(let i=0;i<n;i++){h=(h*1103515245+12345)>>>0;const v=.35+((h>>>8)%1000)/1000*.6;const x=6+i*(288/n),hh=v*80;bars+=`<rect class="${v<pe?'lo':''}" x="${x.toFixed(1)}" y="${(88-hh).toFixed(1)}" width="${(288/n*.62).toFixed(1)}" height="${hh.toFixed(1)}" rx="3" style="animation-delay:${i*40}ms"/>`;}
+    return `<svg viewBox="0 0 300 92" preserveAspectRatio="none" aria-hidden="true">${bars}<line x1="0" x2="300" y1="${(88-pe*80).toFixed(1)}" y2="${(88-pe*80).toFixed(1)}"/></svg>`;};
+  let cur=null;
+  const pick=(k,scroll)=>{const s=CCSEG.find(x=>x.k===k);if(!s||cur===k) return;cur=k;
+    G.querySelectorAll('[data-k]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.k===k));
+    const paint=()=>{W.style.setProperty('--sa',s.c);
+      C.innerHTML=`<div class="in"><div class="sx-hd"><span class="sx-ic">${ico(s)}</span><div><small>${es(s.g)}</small><h3>${es(s.n)}</h3></div><span class="sx-un" title="Unidade usada no volume e no ponto de equilíbrio">por ${es(s.un)}</span></div>
+        <div class="sx-mock"><div class="tp"><span>Receita mensal × ponto de equilíbrio</span><span>ilustração</span></div>${mock(s)}</div>
+        <div class="sx-k">${s.kp.map((k,i)=>`<div style="animation-delay:${80+i*50}ms"><b>${es(lab(k,s))}</b><span>${es(hint(k))}</span></div>`).join('')}</div>
+        <div class="sx-l2"><div class="at"><h5>Pontos de atenção</h5><ul>${s.rk.map(t=>`<li>${es(t)}</li>`).join('')}</ul></div><div><h5>Boas práticas</h5><ul>${s.dc.slice(0,2).map(t=>`<li>${es(t)}</li>`).join('')}</ul></div></div>
+        <div class="sx-qs">${s.q.map(t=>`<span>${es(t)}</span>`).join('')}</div>
+        <div class="sx-ft"><span>Faixa indicativa de margem de contribuição: ${Math.round(s.mc[0]*100)}% a ${Math.round(s.mc[1]*100)}%</span><a class="btn sm primary" href="app.html#cadastro">Criar o painel da minha empresa</a></div></div>`;};
+    if(document.startViewTransition&&!matchMedia('(prefers-reduced-motion: reduce)').matches) document.startViewTransition(paint);else paint();
+    if(scroll&&innerWidth<900) C.scrollIntoView({behavior:'smooth',block:'nearest'});};
+  G.addEventListener('click',e=>{const b=e.target.closest('[data-k]');if(b){pick(b.dataset.k,true);H.textContent='';Q.value='';G.querySelectorAll('[data-k]').forEach(x=>x.classList.remove('dim'));G.querySelectorAll('.sx-g').forEach(g=>g.classList.remove('none'));}});
+  let tq;Q.addEventListener('input',()=>{clearTimeout(tq);tq=setTimeout(()=>{const v=Q.value.trim();const n=ccNorm(v);
+    const dk=n?ccSegDetect([v]).k:'';G.querySelectorAll('[data-k]').forEach(b=>b.classList.toggle('dim',!!n&&!ccNorm(b.textContent).includes(n)&&dk!==b.dataset.k));G.querySelectorAll('.sx-g').forEach(g=>g.classList.toggle('none',!g.querySelector('[data-k]:not(.dim)')));
+    if(v.length<3){H.textContent='';return;}const s=ccSegDetect([v]);
+    if(s.k==='geral'){H.innerHTML='Não reconhecemos esse ramo ainda: o painel usa os indicadores gerais e você ajusta depois.';return;}
+    H.innerHTML=`Seu painel seria montado como <b>${es(s.n)}</b>.`;pick(s.k,false);},180);});
+  pick('madeira',false);
 })();
 </script>
 </body>
