@@ -119,7 +119,7 @@ section{padding-block:clamp(72px,10vw,128px)}
 .mnav.on{opacity:1;transform:none;pointer-events:auto}
 .mnav a{font-size:26px;font-weight:550;letter-spacing:-.03em;color:var(--ink);padding:12px 0;border-bottom:1px solid var(--line)}
 .mnav .btn{margin-top:20px;font-size:16px}
-@media (max-width:1000px){.nav{display:none}}
+@media (max-width:1000px){.nav{display:none}.menu-b{display:inline-flex}}
 @media (max-width:640px){.top .acts{display:none}.menu-b{display:inline-flex}}
 
 /* ---------- abertura com o gráfico ---------- */
@@ -132,7 +132,10 @@ section{padding-block:clamp(72px,10vw,128px)}
 .h-dx:hover{text-decoration:none;transform:translateY(-2px);box-shadow:0 12px 26px -16px rgba(164,124,40,.7);color:var(--ink)}.h-dx b{color:var(--ink)}
 .h-dx .dot{width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 4px rgba(198,160,74,.22);flex:none}
 .nav a.nv-dx{color:var(--gold-ink);font-weight:600}
-@media (max-width:1240px){.nav a.nv-dx{display:none}}
+.nav a{white-space:nowrap}
+@media (max-width:1380px){.nav{gap:0}.nav a{padding:8px 10px;font-size:14px}}
+@media (max-width:1320px){.nav a.nv-dx{display:none}}
+@media (max-width:1180px){.nav a[href="#calculadora"],.nav a[href="#duvidas"]{display:none}}
 .trust{display:flex;flex-wrap:wrap;gap:10px 22px;margin-top:36px;color:var(--ink-3);font-size:13.5px}
 .trust span{display:inline-flex;align-items:center;gap:7px}
 .trust svg{width:16px;height:16px;color:var(--brand)}
