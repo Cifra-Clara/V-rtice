@@ -124,6 +124,30 @@ begin
   end if;
 end $$;
 
+
+-- ---------------------------------------------------------------------
+-- 7. Administradores gerenciam a lista de administradores pela área do cliente
+--    (Administração → Administradores). Só quem já é administrador lê a lista
+--    inteira, inclui e remove; ninguém remove o próprio acesso por aqui.
+-- ---------------------------------------------------------------------
+do $$
+begin
+  if to_regclass('public.admins') is null then
+    raise notice 'Tabela public.admins não existe: nada a fazer na seção 7.';
+    return;
+  end if;
+  if not exists (select 1 from pg_policies where schemaname='public' and tablename='admins' and policyname='cc_admins_le') then
+    create policy cc_admins_le on public.admins for select to authenticated using (public.cc_is_admin());
+  end if;
+  if not exists (select 1 from pg_policies where schemaname='public' and tablename='admins' and policyname='cc_admins_inclui') then
+    create policy cc_admins_inclui on public.admins for insert to authenticated with check (public.cc_is_admin());
+  end if;
+  if not exists (select 1 from pg_policies where schemaname='public' and tablename='admins' and policyname='cc_admins_remove') then
+    create policy cc_admins_remove on public.admins for delete to authenticated
+      using (public.cc_is_admin() and lower(email) <> lower(coalesce(auth.jwt()->>'email','')));
+  end if;
+  raise notice 'Administradores: leitura, inclusão e remoção liberadas só para administradores.';
+end $$;
 -- ---------------------------------------------------------------------
 -- 6. Conferência: políticas de cada tabela (revise especialmente "admins":
 --    um cliente comum não deve conseguir listar os e-mails de administradores).

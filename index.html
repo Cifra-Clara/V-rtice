@@ -564,7 +564,7 @@ const SB=(()=>{const cf=CONFIG.supabase||{};const on=!!(cf.url&&cf.anonKey&&cf.a
     const r=await fetch(base+'/rest/v1/'+path,{method:o.method||'GET',headers:h,body:o.body!==undefined?JSON.stringify(o.body):undefined});
     if(!r.ok) throw new Error(r.statusText);const t=await r.text();return t?JSON.parse(t):null;};
   return {on,rest};})();
-function applySiteConfig(d){if(!d||typeof d!=='object') return;if(d.contato) Object.assign(CONFIG.contato,d.contato);CONFIG.aviso=d.aviso||null;}
+function applySiteConfig(d){if(!d||typeof d!=='object') return;if(d.contato) Object.assign(CONFIG.contato,d.contato);CONFIG.aviso=d.aviso||null;CONFIG.produtos=d.produtos||null;CONFIG.planos=d.planos||null;}
 async function loadSiteConfig(){
   try{if(SB.on){const r=await Promise.race([SB.rest('config?id=eq.1&select=data'),new Promise((_,j)=>setTimeout(()=>j(new Error('tempo')),3500))]);const d=r&&r[0]&&r[0].data||{};lsSet('cc-config',JSON.stringify(d));applySiteConfig(d);}
     else applySiteConfig(JSON.parse(lsGet('cc-config','{}')));}
@@ -618,16 +618,20 @@ const startHero=()=>{$('.hero').classList.add('go');setTimeout(()=>{const t=$('#
   document.querySelectorAll('.tlt.rv').forEach(el=>el.addEventListener('transitionend',()=>{el.style.transition='transform .5s cubic-bezier(.2,.8,.2,1),opacity .5s';},{once:true}));
 })();
 
-/* produtos separados */
-(()=>{const P=[
+/* produtos separados (regras, preços e visibilidade vêm da administração) */
+const PRODS_SITE=(()=>{const P=[
   ['Diagnóstico Express','Para começar','Como está a saúde financeira da minha empresa?','Nota de 0 a 100, margem comparada ao setor, ponto de equilíbrio e as três ações prioritárias. Relatório completo em PDF por R$ 97.',1,'diagnostico.html','Fazer agora',null],
   ['Vértice Preço','Formação de preço','Quanto devo cobrar para ter lucro?','Preço sugerido pelo custo, impostos, comissão, taxa de cartão, gastos fixos e lucro desejado, com o efeito de cada desconto e a tabela de preços.',0,null,null,'preco'],
   ['Vértice Caixa','Caixa 13 semanas','Vai faltar dinheiro nas próximas semanas?','Saldo projetado semana a semana, efeito de mudar prazos e os pagamentos já previstos, com o capital de giro necessário.',0,null,null,'caixa'],
   ['Vértice Orçamento','Orçamento anual','Quanto preciso vender em cada mês do ano?','Meta de vendas e resultado mês a mês, pela meta de crescimento ou de lucro, com o orçado × realizado.',0,null,null,'orcamento'],
   ['Vértice Valuation','Valor da empresa','Quanto vale a minha empresa?','Fluxo de caixa descontado e múltiplo de EBITDA, com faixa de valor e sensibilidade das premissas.',0,null,null,'valor'],
   ['Vértice Escritório','Para contadores','Quais clientes precisam de atenção primeiro?','Carteira com receita, margem, nota de saúde, documentos atrasados e alertas de todas as empresas atendidas.',0,null,null,'carteira']];
-  $('#lgB').innerHTML=P.map(p=>`<tr><td><span class="pn">${esc(p[0])}</span><span class="pf">${esc(p[1])}</span></td><td><span class="pq">${esc(p[2])}${p[4]?'<span class="free">grátis</span>':''}</span><span class="pd">${esc(p[3])}</span></td>
-    <td><span class="acts">${p[5]?`<a class="btn sm gold" href="${p[5]}">${p[6]}</a>`:`<a class="btn sm" href="#contato" data-wa="${esc('Olá! Quero contratar o '+p[0]+'.')}">Quero o ${esc(p[0].replace('Vértice ',''))}</a><a class="lnk" style="font-size:13.5px" href="app.html#${p[7]}">Já tenho: abrir</a>`}</span></td></tr>`).join('');})();
+  const draw=()=>{const C=CONFIG.produtos||{},vis=P.filter(p=>!p[7]||(C[p[7]]||{}).on!==false);
+  const pl=CONFIG.planos||{},pm=Math.min(...['essencial','profissional','escritorio'].map(k=>+(pl[k]&&pl[k].preco)||(k==='essencial'?149:1e9)));const vp=document.querySelector('.vp-pr b');if(vp&&isFinite(pm)) vp.textContent='R$ '+pm.toLocaleString('pt-BR');
+  $('#lgB').innerHTML=vis.map(p=>`<tr><td><span class="pn">${esc(p[0])}</span><span class="pf">${esc(p[1])}</span></td><td><span class="pq">${esc(p[2])}${p[4]?'<span class="free">grátis</span>':''}${p[7]&&(C[p[7]]||{}).preco?`<span class="free" style="color:var(--gold-ink);background:#F6EEDA">${esc(C[p[7]].preco)}</span>`:''}</span><span class="pd">${esc(p[3])}</span></td>
+    <td><span class="acts">${p[5]?`<a class="btn sm gold" href="${p[5]}">${p[6]}</a>`:`<a class="btn sm" href="#contato" data-wa="${esc('Olá! Quero contratar o '+p[0]+'.')}">Quero o ${esc(p[0].replace('Vértice ',''))}</a><a class="lnk" style="font-size:13.5px" href="app.html#${p[7]}">Já tenho: abrir</a>`}</span></td></tr>`).join('');
+  document.querySelectorAll('#lgB [data-wa]').forEach(a=>{if(CONFIG.contato.whatsapp){a.href=waLink(a.dataset.wa);a.target='_blank';a.rel='noopener';}});};
+  draw();return {draw};})();
 
 /* o painel por dentro */
 (()=>{const QS=[['exe','Como está a empresa, em uma tela?','A visão executiva compara o período com o anterior e com o ano passado e escreve os destaques sozinha.'],
@@ -819,7 +823,7 @@ function ccSegFind(cfg){cfg=cfg||{};if(cfg.segmento){var f=CCSEG.filter(function
 })();
 
 /* contato e WhatsApp */
-(async()=>{await loadSiteConfig();
+(async()=>{await loadSiteConfig();try{PRODS_SITE.draw();}catch(e){}
 const C=CONFIG.contato,WA_DEF='Olá! Quero conhecer as soluções da Cifra Clara.';
 if(CONFIG.aviso&&CONFIG.aviso.on&&CONFIG.aviso.texto){const d=document.createElement('div');d.className='site-aviso'+(CONFIG.aviso.tipo==='warn'?' warn':'');d.textContent=CONFIG.aviso.texto;document.body.prepend(d);}
 ['#topWa','#mWa','#fab'].forEach(s=>{const a=$(s);if(!a) return;if(C.whatsapp) a.href=waLink(WA_DEF);else{a.removeAttribute('target');a.href='#contato';if(s==='#fab') a.hidden=true;}});
