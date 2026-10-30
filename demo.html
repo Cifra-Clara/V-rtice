@@ -4894,6 +4894,30 @@ html.vx[data-theme="dark"] .vx-seghd .big,html.vx[data-theme="dark"] .vx-segchip
 html.vx[data-theme="dark"] .vx-lgi img{background:#FFFFFF;padding:3px 7px;border-radius:8px;box-sizing:content-box;max-height:32px}
 @media (max-width:760px){html.vx #themeBtn{display:inline-grid!important}}
 ::view-transition-old(root),::view-transition-new(root){animation:none;mix-blend-mode:normal}
+
+/* produtos dentro do painel */
+.vx-in{display:grid;gap:5px;margin:0 0 12px;font-size:12.5px;color:var(--ink-2)}
+.vx-in span{font-weight:600;color:var(--ink)}
+.vx-in input,.vx-exf input,.vx-exf select{height:38px;padding:0 10px;border-radius:10px;border:1px solid var(--line);background:var(--input);font:inherit;font-size:13.5px;color:var(--ink);width:100%;min-width:0;box-sizing:border-box}
+.vx-in input:focus,.vx-exf input:focus,.vx-exf select:focus{outline:0;border-color:var(--gold);box-shadow:0 0 0 3px color-mix(in srgb,var(--gold) 18%,transparent)}
+.vx-in small{color:var(--ink-3);font-size:11.5px;line-height:1.4}
+.vx-in2{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start}.vx-in2 .vx-in>span{min-height:34px;display:flex;align-items:flex-end}
+.vx-h4{font-size:13px;font-weight:650;margin:16px 0 8px;color:var(--ink)}
+.vx-exf{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}.vx-exf select,.vx-exf #cxD{grid-column:1/-1}
+.vx-exl{display:grid;gap:6px}.vx-exl div{display:grid;grid-template-columns:auto 1fr auto auto;gap:8px;align-items:center;padding:7px 10px;border:1px solid var(--line);border-radius:10px;font-size:12.5px}
+.vx-exl span{color:var(--ink-3)}.vx-exl em{font-style:normal;font-weight:650}.vx-exl em.up{color:var(--vx-pos)}.vx-exl em.dn{color:var(--vx-neg)}
+.vx-exl button{border:0;background:none;color:var(--ink-3);font-size:18px;line-height:1;cursor:pointer;padding:0 4px}.vx-exl button:hover{color:var(--vx-neg)}
+.vx-mute{font-size:12.5px;color:var(--ink-3);line-height:1.5}
+.vx-seg2{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;border-radius:12px;background:var(--line-2);margin:0 0 12px}
+.vx-seg2 button{border:0;background:none;padding:8px;border-radius:9px;font:inherit;font-size:12.5px;font-weight:600;color:var(--ink-3);cursor:pointer}
+.vx-seg2 button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.vx-ff{display:grid;grid-template-columns:200px minmax(0,1fr) 180px;gap:12px;align-items:center;padding:10px 0;font-size:13px}
+.vx-ff .tr{position:relative;height:22px;border-radius:8px;background:var(--line-2)}
+.vx-ff .tr i{position:absolute;top:0;bottom:0;border-radius:8px;animation:vxgrow .9s cubic-bezier(.2,.8,.2,1) both;transform-origin:left}
+.vx-ff .tr em{position:absolute;top:-4px;bottom:-4px;width:3px;margin-left:-1.5px;border-radius:2px;background:var(--ink)}
+.vx-ff b{text-align:right;font-variant-numeric:tabular-nums}
+.vx-t tr.tot td{border-top:2px solid var(--line);background:var(--surface-2)}
+@media (max-width:900px){.vx-ff{grid-template-columns:minmax(0,1fr)}.vx-ff b{text-align:left}}
 /* identidade: logo da empresa no lugar do Vértice */
 .vx-brand .vx-mono{font-size:13px;font-weight:700;letter-spacing:.02em}
 .vx-brand .vx-lgi{display:flex;align-items:center;height:38px;flex:none}
@@ -5316,21 +5340,130 @@ if(typeof medSave==='function'){var _msv=medSave;medSave=function(){var r=_msv.a
 setTimeout(function(){try{if(typeof MED!=='undefined'&&MED&&MED.ok) medFallback();}catch(e){}},0);
 setTimeout(brand,1200);
 
+/* ================= produtos Vértice dentro do painel: Caixa 13 semanas, Orçamento anual e Valor da empresa ================= */
+var VXD=(function(){try{return (window.CCDATA&&typeof window.CCDATA==='object')?window.CCDATA:{};}catch(e){return {};}})();
+var NSK='vx-'+(CFGX.ns||CFGX.nome||'p')+'-';
+var vxGet=function(k){if(VXD[k]) return VXD[k];try{var v=localStorage.getItem(NSK+k);if(v) return JSON.parse(v);}catch(e){}return null;};
+var _svT={};
+var vxPut=function(k,o){VXD[k]=o;try{localStorage.setItem(NSK+k,JSON.stringify(o));}catch(e){}clearTimeout(_svT[k]);_svT[k]=setTimeout(function(){try{if(window.parent!==window) parent.postMessage({vt:'vxsave',k:k,d:o},'*');}catch(e){}},900);};
+if(typeof VXIO!=='undefined'&&VXIO){vxGet=VXIO.get;vxPut=VXIO.put;}
+function lastN(n){var M=SER().meses,e=M.length-1;while(e>0&&!M[e].R) e--;var s=Math.max(0,e-n+1);return M.slice(s,e+1);}
+function sum(L,k){return L.reduce(function(a,o){return a+(o[k]||0);},0);}
+function numIn(id,l,v,h,st){return '<label class="vx-in"><span>'+l+'</span><input id="'+id+'" type="number" step="'+(st||'any')+'" value="'+(v==null?'':(+v).toFixed(st==='1'?0:2).replace(/\.00$/,''))+'">'+(h?'<small>'+h+'</small>':'')+'</label>';}
+function sl2(id,l,v,mn,mx,stp,fmt){return '<div class="vx-sl"><div><label for="'+id+'">'+l+'</label><output id="'+id+'o">'+fmt(v)+'</output></div><input type="range" id="'+id+'" min="'+mn+'" max="'+mx+'" step="'+(stp||1)+'" value="'+v+'"></div>';}
+var sgn=function(v){return (v>0?'+':'')+nf(v,0)+'%';};
+var DMES=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+
+/* ---------- Caixa 13 semanas ---------- */
+function rCx(){var el=document.getElementById('v-vx-c13');var L=lastN(3);if(!L.length||!sum(L,'R')){el.innerHTML='<div class="vx-v"><div class="vx-head"><div><h2>Caixa 13 semanas</h2><p>Sem vendas para projetar.</p></div></div></div>';return;}
+  var k=L.length,b={R:sum(L,'R')/k,CV:sum(L,'CV')/k,CF:sum(L,'CF')/k,FIN:sum(L,'FIN')/k},lb=L.filter(function(m){return m.bal;}),disp0=lb.length?lb[lb.length-1].DISP:null;
+  var S=vxGet('cx13')||{};S=Object.assign({saldo:disp0!=null?Math.round(disp0):0,g:0,c:0,f:0,pr0:30,pr1:30,ex:[]},S);if(!Array.isArray(S.ex)) S.ex=[];
+  var d0=new Date();d0.setHours(0,0,0,0);d0.setDate(d0.getDate()-((d0.getDay()+6)%7));
+  var wd=function(w){var d=new Date(d0);d.setDate(d.getDate()+w*7);return d.getDate()+'/'+DMES[d.getMonth()];};
+  el.innerHTML='<div class="vx-v"><div class="vx-head"><div><h2>Caixa 13 semanas</h2><p>Projeção do saldo semana a semana, a partir da média de '+E(L[0].ab+'/'+String(L[0].y).slice(-2))+(k>1?' a '+E(L[k-1].ab+'/'+String(L[k-1].y).slice(-2)):'')+'. Ajuste o cenário e inclua pagamentos e recebimentos já previstos.</p></div></div>'+
+   '<div class="vx-simg"><section class="vx-card"><header><div><h3>Premissas</h3><p>Salvas automaticamente.</p></div></header><div class="bd">'+
+   numIn('cxS','Saldo de caixa hoje (R$)',S.saldo,disp0!=null?'Sugestão pelo último balancete: '+BRL(disp0)+'.':'Informe o saldo atual de caixa e bancos.')+
+   sl2('cxG','Vendas',S.g,-50,50,1,sgn)+sl2('cxC','Custos variáveis',S.c,-30,30,1,sgn)+sl2('cxF','Gastos fixos',S.f,-30,30,1,sgn)+
+   '<div class="vx-in2">'+numIn('cxP0','Prazo de recebimento atual (dias)',S.pr0,null,'1')+numIn('cxP1','Novo prazo (dias)',S.pr1,'Teste o efeito de mudar o prazo dado aos clientes.','1')+'</div>'+
+   '<h4 class="vx-h4">Lançamentos previstos</h4><div id="cxL"></div><div class="vx-exf"><select id="cxW">'+Array.apply(null,{length:13}).map(function(_,i){return '<option value="'+i+'">Semana '+(i+1)+' · '+wd(i)+'</option>';}).join('')+'</select><input id="cxD" placeholder="Descrição (ex.: 13º salário)" maxlength="60"><input id="cxV" type="number" placeholder="Valor (− para saída)"><button class="tgl" type="button" id="cxA" style="cursor:pointer">Incluir</button></div>'+
+   '</div></section><div style="display:grid;gap:16px;min-width:0"><div class="vx-kpis" id="cxK"></div><section class="vx-card"><header><div><h3>Saldo semana a semana</h3><p>Barras: entradas menos saídas da semana · linha: saldo no fim da semana.</p></div></header><div class="bd" id="cxCh"></div></section><section class="vx-card"><div class="vx-tw"><table class="vx-t" id="cxT"></table></div></section></div></div></div>';
+  var draw=function(){var wk=12/52,g=S.g/100,cvr=b.R?b.CV/b.R:0,rows=[],sal=+S.saldo||0,mn=Infinity,mnw=0,neg=0;
+    for(var w=0;w<13;w++){var rec=0;for(var d=w*7;d<w*7+7;d++){if(d<S.pr0) rec+=b.R/30;if(d>=S.pr1) rec+=b.R*(1+g)/30;}
+      var vend=b.R*wk*(1+g),cv=vend*cvr*(1+S.c/100),cf=b.CF*wk*(1+S.f/100),fin=b.FIN*wk,ex=S.ex.filter(function(x){return +x.w===w;}).reduce(function(a,x){return a+(+x.v||0);},0);
+      var ent=rec+Math.max(0,ex),sai=cv+cf+fin+Math.max(0,-ex),liq=ent-sai;sal+=liq;if(sal<mn){mn=sal;mnw=w;}if(sal<0) neg++;rows.push({w:w,ent:ent,sai:sai,liq:liq,sal:sal,ex:ex});}
+    var fim=rows[12].sal;
+    document.getElementById('cxK').innerHTML='<div class="vx-kpi"><small>Saldo em 13 semanas</small><b>'+K(fim)+'</b><div class="d"><span class="'+(fim>=S.saldo?'up':'dn')+'">'+(fim>=S.saldo?'▲ ':'▼ ')+K(Math.abs(fim-S.saldo))+'</span></div></div><div class="vx-kpi"><small>Menor saldo</small><b>'+K(mn)+'</b><div class="d"><span>semana '+(mnw+1)+' · '+wd(mnw)+'</span></div></div><div class="vx-kpi"><small>Semanas no negativo</small><b>'+neg+'</b><div class="d"><span class="'+(neg?'dn':'up')+'">'+(neg?'precisa de reforço':'caixa coberto')+'</span></div></div><div class="vx-kpi"><small>Capital de giro necessário</small><b>'+K(Math.max(0,-mn))+'</b><div class="d"><span>'+(mn<0?'para não ficar negativo':'nenhum no período')+'</span></div></div>';
+    var W=640,H=230,mb=22,top=12,mxA=Math.max.apply(null,rows.map(function(r){return Math.max(Math.abs(r.liq),Math.abs(r.sal));}).concat([1])),mnV=Math.min(0,Math.min.apply(null,rows.map(function(r){return Math.min(r.liq,r.sal);}))),mxV=Math.max(0,Math.max.apply(null,rows.map(function(r){return Math.max(r.liq,r.sal);})));
+    var y=function(v){return top+(mxV-v)/((mxV-mnV)||1)*(H-mb-top);},bw=W/13;var s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Saldo de caixa projetado por semana"><line class="ax" x1="0" x2="'+W+'" y1="'+y(0)+'" y2="'+y(0)+'"/>';
+    rows.forEach(function(r,i){var x=i*bw+bw*.22,h=Math.abs(y(r.liq)-y(0));s+='<rect class="vxb" style="animation-delay:'+(i*35)+'ms" x="'+x.toFixed(1)+'" y="'+Math.min(y(r.liq),y(0)).toFixed(1)+'" width="'+(bw*.56).toFixed(1)+'" height="'+h.toFixed(1)+'" rx="4" fill="'+(r.liq>=0?'var(--brand)':'var(--vx-neg)')+'" opacity=".55"><title>Semana '+(i+1)+': entradas '+BRL(r.ent)+', saídas '+BRL(r.sai)+'</title></rect><text class="tk" x="'+(x+bw*.28).toFixed(1)+'" y="'+(H-5)+'" text-anchor="middle">'+(i+1)+'</text>';});
+    s+='<polyline class="ln" fill="none" stroke="var(--ink)" stroke-width="2.2" points="'+rows.map(function(r,i){return (i*bw+bw/2).toFixed(1)+','+y(r.sal).toFixed(1);}).join(' ')+'"/>'+rows.map(function(r,i){return '<circle cx="'+(i*bw+bw/2).toFixed(1)+'" cy="'+y(r.sal).toFixed(1)+'" r="3.4" fill="'+(r.sal<0?'var(--vx-neg)':'var(--gold)')+'"><title>Saldo: '+BRL(r.sal)+'</title></circle>';}).join('')+'</svg>';
+    document.getElementById('cxCh').innerHTML='<div class="vx-chart">'+s+'</div>';
+    document.getElementById('cxT').innerHTML='<thead><tr><th>Semana</th><th>Entradas</th><th>Saídas</th><th>Lançamentos</th><th>Saldo final</th></tr></thead><tbody>'+rows.map(function(r){return '<tr><td>'+(r.w+1)+' · '+wd(r.w)+'</td><td>'+BRL(r.ent)+'</td><td>'+BRL(r.sai)+'</td><td>'+(r.ex?BRL(r.ex):'—')+'</td><td><b style="color:'+(r.sal<0?'var(--vx-neg)':'inherit')+'">'+BRL(r.sal)+'</b></td></tr>';}).join('')+'</tbody>';
+    document.getElementById('cxL').innerHTML=S.ex.length?'<div class="vx-exl">'+S.ex.map(function(x,i){return '<div><span>Sem. '+(+x.w+1)+'</span><b>'+E(x.d||'Lançamento')+'</b><em class="'+(x.v<0?'dn':'up')+'">'+BRL(+x.v)+'</em><button type="button" data-xd="'+i+'" aria-label="Remover">×</button></div>';}).join('')+'</div>':'<p class="vx-mute">Nenhum lançamento. Inclua 13º, impostos, parcelas de empréstimo, vendas grandes já fechadas…</p>';
+    document.querySelectorAll('#cxL [data-xd]').forEach(function(bt){bt.onclick=function(){S.ex.splice(+bt.dataset.xd,1);vxPut('cx13',S);draw();};});};
+  var bind=function(id,key,div){var i=document.getElementById(id);i.oninput=function(){S[key]=+i.value||0;var o=document.getElementById(id+'o');if(o) o.textContent=sgn(S[key]);vxPut('cx13',S);draw();};};
+  bind('cxS','saldo');bind('cxG','g');bind('cxC','c');bind('cxF','f');bind('cxP0','pr0');bind('cxP1','pr1');
+  document.getElementById('cxA').onclick=function(){var v=+document.getElementById('cxV').value;if(!v){document.getElementById('cxV').focus();return;}S.ex.push({w:+document.getElementById('cxW').value,d:document.getElementById('cxD').value.trim().slice(0,60),v:v});S.ex=S.ex.slice(-40);document.getElementById('cxV').value='';document.getElementById('cxD').value='';vxPut('cx13',S);draw();};
+  draw();tilt(el);}
+
+/* ---------- Orçamento anual ---------- */
+function rOrc(){var el=document.getElementById('v-vx-orc');var L=lastN(12);var R0=sum(L,'R');if(!L.length||!R0){el.innerHTML='<div class="vx-v"><div class="vx-head"><div><h2>Orçamento anual</h2><p>Sem vendas para planejar.</p></div></div></div>';return;}
+  var k=L.length,RA=R0*12/k,CVA=sum(L,'CV')*12/k,CFA=sum(L,'CF')*12/k,mc0=RA?(RA-CVA)/RA:0,last=L[k-1];
+  var idx=DMES.map(function(_,m){var x=L.filter(function(o){return o.m===m;});return x.length?sum(x,'R')/x.length:null;});var av=idx.filter(function(v){return v!=null;});var mean=av.length?av.reduce(function(a,v){return a+v;},0)/av.length:1;
+  var useS=k>=12;idx=idx.map(function(v){return useS&&v!=null&&mean?v/mean:1;});var si=idx.reduce(function(a,v){return a+v;},0)/12;idx=idx.map(function(v){return v/si;});
+  var S=vxGet('orc')||{};S=Object.assign({ano:last.m>=6?last.y+1:last.y,g:10,mc:Math.round(mc0*1000)/10,f:5,modo:'cres',meta:Math.max(0,Math.round((RA*mc0-CFA)*1.2/1000)*1000)},S);
+  el.innerHTML='<div class="vx-v"><div class="vx-head"><div><h2>Orçamento anual</h2><p>Plano mês a mês com a sazonalidade '+(useS?'dos últimos 12 meses':'distribuída igualmente (menos de 12 meses de histórico)')+'. Base: '+E(L[0].ab+'/'+String(L[0].y).slice(-2))+' a '+E(last.ab+'/'+String(last.y).slice(-2))+'.</p></div></div>'+
+   '<div class="vx-simg"><section class="vx-card"><header><div><h3>Premissas</h3><p>Salvas automaticamente.</p></div></header><div class="bd">'+
+   numIn('orA','Ano do orçamento',S.ano,null,'1')+
+   '<div class="vx-seg2" role="radiogroup"><button type="button" data-om="cres" aria-pressed="'+(S.modo==='cres')+'">Pelo crescimento</button><button type="button" data-om="meta" aria-pressed="'+(S.modo==='meta')+'">Pela meta de lucro</button></div>'+
+   '<div id="orM1">'+sl2('orG','Crescimento das vendas',S.g,-30,60,1,sgn)+'</div><div id="orM2">'+numIn('orL','Meta de lucro no ano (R$)',S.meta,'O orçamento calcula a venda necessária.')+'</div>'+
+   sl2('orC','Margem de contribuição',S.mc,5,90,.5,function(v){return nf(v,1)+'%';})+'<p class="vx-mute" style="margin:-4px 0 8px">Atual: '+P(mc0)+'</p>'+
+   sl2('orF','Gastos fixos',S.f,-30,40,1,sgn)+'</div></section>'+
+   '<div style="display:grid;gap:16px;min-width:0"><div class="vx-kpis" id="orK"></div><section class="vx-card"><header><div><h3>Meta de vendas por mês</h3><p>Barras: receita orçada · pontos: realizado · linha tracejada: ponto de equilíbrio.</p></div></header><div class="bd" id="orCh"></div></section><section class="vx-card"><div class="vx-tw"><table class="vx-t" id="orT"></table></div></section></div></div></div>';
+  var draw=function(){document.getElementById('orM1').style.display=S.modo==='cres'?'':'none';document.getElementById('orM2').style.display=S.modo==='meta'?'':'none';
+    var mc=S.mc/100,CF=CFA*(1+S.f/100),RT=S.modo==='meta'?(mc>0?(CF+(+S.meta||0))/mc:0):RA*(1+S.g/100),gImp=RA?RT/RA-1:0;
+    var M=DMES.map(function(n,m){var r=RT*idx[m]/12,cv=r*(1-mc),cf=CF/12;var real=SER().meses.find(function(o){return o.y===+S.ano&&o.m===m&&o.R;});return {m:m,n:n,r:r,mc:r*mc,cf:cf,res:r*mc-cf,pe:mc>0?cf/mc:null,real:real||null};});
+    var RES=RT*mc-CF,re=M.filter(function(x){return x.real;}),rR=sum(re.map(function(x){return x.real;}),'R'),oR=re.reduce(function(a,x){return a+x.r;},0);
+    document.getElementById('orK').innerHTML='<div class="vx-kpi"><small>Receita orçada no ano</small><b>'+K(RT)+'</b><div class="d"><span class="'+(gImp>=0?'up':'dn')+'">'+(gImp>=0?'▲ ':'▼ ')+nf(Math.abs(gImp)*100,1)+'% sobre os últimos 12 meses</span></div></div><div class="vx-kpi"><small>Resultado orçado</small><b>'+K(RES)+'</b><div class="d"><span>'+P(RT?RES/RT:null)+' da receita</span></div></div><div class="vx-kpi"><small>Ponto de equilíbrio por mês</small><b>'+K(mc>0?CF/12/mc:null)+'</b><div class="d"><span>gastos fixos de '+K(CF/12)+'/mês</span></div></div><div class="vx-kpi"><small>Realizado até agora</small><b>'+(re.length?P(oR?rR/oR:null):'—')+'</b><div class="d"><span>'+(re.length?re.length+' mês(es) de '+S.ano+' com dados':'sem meses de '+S.ano+' no painel')+'</span></div></div>';
+    var W=640,H=230,mb=22,mx=Math.max.apply(null,M.map(function(x){return Math.max(x.r,x.real?x.real.R:0,x.pe||0);}))*1.1||1,bw=W/12,y=function(v){return H-mb-v/mx*(H-mb-10);};
+    var s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Receita orçada por mês"><line class="ax" x1="0" x2="'+W+'" y1="'+(H-mb)+'" y2="'+(H-mb)+'"/>';
+    M.forEach(function(x,i){var bx=i*bw+bw*.18;s+='<rect class="vxb" style="animation-delay:'+(i*35)+'ms" x="'+bx.toFixed(1)+'" y="'+y(x.r).toFixed(1)+'" width="'+(bw*.64).toFixed(1)+'" height="'+(H-mb-y(x.r)).toFixed(1)+'" rx="5" fill="var(--brand)" opacity=".35"><title>'+x.n+': orçado '+BRL(x.r)+(x.real?', realizado '+BRL(x.real.R):'')+'</title></rect><text class="tk" x="'+(bx+bw*.32).toFixed(1)+'" y="'+(H-5)+'" text-anchor="middle">'+x.n+'</text>';if(x.real) s+='<circle cx="'+(bx+bw*.32).toFixed(1)+'" cy="'+y(x.real.R).toFixed(1)+'" r="5" fill="'+(x.real.R>=x.r?'var(--vx-pos)':'var(--vx-neg)')+'" stroke="var(--surface)" stroke-width="2"/>';});
+    if(mc>0) s+='<line x1="0" x2="'+W+'" y1="'+y(CF/12/mc)+'" y2="'+y(CF/12/mc)+'" stroke="var(--vx-neg)" stroke-dasharray="5 5" stroke-width="1.4"/>';
+    document.getElementById('orCh').innerHTML='<div class="vx-chart">'+s+'</svg></div>';
+    document.getElementById('orT').innerHTML='<thead><tr><th>Mês</th><th>Receita orçada</th><th>Margem de contribuição</th><th>Gastos fixos</th><th>Resultado</th><th>Realizado</th><th>Variação</th></tr></thead><tbody>'+M.map(function(x){var v=x.real?(x.real.R/x.r-1):null;return '<tr><td>'+x.n+'/'+String(S.ano).slice(-2)+'</td><td>'+BRL(x.r)+'</td><td>'+BRL(x.mc)+'</td><td>'+BRL(x.cf)+'</td><td><b>'+BRL(x.res)+'</b></td><td>'+(x.real?BRL(x.real.R):'—')+'</td><td>'+(v==null?'—':'<span style="color:'+(v>=0?'var(--vx-pos)':'var(--vx-neg)')+'">'+(v>=0?'+':'')+nf(v*100,1)+'%</span>')+'</td></tr>';}).join('')+'<tr class="tot"><td><b>Ano</b></td><td><b>'+BRL(RT)+'</b></td><td><b>'+BRL(RT*mc)+'</b></td><td><b>'+BRL(CF)+'</b></td><td><b>'+BRL(RES)+'</b></td><td>'+(re.length?BRL(rR):'—')+'</td><td></td></tr></tbody>';};
+  var bind=function(id,key,fmt){var i=document.getElementById(id);i.oninput=function(){S[key]=+i.value||0;var o=document.getElementById(id+'o');if(o&&fmt) o.textContent=fmt(S[key]);vxPut('orc',S);draw();};};
+  bind('orA','ano');bind('orG','g',sgn);bind('orL','meta');bind('orC','mc',function(v){return nf(v,1)+'%';});bind('orF','f',sgn);
+  el.querySelectorAll('[data-om]').forEach(function(bt){bt.onclick=function(){S.modo=bt.dataset.om;el.querySelectorAll('[data-om]').forEach(function(x){x.setAttribute('aria-pressed',x===bt);});vxPut('orc',S);draw();};});
+  draw();tilt(el);}
+
+/* ---------- Valor da empresa ---------- */
+function rVal(){var el=document.getElementById('v-vx-val');var L=lastN(12);var k=L.length,R0=sum(L,'R');if(!k||!R0){el.innerHTML='<div class="vx-v"><div class="vx-head"><div><h2>Valor da empresa</h2><p>Sem dados suficientes.</p></div></div></div>';return;}
+  var RA=R0*12/k,bal=L.every(function(m){return m.bal;}),EB=bal?sum(L,'EBITDA')*12/k:(sum(L,'RES')+sum(L,'DA'))*12/k,DA=sum(L,'DA')*12/k,mg0=RA?EB/RA:0,disp=bal?L[k-1].DISP:null;
+  var S=vxGet('val')||{};S=Object.assign({g:8,mg:Math.round(mg0*1000)/10,ir:15,cap:Math.round((RA?DA/RA:.02)*1000)/10||2,ncg:10,wacc:18,gp:4,mu:4.5,div:disp!=null?-Math.round(disp):0},S);
+  el.innerHTML='<div class="vx-v"><div class="vx-head"><div><h2>Valor da empresa</h2><p>Estimativa por fluxo de caixa descontado (5 anos e perpetuidade) e por múltiplo de EBITDA. Base: últimos '+k+' meses, com EBITDA de '+K(EB)+' ao ano'+(bal?'':' (estimado pelo resultado gerencial mais depreciação)')+'.</p></div></div>'+
+   '<div class="vx-simg"><section class="vx-card"><header><div><h3>Premissas</h3><p>Salvas automaticamente.</p></div></header><div class="bd">'+
+   sl2('vaG','Crescimento das vendas ao ano',S.g,-10,40,.5,function(v){return nf(v,1)+'%';})+sl2('vaM','Margem EBITDA',S.mg,-10,60,.5,function(v){return nf(v,1)+'%';})+
+   sl2('vaW','Taxa de desconto (custo de capital)',S.wacc,8,35,.5,function(v){return nf(v,1)+'%';})+sl2('vaP','Crescimento na perpetuidade',S.gp,0,8,.5,function(v){return nf(v,1)+'%';})+
+   sl2('vaU','Múltiplo de EBITDA do setor',S.mu,1,12,.1,function(v){return nf(v,1)+'×';})+
+   '<div class="vx-in2">'+numIn('vaI','Impostos sobre o lucro (%)',S.ir)+numIn('vaC','Investimentos (% da receita)',S.cap)+'</div><div class="vx-in2">'+numIn('vaN','Capital de giro (% do aumento de vendas)',S.ncg)+numIn('vaD','Dívida líquida (R$)',S.div,'Empréstimos menos caixa. Negativo quando sobra caixa.')+'</div>'+
+   '</div></section><div style="display:grid;gap:16px;min-width:0"><div class="vx-simh vx-tiltable" id="vaH"></div><section class="vx-card"><header><div><h3>Faixa de valor</h3><p>Valor da operação (antes da dívida) por método.</p></div></header><div class="bd" id="vaF"></div></section><section class="vx-card"><header><div><h3>Fluxo de caixa projetado</h3></div></header><div class="vx-tw"><table class="vx-t" id="vaT"></table></div></section><section class="vx-card"><header><div><h3>Sensibilidade</h3><p>Valor da operação conforme a taxa de desconto e o crescimento na perpetuidade.</p></div></header><div class="bd" id="vaS" style="overflow-x:auto"></div></section></div></div>'+
+   '<p class="vx-mute" style="margin-top:14px">Estimativa de apoio à decisão, feita com os números do painel e as premissas acima. Uma avaliação para venda, entrada ou saída de sócio deve considerar ativos, passivos ocultos, contratos e mercado.</p></div>';
+  var dcf=function(w,gp){var g=S.g/100,mg=S.mg/100,ir=S.ir/100,cap=S.cap/100,ncg=S.ncg/100,R=RA,pv=0,rows=[],fc=0;
+    for(var t=1;t<=5;t++){var Rn=R*(1+g),eb=Rn*mg,ebit=eb-cap*Rn,imp=Math.max(0,ebit)*ir,inv=cap*Rn,gir=ncg*(Rn-R);fc=eb-imp-inv-gir;var df=Math.pow(1+w,t);pv+=fc/df;rows.push({t:t,R:Rn,eb:eb,imp:imp,inv:inv,gir:gir,fc:fc,pv:fc/df});R=Rn;}
+    var tv=w>gp?fc*(1+gp)/(w-gp):null,pvtv=tv!=null?tv/Math.pow(1+w,5):null;return {ev:pvtv!=null?pv+pvtv:null,pv:pv,pvtv:pvtv,rows:rows};};
+  var draw=function(){var w=S.wacc/100,gp=S.gp/100,D=dcf(w,gp),EVm=EB*S.mu,ev=D.ev,eq=ev!=null?ev-S.div:null,eqm=EVm-S.div;
+    var lo=[],hi=[];[-.02,0,.02].forEach(function(a){[-.01,0,.01].forEach(function(b){var x=dcf(w+a,gp+b).ev;if(x!=null&&isFinite(x)){lo.push(x);hi.push(x);}});});
+    var dl=Math.min.apply(null,lo),dh=Math.max.apply(null,hi),ml=EB*Math.max(1,S.mu-1),mh=EB*(S.mu+1);
+    var mid=ev!=null?(ev+EVm)/2:EVm;
+    document.getElementById('vaH').innerHTML='<div><small>Valor estimado da empresa (para os sócios)</small><b>'+K(mid-S.div)+'</b><em>média dos dois métodos, já descontada a dívida líquida</em></div><div><p>Fluxo de caixa descontado: <b>'+K(eq)+'</b></p><p>Múltiplo de '+nf(S.mu,1)+'× o EBITDA: <b>'+K(eqm)+'</b></p><p>A perpetuidade responde por <b>'+(ev?nf(D.pvtv/ev*100,0):'—')+'%</b> do valor no fluxo descontado.</p></div>';
+    var all=[dl,dh,ml,mh].filter(isFinite),mn=Math.min(0,Math.min.apply(null,all)),mx=Math.max.apply(null,all)*1.08||1,X=function(v){return (v-mn)/(mx-mn)*100;};
+    var bar=function(l,a,b,c,col){return '<div class="vx-ff"><span>'+l+'</span><div class="tr"><i style="left:'+X(a)+'%;width:'+Math.max(1,X(b)-X(a))+'%;background:'+col+'"></i>'+(c!=null?'<em style="left:'+X(c)+'%"></em>':'')+'</div><b>'+K(a)+' a '+K(b)+'</b></div>';};
+    document.getElementById('vaF').innerHTML=bar('Fluxo de caixa descontado',dl,dh,ev,'color-mix(in srgb,var(--brand) 55%,transparent)')+bar('Múltiplo de EBITDA',ml,mh,EVm,'color-mix(in srgb,var(--gold) 45%,transparent)');
+    document.getElementById('vaT').innerHTML='<thead><tr><th></th>'+D.rows.map(function(r){return '<th>Ano '+r.t+'</th>';}).join('')+'</tr></thead><tbody>'+[['Receita','R'],['EBITDA','eb'],['Impostos','imp'],['Investimentos','inv'],['Capital de giro','gir'],['Fluxo de caixa livre','fc'],['Valor presente','pv']].map(function(x){return '<tr'+(x[1]==='fc'?' class="tot"':'')+'><td>'+x[0]+'</td>'+D.rows.map(function(r){return '<td>'+K(x[1]==='imp'||x[1]==='inv'||x[1]==='gir'?-r[x[1]]:r[x[1]])+'</td>';}).join('')+'</tr>';}).join('')+'</tbody>';
+    var WS=[-.03,-.015,0,.015,.03],GS=[-.01,0,.01];var vals=[];
+    document.getElementById('vaS').innerHTML='<div class="vx-hx"><span></span>'+GS.map(function(b){return '<span>Perpet. '+nf((gp+b)*100,1)+'%</span>';}).join('')+'</div>'+WS.map(function(a){return '<div class="vx-hx"><span>Taxa '+nf((w+a)*100,1)+'%</span>'+GS.map(function(b){var x=dcf(w+a,gp+b).ev;var on=!a&&!b;return '<button class="'+(on?'on':'')+'" style="background:color-mix(in srgb,var(--brand) '+(on?40:14)+'%,var(--surface));color:var(--ink)">'+(x==null?'—':K(x))+'</button>';}).join('')+'</div>';}).join('');};
+  var bind=function(id,key,fmt){var i=document.getElementById(id);i.oninput=function(){S[key]=+i.value||0;var o=document.getElementById(id+'o');if(o&&fmt) o.textContent=fmt(S[key]);vxPut('val',S);draw();};};
+  var pc=function(v){return nf(v,1)+'%';};bind('vaG','g',pc);bind('vaM','mg',pc);bind('vaW','wacc',pc);bind('vaP','gp',pc);bind('vaU','mu',function(v){return nf(v,1)+'×';});bind('vaI','ir');bind('vaC','cap');bind('vaN','ncg');bind('vaD','div');
+  draw();tilt(el);}
+
 /* ---------- registro das telas novas ---------- */
 var NEWV={'vx-exe':['Visão executiva','Visão executiva','Indicadores-chave do período com comparação, tendência e destaques.',rExe],
   'vx-saz':['Análise financeira','Sazonalidade e tendência','Distribuição da receita ao longo do ano, índice de sazonalidade e crescimento.',rSaz],
   'vx-mix':['Análise financeira','Matriz de produtos','Participação, crescimento, preço médio e margem estimada de cada produto.',rMix],
   'vx-seg':['Visão executiva','Painel do setor','Indicadores, faixas de referência e pontos de atenção escolhidos para o setor da empresa.',rSeg],
+  'vx-c13':['Caixa','Caixa 13 semanas','Projeção semanal do saldo de caixa para os próximos três meses, com cenários e lançamentos previstos.',rCx],
+  'vx-orc':['Planejamento','Orçamento anual','Meta de vendas e resultado mês a mês para o próximo ano, com orçado × realizado.',rOrc],
+  'vx-val':['Gestão','Valor da empresa','Quanto vale a empresa por fluxo de caixa descontado e por múltiplo de EBITDA.',rVal],
   'vx-sim':['Gestão','Simulador de cenários','Efeito de preço, volume, custos e gastos fixos no resultado e no ponto de equilíbrio.',rSim]};
 var pageEl=document.querySelector('.page');
 var lastV=pageEl?[].slice.call(pageEl.children).filter(function(c){return /^v-/.test(c.id);}).pop():null;
 Object.keys(NEWV).forEach(function(k){var n=NEWV[k];VIEWS[k]={g:n[0],t:n[1],d:n[2],home:1};if(!document.getElementById('v-'+k)&&pageEl){var d=document.createElement('div');d.id='v-'+k;d.className='hide';if(lastV){lastV.after(d);lastV=d;}else pageEl.appendChild(d);}});
 
 /* ---------- navegação em abas ---------- */
-var SECS=[['ini','Início',['ini']],['emp','Empresa',['emp','rh']],['exe','Executivo',['vx-exe','vx-seg']],['res','Resultados',['fin','ser','cus','vx-saz','proj','orc']],['ven','Vendas e produtos',['fat','grp','mes','abc','vx-mix','pmin']],
-  ['cx','Caixa e dívidas',['dfc','ciclo','end','cbk']],['ctb','Contábil',['ctb','dgn','pdc']],['ges','Gestão',['vx-sim','acao','alr','rex']],
+var SECS=[['ini','Início',['ini']],['emp','Empresa',['emp','rh']],['exe','Executivo',['vx-exe','vx-seg']],['res','Resultados',['fin','ser','cus','vx-saz','proj','vx-orc','orc']],['ven','Vendas e produtos',['fat','grp','mes','abc','vx-mix','pmin']],
+  ['cx','Caixa e dívidas',['vx-c13','dfc','ciclo','end','cbk']],['ctb','Contábil',['ctb','dgn','pdc']],['ges','Gestão',['vx-sim','vx-val','acao','alr','rex']],
   ['aud','Auditoria',['con','mem','src']],['aca','Trabalho acadêmico',['apt','apr','idt','tema','met','rel']]];
-var NEWK=['vx-exe','vx-seg','vx-saz','vx-mix','vx-sim'];
+var NEWK=['vx-exe','vx-seg','vx-saz','vx-mix','vx-sim','vx-c13','vx-orc','vx-val'];
 var LAY=[];
 function collect(){var items=[];(typeof NAVS!=='undefined'?NAVS:[]).forEach(function(s){if(s.single) items.push({v:s.single});else (s.items||[]).forEach(function(it){items.push({v:it.v,l:it.l,a:it.a});});});
   var ok=function(v){return !!VIEWS[v]&&!!document.getElementById('v-'+v);};
