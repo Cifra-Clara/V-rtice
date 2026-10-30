@@ -519,6 +519,113 @@ kbd{font:500 11px var(--mono);color:var(--ink-3);border:1px solid var(--line);bo
 .lgrow .lgpv img{width:100%;height:100%;object-fit:contain}
 .lgrow b{display:block;font-size:14px}.lgrow small{display:block;color:var(--ink-3);font-size:12.5px}.lgrow .sp{flex:1}
 .seghint{display:flex;align-items:center;gap:7px;margin-top:6px;color:var(--ink-3)}.seghint b{color:var(--ink)}.segdot{width:9px;height:9px;border-radius:50%;flex:none}
+/* relatório do Diagnóstico Express (tela e PDF) */
+.dxr-prev{background:#ECE7DC;padding:22px;border-radius:14px;max-height:78vh;overflow:auto}
+.dxr{color:#1E1433;font-family:var(--font);-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.dxr-pg{position:relative;page:dx;background:#FFFFFF;width:210mm;max-width:100%;min-height:297mm;margin:0 auto 18px;padding:18mm 17mm 24mm;box-sizing:border-box;box-shadow:0 14px 34px -20px rgba(30,20,51,.45);overflow:hidden}
+.dxr-pg h2{display:flex;align-items:baseline;gap:12px;font-family:var(--serif);font-weight:400;font-size:34px;letter-spacing:-.015em;color:#1E1433;margin:0 0 14px;padding-bottom:12px;border-bottom:1px solid #EEEAE2}
+.dxr-pg h2 span{font:600 13px var(--mono);color:#A47C28;letter-spacing:.04em}
+.dxr-pg h3{font-size:14.5px;font-weight:650;margin:22px 0 10px;color:#1E1433}
+.dxr-pg h3 small{font-weight:500;color:#857C95;font-size:12px;margin-left:6px}
+.dxr-pg .lead{font-size:14.5px;line-height:1.65;color:#4E4463;margin:0}
+.dxr-pg p,.dxr-pg li{color:#4E4463}
+.dxr-mk{display:inline-block;width:34px;height:34px;background:#A47C28;-webkit-mask:var(--logo) center/contain no-repeat;mask:var(--logo) center/contain no-repeat}
+.dxr-pg.cover{display:flex;flex-direction:column;justify-content:space-between;background:radial-gradient(520px 420px at 92% 6%,#F7EFDA 0%,rgba(247,239,218,0) 70%),radial-gradient(420px 360px at 0% 100%,#FBF5E6,rgba(255,255,255,0) 70%),#FFFFFF}
+.cv-top{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:650;letter-spacing:-.02em}
+.cv-mid small{display:block;font:600 12px var(--font);letter-spacing:.14em;text-transform:uppercase;color:#A47C28}
+.cv-mid h1{font-family:var(--serif);font-weight:400;font-size:60px;line-height:1;letter-spacing:-.02em;margin:14px 0 0;color:#1E1433}
+.cv-mid p{margin-top:16px;font-size:15px;line-height:1.6}
+.cv-sc{display:grid;grid-template-columns:150px 1fr;gap:24px;align-items:center;padding:22px;border-radius:18px;border:1px solid #EBD9A8;background:#FFFDF8}
+.dxr-ring{width:150px;height:150px}
+.cv-sc p{margin-top:10px;font-size:14px;line-height:1.6}
+.cv-bt{display:flex;justify-content:space-between;font-size:12.5px;color:#857C95;border-top:1px solid #EEEAE2;padding-top:12px}
+.dxr-t{display:inline-block;font-size:11.5px;font-weight:650;padding:2px 9px;border-radius:999px;white-space:nowrap}
+.dxr-t.ok{background:#E8F5EF;color:#11795A}.dxr-t.at{background:#FBF2DE;color:#8A5A07}.dxr-t.cr{background:#FCEBEC;color:#B4232F}
+.dxr-kp{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:18px}
+.dxr-kp div{padding:12px;border-radius:12px;border:1px solid #EEEAE2;background:#FCFAF6}
+.dxr-kp small{display:block;font-size:11px;color:#857C95}.dxr-kp b{display:block;font-size:18px;font-weight:700;letter-spacing:-.02em;margin-top:3px}
+.dxr-tb{width:100%;border-collapse:collapse;font-size:12.5px}
+.dxr-tb th{text-align:left;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:#857C95;font-weight:600;padding:8px 8px;border-bottom:1px solid #EEEAE2}
+.dxr-tb td{padding:8px;border-bottom:1px solid #F6F3EC;vertical-align:top;color:#1E1433}
+.dxr-tb .n{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;font-weight:600}
+.dxr-tb .o{color:#857C95;font-size:11.5px;line-height:1.45}
+.dxr-tb.sc td{padding:6px 8px}.dxr-tb .bar{width:55%}.dxr-tb .bar i{display:block;height:9px;border-radius:5px;min-width:3px}
+.dxr-2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.dxr-2 ul{margin:0;padding-left:18px;display:grid;gap:5px;font-size:13px}.dxr-2 li::marker{color:#11795A}.dxr-2 ul.at li::marker{color:#B8476C}
+.dxr-g .tr{position:relative;height:12px;border-radius:999px;background:#F1ECE0;margin:30px 0 8px}
+.dxr-g .band{position:absolute;top:0;bottom:0;border-radius:999px}
+.dxr-g .gm{position:absolute;top:-6px;width:4px;height:24px;margin-left:-2px;border-radius:3px;background:#1E1433}
+.dxr-g .gm em{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);font-style:normal;font-size:11px;font-weight:700;background:#1E1433;color:#fff;padding:2px 7px;border-radius:6px;white-space:nowrap}
+.dxr-g .sc{display:flex;justify-content:space-between;font-size:10.5px;color:#857C95}
+.dxr-nt{font-size:11.5px;color:#857C95;line-height:1.55;margin-top:10px}
+.dxr-pl{margin-bottom:6px}.dxr-pl ol{margin:0;padding:0;list-style:none;display:grid;gap:8px;counter-reset:a}
+.dxr-pl li{counter-increment:a;position:relative;padding:10px 12px 10px 44px;border:1px solid #EEEAE2;border-radius:12px;break-inside:avoid}
+.dxr-pl li::before{content:counter(a);position:absolute;left:12px;top:10px;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:#F7EFDA;color:#8F6C1E;font-size:12px;font-weight:700}
+.dxr-pl li b{display:block;font-size:13.5px;color:#1E1433}.dxr-pl li span{display:block;font-size:12.5px;line-height:1.55;margin-top:2px}
+.dxr-cm{font-size:14px;line-height:1.7;color:#1E1433;padding:16px 18px;border-left:3px solid #C6A04A;background:#FFFDF8;border-radius:0 12px 12px 0}
+.dxr-cm p{color:#1E1433;margin:0 0 10px}
+.dxr-sig{margin-top:22px;display:grid;gap:2px}.dxr-sig b{font-family:var(--serif);font-weight:400;font-size:24px}.dxr-sig span{font-size:12px;color:#857C95}
+.dxr-ft{position:absolute;left:17mm;right:17mm;bottom:10mm;display:flex;justify-content:space-between;font-size:10px;color:#A39CAF;border-top:1px solid #F1ECE0;padding-top:6px}
+#dxPrint{display:none}
+@page dx{size:A4;margin:0}
+@media print{body.dx-printing>*:not(#dxPrint){display:none!important}body.dx-printing #dxPrint{display:block!important}body.dx-printing{background:#fff!important}
+  #dxPrint .dxr-pg{margin:0;box-shadow:none;width:210mm;height:297mm;min-height:0;break-after:page;page-break-after:always}#dxPrint .dxr-pg:last-child{break-after:auto;page-break-after:auto}}
+@media screen and (max-width:900px){.dxr-prev{padding:10px}.dxr-pg{padding:20px 16px 40px;min-height:0}.dxr-kp{grid-template-columns:1fr 1fr}.cv-sc{grid-template-columns:1fr}.dxr-2{grid-template-columns:1fr}.cv-mid h1{font-size:40px}.dxr-ft{left:16px;right:16px;bottom:10px}}
+
+/* Diagnóstico Express: página pública e relatório */
+#pub{min-height:100%;background:radial-gradient(900px 520px at 100% -10%,color-mix(in srgb,var(--gold) 16%,transparent),transparent 60%),var(--bg)}
+.pub-hd{max-width:1180px;margin:0 auto;padding:18px max(20px,env(safe-area-inset-left,0px));display:flex;justify-content:space-between;align-items:center;gap:12px}
+.pub-br{display:flex;align-items:center;gap:10px;font-weight:650;font-size:17px;color:var(--ink);letter-spacing:-.02em}.pub-br:hover{text-decoration:none}.pub-br .mk{color:var(--brand)}
+.pub-hd nav{display:flex;align-items:center;gap:14px;font-size:14px}.pub-hd nav a:not(.btn){color:var(--ink-2)}
+.pub-in{max-width:1180px;margin:0 auto;padding:28px max(20px,env(safe-area-inset-left,0px)) 64px;display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);gap:clamp(24px,5vw,64px);align-items:start}
+.pub-k{display:inline-block;font-size:12px;font-weight:650;letter-spacing:.08em;text-transform:uppercase;color:var(--gold-ink)}
+.pub-intro h1{font-family:var(--serif);font-weight:400;font-size:clamp(38px,4.6vw,58px);line-height:1.02;letter-spacing:-.015em;margin-top:12px}
+.pub-intro p{color:var(--ink-2);font-size:17px;margin-top:16px;max-width:34em}
+.pub-ok{list-style:none;padding:0;margin:22px 0 0;display:grid;gap:10px}.pub-ok li{position:relative;padding-left:26px;color:var(--ink-2);font-size:14.5px}
+.pub-ok li::before{content:"";position:absolute;left:0;top:4px;width:16px;height:16px;border-radius:50%;background:var(--gold-soft) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238F6C1E' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12l5 5L20 7'/%3E%3C/svg%3E") center/10px no-repeat}
+.pub-card{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:clamp(20px,3vw,32px);box-shadow:0 30px 70px -45px rgba(110,82,26,.45)}
+.pub-card.wide{grid-column:1/-1}.pub-in:has(.pub-card.wide){grid-template-columns:minmax(0,1fr)}.pub-in:has(.pub-card.wide) .pub-intro{display:none}
+.pub-card h2{font-size:17px;font-weight:650;letter-spacing:-.02em;margin-bottom:10px}
+.pub-card .drop{margin-top:4px}.pub-card .drop.busy{opacity:.6;pointer-events:none}
+.dgx-files{list-style:none;padding:0;margin:12px 0 0;display:grid;gap:6px}
+.dgx-files li{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;font-size:13.5px}
+.dgx-files li span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dgx-files li em{font-style:normal;color:var(--ink-3);font-size:12.5px}
+.dgx-files li.bad em{color:var(--err)}.dgx-files select{font:inherit;font-size:13px;padding:4px 6px;border-radius:8px;border:1px solid var(--line);background:var(--input,var(--surface));color:var(--ink)}
+.dgx-files .x{border:0;background:none;font-size:18px;line-height:1;color:var(--ink-3);cursor:pointer;padding:0 4px}
+.dgx-msg{font-size:13px;color:var(--ink-3);margin-top:10px}.dgx-msg.err{color:var(--err)}
+#dgGo{width:100%;margin-top:20px}.dgx-note{text-align:center;font-size:13px;color:var(--ink-3);margin-top:12px}
+.dgx-top{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:16px}.dgx-top h2{font-size:22px;margin:4px 0 0}
+.pub-card .dg-score h3{font-family:var(--serif);font-weight:400;font-size:26px;margin-top:8px}.pub-card .dg-score p{color:var(--ink-3);font-size:13.5px;margin-top:6px}
+.dgx-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-top:12px}
+.dgx-g .dg-card{padding:14px 16px}.dgx-g .dg-card small{display:block;font-size:12px;color:var(--ink-3)}.dgx-g .dg-card b{display:block;font-size:19px;letter-spacing:-.02em;margin:4px 0}.dgx-g .dg-card em{display:block;font-style:normal;font-size:12px;color:var(--ink-3);line-height:1.4}
+.dgx-lock{margin-top:16px;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:18px;padding:20px;border-radius:16px;background:linear-gradient(135deg,var(--gold-soft),var(--surface));border:1px solid color-mix(in srgb,var(--gold) 35%,var(--line))}
+.dgx-lock h3{font-size:15px;font-weight:650}.dgx-lock ul{margin:10px 0 0;padding-left:18px;display:grid;gap:5px;font-size:13.5px;color:var(--ink-2)}.dgx-lock li::marker{color:var(--gold)}
+.dgx-lk-r{display:grid;gap:8px;align-content:start}.dgx-lk-r .pz{font-size:30px;letter-spacing:-.03em}.dgx-lk-r small{color:var(--ink-3);font-size:12.5px}.dgx-lk-r .sub{margin-top:2px}
+.dgx-acts{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.dgx-pend{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:18px}.dgx-pend b{display:block}.dgx-pend span{display:block;font-size:13.5px}.dgx-pend .acts{display:flex;gap:8px}
+.pub-ft{max-width:1180px;margin:0 auto;padding:22px max(20px,env(safe-area-inset-left,0px)) 36px;border-top:1px solid var(--line);font-size:13px;color:var(--ink-3)}.pub-ft a{color:var(--ink-3)}
+@media (max-width:900px){.pub-in{grid-template-columns:minmax(0,1fr)}.dgx-lock{grid-template-columns:minmax(0,1fr)}}
+.rpt-hd{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;padding-bottom:14px;border-bottom:1.5px solid var(--gold)}
+.rpt-br{display:flex;align-items:center;gap:10px}.rpt-br .mk{color:var(--brand)}.rpt-br b{display:block;font-size:16px}.rpt-br small{display:block;font-size:12px;color:var(--ink-3)}
+.rpt-meta{display:grid;text-align:right;font-size:12px;color:var(--ink-3)}
+.rpt-t{font-family:var(--serif);font-weight:400;font-size:clamp(30px,3.6vw,42px);letter-spacing:-.01em;margin-top:22px}.rpt-s{color:var(--ink-3);margin:4px 0 18px}
+.rpt-sec{margin-top:22px}.rpt-sec h2{font-size:16px;font-weight:650;margin-bottom:10px}.rpt-p{color:var(--ink-2);font-size:14.5px;line-height:1.65}
+.rpt-ol{margin:0;padding-left:20px;display:grid;gap:8px;color:var(--ink-2);font-size:14px;line-height:1.55}.rpt-ol li::marker{color:var(--gold-ink);font-weight:700}
+.rpt-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.rpt-ft{margin-top:26px;padding-top:12px;border-top:1px solid var(--line);font-size:11.5px;color:var(--ink-3);line-height:1.5}
+@media (max-width:900px){.rpt-2{grid-template-columns:minmax(0,1fr)}.rpt .dg-top{grid-template-columns:minmax(0,1fr)}}
+#rptPrint{display:none}
+@media print{
+  body.prt>*:not(#rptPrint){display:none!important}
+  body.prt #rptPrint{display:block!important}
+  body.prt{background:#fff!important}
+  #rptPrint .rpt{font-size:12px;color:#1E1433}
+  #rptPrint .dg-top{grid-template-columns:1.3fr 1fr 1fr}
+  #rptPrint .rpt-sec,#rptPrint .dg-score,#rptPrint .dg-card,#rptPrint tr{break-inside:avoid}
+  #rptPrint .rpt-2{grid-template-columns:1fr 1fr}
+  #rptPrint *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  @page{size:A4;margin:14mm 12mm}
+}
 </style>
 
 <div id="boot" class="empty" style="min-height:100%;align-content:center"><span class="spin"></span><p>Carregando…</p></div>
@@ -2614,6 +2721,8 @@ const CONFIG={
      ativacao: 'auto' ativa a assinatura no retorno do pagamento; 'manual' espera a sua liberação
      liberacao: 'manual' cada painel novo espera a sua liberação; 'auto' abre na hora
      cadastro: 'aberto' ou 'fechado' para novos clientes */
+  /* preço do relatório completo avulso do Diagnóstico Express (página pública #diagnostico-gratis) */
+  diagPreco:147,
   ativacao:'auto',liberacao:'manual',cadastro:'aberto',aviso:null,
   /* minutos sem uso até a área do cliente encerrar a sessão sozinha */
   inatividadeMin:30,
@@ -3155,6 +3264,7 @@ async function route(){
   try{if(!$('#ov').hidden) closePanel();}catch(e){}
   const hRaw=(location.hash||'').slice(1);
   const h=hRaw.split('?')[0];
+  {const pb=$('#pub');if(h==='diagnostico-gratis'){showPub();return;}if(pb) pb.hidden=true;}
   if(!USER){if(h==='pagamento-confirmado') lsSet('cc-payret','1');showAuth(h==='cadastro'?'up':'in');return;}
   if(lsGet('cc-payret','')==='1'){lsSet('cc-payret','');await confirmPayment();}
   $('#auth').hidden=true;$('#shell').hidden=false;$('#nav').classList.remove('on');
@@ -4217,7 +4327,7 @@ async function vDiagnostico(){const {C,cos}=await pickCo('diagnostico');if(!C){$
   const kzPos=D.FI==null?null:Math.max(0,Math.min(100,(D.FI+7)/14*100));
   const L=D.DRE,av=v=>L.RL?FMT_P(v/L.RL):'—';
   const dre=[['Receita bruta',L.rb,0],['(−) Deduções',-L.ded,1],['Receita líquida',L.RL,2],['(−) Custos dos produtos e serviços',-L.CPV,1],['Lucro bruto',L.LB,2],['(−) Despesas operacionais',-L.DO,1],['EBITDA',L.EBITDA,3],['(−) Depreciação e amortização',-L.DEP,1],['Resultado operacional (EBIT)',L.EBIT,2],['Resultado financeiro',L.RF,1],['Outras receitas',L.OR,1],['(−) IRPJ e CSLL',-L.IR,1],['Lucro líquido',L.LL,3]];
-  $('#main').innerHTML=`<div class="ph"><div><div class="crumb"><a href="#empresas">Empresas</a> › ${esc(C.empresa.nome)}</div><h1>Diagnóstico financeiro</h1><p>Balanço de ${ML(D.last)} e resultado de ${D.n} ${D.n>1?'meses':'mês'} (${per}).</p></div><div class="acts">${coSelect(cos,C)}<button class="btn" type="button" id="dgPrint">Imprimir</button><button class="btn primary" type="button" id="dgSim">Simular cenários</button></div></div>
+  $('#main').innerHTML=`<div class="ph"><div><div class="crumb"><a href="#empresas">Empresas</a> › ${esc(C.empresa.nome)}</div><h1>Diagnóstico financeiro</h1><p>Balanço de ${ML(D.last)} e resultado de ${D.n} ${D.n>1?'meses':'mês'} (${per}).</p></div><div class="acts">${coSelect(cos,C)}<button class="btn" type="button" id="dgPrint">Baixar relatório em PDF</button><button class="btn primary" type="button" id="dgSim">Simular cenários</button></div></div>
    <div class="dg-top">
      <div class="dg-score"><div class="gauge" style="--p:${D.score||0}"><svg viewBox="0 0 120 70" aria-hidden="true"><path d="M10,62 A50,50 0 0 1 110,62" class="g0"/><path d="M10,62 A50,50 0 0 1 110,62" class="g1 ${stC}" pathLength="100" style="stroke-dasharray:${D.score||0} 100"/></svg><b>${D.score==null?'—':D.score}</b><small>de 100</small></div>
        <div><span class="pill ${stC}">${stT}</span><h2>Nota de saúde financeira</h2><p>Combina liquidez, endividamento, rentabilidade, prazos, margem de segurança, termômetro de Kanitz e modelo Fleuriet.</p></div></div>
@@ -4241,7 +4351,7 @@ async function vDiagnostico(){const {C,cos}=await pickCo('diagnostico');if(!C){$
      </div></div>
    </div>
    <p style="color:var(--ink-3);font-size:12.5px;margin-top:16px">O diagnóstico depende da classificação das contas no plano de contas. Contas sem linha do painel ficam de fora dos cálculos.</p>`;
-  bindCoSel('diagnostico',vDiagnostico);$('#dgPrint').onclick=()=>print();$('#dgSim').onclick=()=>go('simulador');
+  bindCoSel('diagnostico',vDiagnostico);$('#dgPrint').onclick=()=>printDiag(C.empresa.nome,D);$('#dgSim').onclick=()=>go('simulador');
 }
 const DICA={lc:'Alongar dívidas de curto prazo e reforçar o caixa.',ls:'Reduzir estoque parado ou renegociar prazos com fornecedores.',li:'Formar uma reserva de caixa equivalente a um mês de gastos fixos.',lg:'Reduzir dívidas totais ou reinvestir lucros.',
   end:'Reter lucros e evitar novas dívidas até o patrimônio crescer.',comp:'Trocar dívidas de curto prazo por linhas de longo prazo.',dlEbitda:'Priorizar a amortização das dívidas mais caras.',mb:'Rever preço e custo dos produtos de menor margem.',
@@ -4588,6 +4698,277 @@ function pickLogo(C,after){const i=document.createElement('input');i.type='file'
       C.logo=out.toDataURL('image/png');(C.hist=C.hist||[]).unshift({at:Date.now(),t:'Logo da empresa atualizada'});await save(C);toast('Logo salva. Ela aparece no topo do painel.');if(after) after();
     }catch(e){toast('Não foi possível usar esta imagem.');}};im.onerror=()=>toast('Não foi possível ler a imagem.');im.src=fr.result;};fr.readAsDataURL(f);};
   i.click();}
+/* Diagnóstico Express: cálculo a partir dos números da DRE e do balanço (compartilhado entre o site e a área do cliente) */
+var DX_CAMPOS=[
+ {k:'rec',g:'r',l:'Receita bruta de vendas',h:'Total vendido no período, antes de impostos e devoluções.',req:1},
+ {k:'ded',g:'r',l:'Impostos sobre vendas e devoluções',h:'Simples, ICMS, PIS, Cofins, ISS e devoluções. Deixe 0 se não souber.'},
+ {k:'cv',g:'r',l:'Custos que variam com as vendas',h:'Mercadorias ou matéria-prima vendida, comissões, fretes de venda e taxas de cartão.',req:1},
+ {k:'cf',g:'r',l:'Gastos fixos do período',h:'Salários e encargos, pró-labore, aluguel, contador, sistemas, energia. Sem juros.',req:1},
+ {k:'fin',g:'r',l:'Juros e tarifas bancárias',h:'Despesas financeiras de empréstimos, antecipações e cartão.'},
+ {k:'da',g:'r',l:'Depreciação (se estiver nos gastos fixos)',h:'Opcional. Usada para estimar o EBITDA.'},
+ {k:'disp',g:'b',l:'Caixa e bancos (saldo atual)',h:'Dinheiro em caixa, contas e aplicações de resgate imediato.'},
+ {k:'cr',g:'b',l:'Contas a receber de clientes',h:'Vendas a prazo ainda não recebidas.'},
+ {k:'est',g:'b',l:'Estoques',h:'Mercadorias, matéria-prima e produtos prontos.'},
+ {k:'pc',g:'b',l:'Contas a pagar em até 12 meses',h:'Fornecedores, impostos, salários a pagar e parcelas de empréstimos do próximo ano.'},
+ {k:'forn',g:'b',l:'Fornecedores a pagar',h:'Parte das contas a pagar que é de fornecedores.'},
+ {k:'emp',g:'b',l:'Empréstimos e financiamentos (total)',h:'Saldo devedor total, curto e longo prazo.'},
+ {k:'pl',g:'b',l:'Patrimônio líquido',h:'Capital social mais lucros acumulados (no balanço).'},
+ {k:'at',g:'b',l:'Ativo total',h:'Total do ativo no balanço.'}];
+function dxNum(v){if(v==null||v==='') return null;if(typeof v==='number') return isFinite(v)?v:null;var s=String(v).replace(/[R$\s]/g,'');if(/,\d{1,2}$/.test(s)||/\.\d{3}(\.|,|$)/.test(s)) s=s.replace(/\./g,'').replace(',','.');var n=parseFloat(s);return isFinite(n)?n:null;}
+function dxCalc(I){var n=Math.max(1,Math.min(12,+I.meses||12)),g=function(k){var v=dxNum(I[k]);return v==null?null:v;},z=function(k){return g(k)||0;};
+ var seg=typeof ccSegGet==='function'?(I.seg?ccSegGet(I.seg):ccSegDetect([I.setor||''])):{k:'geral',n:'Empresa em geral',mc:[.3,.55],dc:[],rk:[]};
+ var rec=z('rec'),rl=rec-z('ded'),cv=z('cv'),cf=z('cf'),fin=z('fin'),da=z('da');
+ var mc=rl-cv,mcp=rl>0?mc/rl:null,res=mc-cf,resp=rl>0?res/rl:null,lai=res-fin,laip=rl>0?lai/rl:null;
+ var rlm=rl/n,pe=mcp>0?(cf/n)/mcp:null,ms=pe!=null&&rlm>0?(rlm-pe)/rlm:null,gao=res>0?mc/res:null,finp=rl>0?fin/rl:null,cfp=rl>0?cf/rl:null,ebitda=res+da,ebm=rl>0?ebitda/rl:null;
+ var hb=['disp','cr','est','pc'].some(function(k){return g(k)!=null;});
+ var ac=z('disp')+z('cr')+z('est'),pc=g('pc'),lc=pc>0?ac/pc:null,ls=pc>0?(ac-z('est'))/pc:null,li=pc>0?z('disp')/pc:null;
+ var pmr=g('cr')!=null&&rlm>0?z('cr')/rlm*30:null,pme=g('est')!=null&&cv>0?z('est')/(cv/n)*30:null,pmp=g('forn')!=null&&cv>0?z('forn')/(cv/n)*30:null;
+ var ciclo=pmr!=null||pme!=null?(pmr||0)+(pme||0)-(pmp||0):null;
+ var at=g('at'),pl=g('pl'),endv=at>0&&pl!=null?(at-pl)/at:null,emp=g('emp'),de=emp!=null&&ebitda>0?emp/(ebitda*12/n):null,roe=pl>0?(lai*12/n)/pl:null,cobj=fin>0?res/fin:null;
+ var nf=+I.func||0,rpf=nf>0?rlm/nf:null;
+ var V={n:n,seg:seg,rec:rec,rl:rl,rlm:rlm,cv:cv,cf:cf,fin:fin,da:da,mc:mc,mcp:mcp,res:res,resp:resp,lai:lai,laip:laip,pe:pe,ms:ms,gao:gao,finp:finp,cfp:cfp,ebitda:ebitda,ebm:ebm,
+  hb:hb,ac:ac,pc:pc,lc:lc,ls:ls,li:li,pmr:pmr,pme:pme,pmp:pmp,ciclo:ciclo,endv:endv,emp:emp,de:de,roe:roe,cobj:cobj,rpf:rpf,nf:nf,disp:g('disp')};
+ /* nota: cada componente vai de 0 a 1 entre o limite ruim e o bom */
+ var sc=function(v,bad,good){if(v==null||!isFinite(v)) return null;var t=(v-bad)/(good-bad);return Math.max(0,Math.min(1,t));};
+ var lo=seg.mc[0],hi=seg.mc[1];
+ var C=[['mcp','Margem de contribuição',mcp==null?null:sc(mcp,lo*.55,lo+(hi-lo)*.5),3],['resp','Resultado operacional',sc(resp,-.02,.12),3],['ms','Margem de segurança',sc(ms,0,.3),3],
+  ['finp','Peso dos juros',finp==null?null:sc(-finp,-.08,-.015),1.5],['lc','Liquidez corrente',sc(lc,.8,1.6),2],['endv','Endividamento',endv==null?null:sc(-endv,-.85,-.45),1.5],
+  ['ciclo','Ciclo financeiro',ciclo==null?null:sc(-ciclo,-120,-25),1],['de','Dívida ÷ EBITDA',de==null?(emp===0?1:null):sc(-de,-5,-1.5),1.5]];
+ var sw=0,ss=0;C.forEach(function(c){if(c[2]!=null){sw+=c[3];ss+=c[2]*c[3];}});V.comp=C.map(function(c){return {k:c[0],l:c[1],s:c[2],w:c[3]};});
+ V.nota=sw?Math.round(ss/sw*100):null;
+ V.faixa=V.nota==null?['—','']:V.nota>=75?['Saudável','ok']:V.nota>=55?['Atenção','at']:V.nota>=35?['Risco','rk']:['Crítico','cr'];
+ V.recs=dxRecs(V);return V;}
+function dxBRL(v,d){if(v==null||!isFinite(v)) return '—';return (v<0?'− ':'')+'R$ '+Math.abs(v).toLocaleString('pt-BR',{minimumFractionDigits:d||0,maximumFractionDigits:d||0});}
+function dxP(v,d){return v==null||!isFinite(v)?'—':(v*100).toLocaleString('pt-BR',{minimumFractionDigits:d==null?1:d,maximumFractionDigits:d==null?1:d})+'%';}
+function dxX(v,d){return v==null||!isFinite(v)?'—':v.toLocaleString('pt-BR',{minimumFractionDigits:d==null?2:d,maximumFractionDigits:d==null?2:d});}
+/* recomendações por prioridade: p=1 urgente (30 dias), 2 importante (60), 3 manutenção (90) */
+function dxRecs(V){var R=[],s=V.seg,lo=s.mc[0];
+ if(V.mcp!=null&&V.mcp<lo) R.push({p:1,k:'mcp',t:'Recompor a margem de contribuição',d:'A margem está em '+dxP(V.mcp)+', abaixo da faixa indicativa do setor ('+dxP(lo,0)+' a '+dxP(s.mc[1],0)+'). Revise preços dos itens de maior venda e os custos que variam com as vendas: compras, comissões, fretes e taxas de cartão.'});
+ if(V.res<0) R.push({p:1,k:'res',t:'Sair do prejuízo operacional',d:'As vendas não cobrem os gastos fixos: faltam '+dxBRL(-V.res/V.n)+' por mês. Para empatar, a empresa precisa vender '+dxBRL(V.pe)+' por mês com a margem atual, ou reduzir gastos fixos.'});
+ else if(V.ms!=null&&V.ms<.15) R.push({p:1,k:'ms',t:'Aumentar a folga sobre o ponto de equilíbrio',d:'A receita pode cair só '+dxP(V.ms)+' antes do prejuízo. Crie uma meta mensal acima de '+dxBRL(V.pe*1.2)+' e acompanhe semanalmente.'});
+ if(V.lc!=null&&V.lc<1) R.push({p:1,k:'lc',t:'Reforçar o capital de giro',d:'Os recursos de curto prazo cobrem '+dxX(V.lc)+' vez as contas dos próximos 12 meses. Renegocie prazos com fornecedores, acelere recebimentos e evite antecipar recebíveis com juros altos.'});
+ if(V.finp!=null&&V.finp>.04) R.push({p:V.finp>.07?1:2,k:'fin',t:'Reduzir o custo financeiro',d:'Juros e tarifas consomem '+dxP(V.finp)+' da receita. Troque dívidas caras por linhas mais baratas e negocie tarifas e taxas de antecipação.'});
+ if(V.de!=null&&V.de>3) R.push({p:2,k:'de',t:'Plano para a dívida',d:'A dívida equivale a '+dxX(V.de,1)+' anos de EBITDA. Defina um teto de endividamento e um cronograma de amortização antes de novos financiamentos.'});
+ if(V.ciclo!=null&&V.ciclo>60) R.push({p:2,k:'ciclo',t:'Encurtar o ciclo financeiro',d:'A empresa financia '+Math.round(V.ciclo)+' dias entre pagar e receber. Reduza estoques parados'+(V.pme!=null?' ('+Math.round(V.pme)+' dias de estoque)':'')+' e o prazo concedido aos clientes'+(V.pmr!=null?' ('+Math.round(V.pmr)+' dias)':'')+'.'});
+ if(V.cfp!=null&&V.cfp>.45) R.push({p:2,k:'cf',t:'Rever a estrutura fixa',d:'Os gastos fixos somam '+dxP(V.cfp)+' da receita. Liste os dez maiores e avalie cada um: o que pode ser renegociado, terceirizado ou cortado.'});
+ if(V.endv!=null&&V.endv>.7) R.push({p:2,k:'endv',t:'Reduzir a dependência de terceiros',d:dxP(V.endv)+' do ativo é financiado por dívidas e contas a pagar. Reter parte do lucro na empresa fortalece o patrimônio.'});
+ if(V.gao!=null&&V.gao>4) R.push({p:2,k:'gao',t:'Atenção à alavancagem operacional',d:'Cada 1% de queda nas vendas reduz o resultado em '+dxX(V.gao,1)+'%. Mantenha reserva de caixa para pelo menos três meses de gastos fixos.'});
+ if(V.disp!=null&&V.cf>0&&V.disp<V.cf/V.n) R.push({p:2,k:'disp',t:'Montar uma reserva de caixa',d:'O caixa atual cobre menos de um mês de gastos fixos ('+dxBRL(V.cf/V.n)+'). Separe um percentual fixo das vendas até chegar a três meses.'});
+ R.push({p:3,k:'rotina',t:'Acompanhar os números todo mês',d:'Feche margem de contribuição, ponto de equilíbrio e caixa mensalmente, comparando com o mês anterior e com o mesmo mês do ano passado.'});
+ (s.dc||[]).slice(0,2).forEach(function(t){R.push({p:3,k:'setor',t:'Boa prática do setor',d:t});});
+ return R.sort(function(a,b){return a.p-b.p;});}
+/* código compacto para enviar os números (sem dados pessoais além do que a pessoa digitou) */
+function dxEncode(I){var j=JSON.stringify(I);var b=btoa(unescape(encodeURIComponent(j)));return 'DX1-'+b.replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');}
+function dxDecode(c){var m=String(c||'').match(/DX1-([A-Za-z0-9_-]{8,6000})/);if(!m) return null;var b=m[1].replace(/-/g,'+').replace(/_/g,'/');while(b.length%4) b+='=';
+ try{var o=JSON.parse(decodeURIComponent(escape(atob(b))));if(!o||typeof o!=='object') return null;var I={};Object.keys(o).slice(0,40).forEach(function(k){var v=o[k];if(typeof v==='string') v=v.slice(0,160);if(typeof v==='number'||typeof v==='string') I[k]=v;});return I;}catch(e){return null;}}
+/* ---------- Diagnóstico Express: relatório completo (administração) ---------- */
+let DXPICK=null,DXCUR=null;
+function dxReport(I,V,M){M=M||{};const s=V.seg,hoje=new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'});
+  const per=V.n===12?'últimos 12 meses':V.n===1?'um mês':`últimos ${V.n} meses`;
+  const C=2*Math.PI*54,off=C*(1-(V.nota||0)/100);
+  const ring=`<svg class="dxr-ring" viewBox="0 0 130 130"><circle cx="65" cy="65" r="54" fill="none" stroke="#F1ECE0" stroke-width="10"/><circle cx="65" cy="65" r="54" fill="none" stroke="#B8913A" stroke-width="10" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${off}" transform="rotate(-90 65 65)"/><text x="65" y="70" text-anchor="middle" font-size="34" font-weight="700" fill="#1E1433">${V.nota}</text><text x="65" y="90" text-anchor="middle" font-size="10" fill="#857C95">de 100</text></svg>`;
+  const st=(v,a,b,inv)=>v==null?['—','']:(inv?(v<=a?['Bom','ok']:v<=b?['Atenção','at']:['Crítico','cr']):(v>=a?['Bom','ok']:v>=b?['Atenção','at']:['Crítico','cr']));
+  const row=(l,v,x,o)=>`<tr><td>${l}</td><td class="n">${v}</td><td>${x?`<span class="dxr-t ${x[1]}">${x[0]}</span>`:''}</td><td class="o">${o||''}</td></tr>`;
+  const comp=V.comp.filter(c=>c.s!=null);const fortes=comp.filter(c=>c.s>=.7),fracos=comp.filter(c=>c.s<.4);
+  const resumo=V.nota>=75?'Os números mostram uma empresa equilibrada, com margem e folga compatíveis com o setor. O foco é preservar a margem e crescer com segurança.':V.nota>=55?'A empresa se sustenta, mas alguns indicadores estão fora da zona confortável e pedem acompanhamento próximo.':V.nota>=35?'Há riscos relevantes no resultado ou no caixa. As ações do plano devem começar nas próximas semanas.':'A situação exige ação imediata, começando pelas prioridades de 30 dias deste relatório.';
+  const X=v=>Math.max(0,Math.min(100,v*100));
+  const gauge=`<div class="dxr-g"><div class="tr"><span class="band" style="left:${X(s.mc[0])}%;width:${X(s.mc[1])-X(s.mc[0])}%;background:${s.c}55"></span>${V.mcp!=null?`<span class="gm" style="left:${X(V.mcp)}%"><em>${dxP(V.mcp)}</em></span>`:''}</div><div class="sc"><span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span></div></div>`;
+  const grp=[[1,'Primeiros 30 dias','Urgente'],[2,'De 30 a 60 dias','Importante'],[3,'De 60 a 90 dias','Rotina e melhoria']];
+  const foot=n=>`<div class="dxr-ft"><span>Diagnóstico financeiro · ${esc(I.nome||'Empresa')}</span><span>Cifra Clara · ${n}</span></div>`;
+  return `<div class="dxr">
+  <section class="dxr-pg cover"><div class="cv-top"><i class="dxr-mk"></i><b>Cifra Clara</b></div>
+    <div class="cv-mid"><small>Diagnóstico financeiro</small><h1>${esc(I.nome||'Sua empresa')}</h1><p>${esc(s.n)}${I.setor&&I.setor.toLowerCase()!==s.n.toLowerCase()?' · '+esc(I.setor):''}<br>Números de referência: ${per}</p></div>
+    <div class="cv-sc">${ring}<div><span class="dxr-t ${V.faixa[1]==='ok'?'ok':V.faixa[1]==='at'?'at':'cr'}">${V.faixa[0]}</span><p>${resumo}</p></div></div>
+    <div class="cv-bt"><span>${M.cliente?'Preparado para '+esc(M.cliente):''}</span><span>${hoje}</span></div></section>
+
+  <section class="dxr-pg"><h2><span>01</span>Resumo executivo</h2><p class="lead">${resumo}</p>
+    <div class="dxr-kp"><div><small>Receita média por mês</small><b>${dxBRL(V.rlm)}</b></div><div><small>Ponto de equilíbrio por mês</small><b>${dxBRL(V.pe)}</b></div><div><small>Margem de contribuição</small><b>${dxP(V.mcp)}</b></div><div><small>Margem de segurança</small><b>${dxP(V.ms)}</b></div></div>
+    <h3>Nota por componente</h3><table class="dxr-tb sc"><tbody>${comp.map(c=>`<tr><td>${c.l}</td><td class="bar"><i style="width:${Math.round(c.s*100)}%;background:${c.s>=.7?'#11795A':c.s>=.4?'#C6A04A':'#B8476C'}"></i></td><td class="n">${Math.round(c.s*100)}</td></tr>`).join('')}</tbody></table>
+    <div class="dxr-2"><div><h3>Pontos fortes</h3><ul>${fortes.length?fortes.map(c=>`<li>${c.l}</li>`).join(''):'<li>Nenhum indicador na zona confortável por enquanto.</li>'}</ul></div><div><h3>Pontos de atenção</h3><ul class="at">${fracos.length?fracos.map(c=>`<li>${c.l}</li>`).join(''):'<li>Nenhum indicador em zona crítica.</li>'}</ul></div></div>${foot(2)}</section>
+
+  <section class="dxr-pg"><h2><span>02</span>Resultado e ponto de equilíbrio</h2>
+    <table class="dxr-tb"><thead><tr><th>Indicador</th><th class="n">Valor (${per})</th><th>Situação</th><th>O que significa</th></tr></thead><tbody>
+    ${row('Receita bruta',dxBRL(V.rec),null,'Total vendido no período.')}
+    ${row('Receita líquida',dxBRL(V.rl),null,'Receita depois de impostos sobre vendas e devoluções.')}
+    ${row('Custos que variam com as vendas',dxBRL(V.cv),null,'Mercadorias ou matéria-prima, comissões, fretes e taxas.')}
+    ${row('Margem de contribuição',dxBRL(V.mc)+' · '+dxP(V.mcp),st(V.mcp,s.mc[0],s.mc[0]*.8),'Quanto sobra das vendas para pagar os gastos fixos.')}
+    ${row('Gastos fixos',dxBRL(V.cf)+' · '+dxP(V.cfp),st(V.cfp,.35,.5,true),'Estrutura que existe mesmo sem vender.')}
+    ${row('Resultado operacional',dxBRL(V.res)+' · '+dxP(V.resp),st(V.resp,.08,0),'Margem de contribuição menos gastos fixos.')}
+    ${row('Juros e tarifas',dxBRL(V.fin)+' · '+dxP(V.finp),st(V.finp,.02,.05,true),'Custo do dinheiro de terceiros.')}
+    ${row('Resultado antes do imposto de renda',dxBRL(V.lai)+' · '+dxP(V.laip),st(V.laip,.06,0),'O que fica depois dos juros.')}
+    ${row('EBITDA estimado',dxBRL(V.ebitda)+' · '+dxP(V.ebm),null,'Geração de caixa da operação, antes de juros e depreciação.')}
+    ${row('Ponto de equilíbrio por mês',dxBRL(V.pe),null,'Vendas mensais necessárias para não ter prejuízo.')}
+    ${row('Receita média por mês',dxBRL(V.rlm),null,'Receita líquida dividida pelos meses do período.')}
+    ${row('Margem de segurança',dxP(V.ms),st(V.ms,.2,.05),'Quanto as vendas podem cair antes do prejuízo.')}
+    ${row('Alavancagem operacional',V.gao==null?'—':dxX(V.gao,1)+'×',st(V.gao,3,5,true),'Quanto o resultado varia para cada 1% de variação nas vendas.')}
+    ${V.rpf!=null?row('Receita por funcionário/mês',dxBRL(V.rpf),null,'Produtividade da equipe.'):''}
+    </tbody></table>
+    <h3>Margem de contribuição × faixa indicativa de ${esc(s.n)}</h3>${gauge}<p class="dxr-nt">Faixa indicativa: ${dxP(s.mc[0],0)} a ${dxP(s.mc[1],0)}. As faixas variam conforme porte, região e modelo de negócio.</p>${foot(3)}</section>
+
+  <section class="dxr-pg"><h2><span>03</span>Liquidez, endividamento e ciclo de caixa</h2>
+    ${V.hb||V.at||V.emp!=null?`<table class="dxr-tb"><thead><tr><th>Indicador</th><th class="n">Valor</th><th>Situação</th><th>O que significa</th></tr></thead><tbody>
+    ${row('Liquidez corrente',dxX(V.lc),st(V.lc,1.3,1),'Recursos de curto prazo para cada R$ 1 de contas dos próximos 12 meses.')}
+    ${row('Liquidez seca',dxX(V.ls),st(V.ls,1,.7),'O mesmo, sem contar os estoques.')}
+    ${row('Liquidez imediata',dxX(V.li),st(V.li,.3,.1),'Só o caixa e bancos sobre as contas de curto prazo.')}
+    ${row('Prazo médio de recebimento',V.pmr==null?'—':Math.round(V.pmr)+' dias',st(V.pmr,30,60,true),'Tempo para receber dos clientes.')}
+    ${row('Prazo médio de estoque',V.pme==null?'—':Math.round(V.pme)+' dias',st(V.pme,45,90,true),'Tempo que a mercadoria fica parada.')}
+    ${row('Prazo médio de pagamento',V.pmp==null?'—':Math.round(V.pmp)+' dias',null,'Tempo para pagar os fornecedores.')}
+    ${row('Ciclo financeiro',V.ciclo==null?'—':Math.round(V.ciclo)+' dias',st(V.ciclo,30,75,true),'Dias que a empresa financia entre pagar e receber.')}
+    ${row('Endividamento geral',dxP(V.endv),st(V.endv,.5,.75,true),'Parte do ativo financiada por terceiros.')}
+    ${row('Dívida ÷ EBITDA',V.de==null?'—':dxX(V.de,1)+' anos',st(V.de,2,3.5,true),'Anos de geração de caixa para quitar os empréstimos.')}
+    ${row('Cobertura de juros',V.cobj==null?'—':dxX(V.cobj,1)+'×',st(V.cobj,3,1.5),'Quantas vezes o resultado operacional paga os juros.')}
+    ${row('Retorno sobre o patrimônio (ao ano)',dxP(V.roe),st(V.roe,.15,.05),'Lucro antes do IR sobre o patrimônio líquido.')}
+    </tbody></table>`:'<p class="lead">Os números do balanço não foram informados. Com eles, este capítulo mostra liquidez, endividamento, prazos e ciclo de caixa.</p>'}${foot(4)}</section>
+
+  <section class="dxr-pg"><h2><span>04</span>Plano de ação de 90 dias</h2>
+    ${grp.map(([p,t,sub])=>{const L=V.recs.filter(r=>r.p===p);return L.length?`<div class="dxr-pl"><h3>${t} <small>${sub}</small></h3><ol>${L.map(r=>`<li><b>${esc(r.t)}</b><span>${esc(r.d)}</span></li>`).join('')}</ol></div>`:'';}).join('')}${foot(5)}</section>
+
+  <section class="dxr-pg"><h2><span>05</span>Análise do especialista</h2>
+    ${M.nota?`<div class="dxr-cm">${esc(M.nota).replace(/\n{2,}/g,'</p><p>').replace(/\n/g,'<br>').replace(/^/,'<p>')+'</p>'}</div>`:'<p class="lead">Sem comentários adicionais.</p>'}
+    <div class="dxr-sig"><b>${esc(M.assina||'Equipe Cifra Clara')}</b><span>Cifra Clara · finanças empresariais</span></div>
+    <h3>Metodologia e limites</h3><p class="dxr-nt">Este diagnóstico usa os valores informados pela própria empresa, sem auditoria. Os indicadores seguem a análise custo-volume-lucro e a análise de balanços. A nota de 0 a 100 é a média ponderada de oito componentes, cada um avaliado entre um limite de risco e um limite saudável. As faixas por setor são indicativas e não substituem a escrituração contábil nem a orientação do seu contador. Cifra Clara, CNPJ 68.962.013/0001-85.</p>${foot(6)}</section>
+  </div>`;}
+async function vAdmDx(){
+  let D=null;try{D=await admData(true);}catch(e){}
+  const pedidos=(D&&D.solic||[]).filter(s=>/DX1-/.test(s.mensagem||''));
+  $('#main').innerHTML=admHead('Diagnóstico Express','Pedidos do relatório completo feitos no site. Revise os números, escreva a análise e gere o PDF.')+`
+    <div class="grid2" style="align-items:start"><div class="panel"><div class="hd"><h2>Pedidos recebidos</h2></div><div class="bd">${pedidos.length?`<div class="lst">${pedidos.map((s,i)=>`<div class="it2"><div class="tx"><b>${esc(s.nome||'Sem nome')}${s.empresa?' · '+esc(s.empresa):''}</b><span>${fmtDT(s.at)} · ${esc(((s.mensagem||'').match(/Nota \d+\/100 · [^\n]*/)||[''])[0])}</span></div><button class="btn sm" type="button" data-dxo="${i}">Abrir</button></div>`).join('')}</div>`:'<p style="color:var(--ink-3)">Nenhum pedido ainda. Eles aparecem aqui e em Contatos do site.</p>'}</div></div>
+    <div class="panel"><div class="hd"><h2>Abrir por código</h2></div><div class="bd" style="display:grid;gap:10px"><textarea id="dxC" rows="4" placeholder="Cole aqui a mensagem do WhatsApp ou o código DX1-…" style="width:100%;font:inherit;font-size:13.5px;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--input,var(--surface))"></textarea><button class="btn" type="button" id="dxCo">Abrir diagnóstico</button></div></div></div>
+    <div id="dxW"></div>`;
+  document.querySelectorAll('[data-dxo]').forEach(b=>b.onclick=()=>{const s=pedidos[+b.dataset.dxo];const I=dxDecode(s.mensagem);if(!I){toast('Código inválido.');return;}dxOpen(I,{cliente:s.nome||'',tel:s.telefone||'',email:s.email||''});});
+  $('#dxCo').onclick=()=>{const I=dxDecode($('#dxC').value);if(!I){toast('Não encontrei um código DX1- válido no texto.');return;}const m=$('#dxC').value.match(/Nome:\s*([^\n]+)/);dxOpen(I,{cliente:m?m[1].trim():''});};
+  if(DXPICK){const p=DXPICK;DXPICK=null;dxOpen(p.I,p.M);}}
+function dxOpen(I,M){DXCUR={I:Object.assign({},I),M:Object.assign({nota:'',assina:''},M)};
+  const W=$('#dxW');const f=(k,l,v)=>`<div class="f"><label for="dx_${k}">${l}</label><input id="dx_${k}" value="${esc(v==null?'':v)}" data-dk="${k}"></div>`;
+  W.innerHTML=`<div class="panel" style="margin-top:16px"><div class="hd"><div><h2>${esc(I.nome||'Empresa sem nome')}</h2><p>${esc(M.cliente||'')}${M.tel?' · '+esc(M.tel):''}${M.email?' · '+esc(M.email):''}</p></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" type="button" id="dxWa">Mensagem de entrega</button><button class="btn primary" type="button" id="dxPdf">Gerar PDF</button></div></div>
+    <div class="bd" style="display:grid;gap:16px"><details><summary style="cursor:pointer;font-weight:600">Conferir e corrigir os números enviados</summary><div class="grid3" style="margin-top:12px">${f('nome','Empresa',I.nome)}${f('setor','Setor',I.setor)}${f('meses','Meses do período',I.meses||12)}${f('func','Funcionários',I.func||'')}${DX_CAMPOS.map(c=>f(c.k,c.l,I[c.k])).join('')}</div></details>
+    <div class="grid2"><div class="f"><label for="dxN">Análise do especialista (vai no relatório)</label><textarea id="dxN" rows="7" style="width:100%;font:inherit;font-size:14px;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--input,var(--surface))" placeholder="Leitura dos números, contexto da empresa e recomendações específicas."></textarea></div>
+    <div class="f"><label for="dxS">Assinado por</label><input id="dxS" placeholder="Ex.: Luiz Fernando Corti"><small>Fica no fim do relatório. Em branco: Equipe Cifra Clara.</small></div></div>
+    <div class="dxr-prev" id="dxPv"></div></div></div>`;
+  const draw=()=>{const V=dxCalc(DXCUR.I);$('#dxPv').innerHTML=dxReport(DXCUR.I,V,DXCUR.M);};
+  W.querySelectorAll('[data-dk]').forEach(i=>i.addEventListener('input',()=>{const k=i.dataset.dk;DXCUR.I[k]=['nome','setor'].includes(k)?i.value:(k==='meses'||k==='func'?+i.value||0:dxNum(i.value));if(k==='setor') DXCUR.I.seg=ccSegDetect([i.value]).k;draw();}));
+  $('#dxN').addEventListener('input',e=>{DXCUR.M.nota=e.target.value;draw();});$('#dxS').addEventListener('input',e=>{DXCUR.M.assina=e.target.value;draw();});
+  $('#dxPdf').onclick=()=>{const V=dxCalc(DXCUR.I);let P=$('#dxPrint');if(!P){P=document.createElement('div');P.id='dxPrint';document.body.appendChild(P);}P.innerHTML=dxReport(DXCUR.I,V,DXCUR.M);
+    const t0=document.title;document.title='Diagnostico_'+String(DXCUR.I.nome||'empresa').replace(/[^\wÀ-ú]+/g,'_');document.body.classList.add('dx-printing');
+    const done=()=>{document.body.classList.remove('dx-printing');document.title=t0;removeEventListener('afterprint',done);};addEventListener('afterprint',done);setTimeout(()=>window.print(),80);};
+  $('#dxWa').onclick=()=>{const V=dxCalc(DXCUR.I);const nm=(DXCUR.M.cliente||'').split(' ')[0];const msg=`Olá${nm?', '+nm:''}! Aqui é da ${CONFIG.marca}. Seu relatório completo do Diagnóstico Express${DXCUR.I.nome?' da '+DXCUR.I.nome:''} está pronto (nota ${V.nota}/100). Vou te enviar o PDF por aqui.`;
+    const u=DXCUR.M.tel?waTo(DXCUR.M.tel,msg):null;if(u) window.open(u,'_blank','noopener');else{try{navigator.clipboard.writeText(msg);toast('Mensagem copiada.');}catch(e){toast(msg);}}};
+  draw();W.scrollIntoView({behavior:'smooth',block:'start'});}
+/* ================= Diagnóstico Express =================
+   Página pública (#diagnostico-gratis): lê o balancete no navegador, mostra o resumo grátis
+   e libera o relatório completo (com PDF) para quem tem plano ativo ou para a equipe. */
+const DGX={C:null,files:[],busy:false};
+const DGX_PRECO=()=>(CONFIG.diagPreco||147);
+function dgxBlank(nome){return {id:'dgx-'+uid(),rev:1,owner:'',criado:Date.now(),empresa:{nome:nome||'Sua empresa',curto:(nome||'Sua empresa').slice(0,24),setor:'',atividade:'',un:'un'},
+  bal:[],map:{},vend:[],vendCfg:{agrupar:'produto'},prodCfg:{},gastoCfg:{},pessoal:[],metas:{pee:.2,abc_a:.8,abc_b:.95},users:[],ext:[],extCfg:{},plano:null,hist:[],gen:null};}
+/* guarda o diagnóstico no navegador para virar empresa depois do cadastro */
+const DGXDB={p:null,open(){return this.p||(this.p=new Promise((res,rej)=>{try{const r=indexedDB.open('cc-diag',1);r.onupgradeneeded=()=>r.result.createObjectStore('kv');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);}catch(e){rej(e);}}));},
+  async get(k){try{const d=await this.open();return await new Promise(r=>{const q=d.transaction('kv').objectStore('kv').get(k);q.onsuccess=()=>r(q.result||null);q.onerror=()=>r(null);});}catch(e){return null;}},
+  async set(k,v){try{const d=await this.open();return await new Promise(r=>{const t=d.transaction('kv','readwrite');v==null?t.objectStore('kv').delete(k):t.objectStore('kv').put(v,k);t.oncomplete=()=>r(true);t.onerror=()=>r(false);});}catch(e){return false;}}};
+function dgxFull(){return !!(USER&&(USER.admin||planState(USER).plan));}
+
+/* ---------- relatório completo (tela e PDF) ---------- */
+function diagReport(nome,D,o={}){
+  const [stT,stC]=scoreTxt(D.score),per=`${ML(D.W[0])} a ${ML(D.last)}`,hoje=new Date().toLocaleDateString('pt-BR');
+  const tag=g=>g==null?'<span class="pill mute">sem dado</span>':g===2?'<span class="pill ok">Bom</span>':g===1?'<span class="pill warn">Atenção</span>':'<span class="pill err">Crítico</span>';
+  const grp=[['Liquidez',['lc','ls','li','lg']],['Endividamento',['end','comp','dlEbitda']],['Rentabilidade',['mb','me','ml','roe','roa','giro']],['Prazos e ciclo',['pmr','pme','pmp','cf']],['Equilíbrio',['ms']]];
+  const best=D.rows.filter(r=>r.g===2),worst=D.rows.filter(r=>r.g===0),mid=D.rows.filter(r=>r.g===1);
+  const L=D.DRE,av=v=>L.RL?FMT_P(v/L.RL):'—';
+  const dre=[['Receita bruta',L.rb,0],['(−) Deduções',-L.ded,1],['Receita líquida',L.RL,2],['(−) Custos dos produtos e serviços',-L.CPV,1],['Lucro bruto',L.LB,2],['(−) Despesas operacionais',-L.DO,1],['EBITDA',L.EBITDA,3],['(−) Depreciação e amortização',-L.DEP,1],['Resultado operacional (EBIT)',L.EBIT,2],['Resultado financeiro',L.RF,1],['Outras receitas e despesas',L.OR,1],['(−) IRPJ e CSLL',-L.IR,1],['Lucro líquido',L.LL,3]];
+  const kzPos=D.FI==null?50:Math.max(0,Math.min(100,(D.FI+7)/14*100));
+  const plano=[...worst,...mid].slice(0,6);
+  return `<div class="rpt">
+   <header class="rpt-hd"><div class="rpt-br"><i class="mk" aria-hidden="true"></i><div><b>${esc(CONFIG.marca)}</b><small>Diagnóstico financeiro · ${esc(CONFIG.produto)}</small></div></div><div class="rpt-meta"><span>Emitido em ${hoje}</span><span>Balanço de ${ML(D.last)} · resultado de ${D.n} ${D.n>1?'meses':'mês'}</span></div></header>
+   <h1 class="rpt-t">${esc(nome)}</h1><p class="rpt-s">Período analisado: ${per}.</p>
+   <div class="dg-top">
+     <div class="dg-score"><div class="gauge" style="--p:${D.score||0}"><svg viewBox="0 0 120 70" aria-hidden="true"><path d="M10,62 A50,50 0 0 1 110,62" class="g0"/><path d="M10,62 A50,50 0 0 1 110,62" class="g1 ${stC}" pathLength="100" style="stroke-dasharray:${D.score||0} 100"/></svg><b>${D.score==null?'—':D.score}</b><small>de 100</small></div>
+       <div><span class="pill ${stC}">${stT}</span><h2>Nota de saúde financeira</h2><p>Combina liquidez, endividamento, rentabilidade, prazos, margem de segurança, termômetro de Kanitz e modelo Fleuriet.</p></div></div>
+     <div class="dg-card"><small>Termômetro de Kanitz</small><b>${D.FI==null?'—':FMT_X(D.FI)}</b><div class="thermo"><i style="left:${kzPos}%"></i><span>Insolvente</span><span>Penumbra</span><span>Solvente</span></div><em>${D.KZ?D.KZ[0]+': fator de insolvência calculado pelo balanço.':'Precisa de patrimônio líquido positivo.'}</em></div>
+     <div class="dg-card"><small>Modelo Fleuriet</small><b>Tipo ${['I','II','III','IV','V','VI'][D.FT[0]-1]}: ${D.FT[1]}</b><div class="fl"><span>Capital de giro <em>${FMT_K(D.CDG)}</em></span><span>Necessidade de giro <em>${FMT_K(D.NCG)}</em></span><span>Saldo de tesouraria <em class="${D.T<0?'neg':''}">${FMT_K(D.T)}</em></span></div><em>${D.FT[2]}</em></div>
+   </div>
+   <section class="rpt-sec"><h2>Resumo</h2><p class="rpt-p">A empresa tem <b>${best.length}</b> indicador${best.length===1?'':'es'} dentro da faixa de referência, <b>${mid.length}</b> em atenção e <b>${worst.length}</b> em situação crítica. ${D.KZ?`Pelo termômetro de Kanitz, está na faixa <b>${D.KZ[0].toLowerCase()}</b>. `:''}Pelo modelo Fleuriet, a estrutura de capital de giro é do tipo <b>${D.FT[1].toLowerCase()}</b>: ${esc(D.FT[2].charAt(0).toLowerCase()+D.FT[2].slice(1))}</p></section>
+   <section class="rpt-sec"><h2>Plano de ação sugerido</h2>${plano.length?`<ol class="rpt-ol">${plano.map(r=>`<li><b>${esc(r.nome)}</b> está em ${esc(r.txt)} (referência: ${esc(r.ref)}). ${esc(DICA[r.key]||'')}</li>`).join('')}</ol>`:'<p class="rpt-p">Todos os indicadores estão dentro da faixa de referência. O foco é manter a disciplina de caixa e acompanhar mês a mês.</p>'}</section>
+   <section class="rpt-sec"><h2>Indicadores</h2><div class="tw"><table class="t"><thead><tr><th>Indicador</th><th>O que mede</th><th class="r">Valor</th><th>Referência</th><th>Situação</th></tr></thead><tbody>
+     ${grp.map(([g,ks])=>`<tr class="syn"><td colspan="5"><b>${g}</b></td></tr>`+ks.map(k=>{const r=D.rows.find(x=>x.key===k);return `<tr><td>${esc(r.nome)}</td><td style="color:var(--ink-3)">${esc(r.desc)}</td><td class="r"><b>${esc(r.txt)}</b></td><td style="color:var(--ink-3)">${esc(r.ref)}</td><td>${tag(r.g)}</td></tr>`;}).join('')).join('')}
+   </tbody></table></div></section>
+   <section class="rpt-sec rpt-2"><div><h2>Resultado do período</h2><div class="tw"><table class="t"><thead><tr><th>Linha</th><th class="r">Valor</th><th class="r">% receita</th></tr></thead><tbody>${dre.map(([t,v,lv])=>`<tr${lv>=2?' class="syn"':''}><td${lv===3?' style="font-weight:650"':''}>${t}</td><td class="r">${FMT_K(v)}</td><td class="r">${av(v)}</td></tr>`).join('')}</tbody></table></div></div>
+     <div><h2>Balanço resumido em ${ML(D.last)}</h2><div class="tw"><table class="t"><tbody>
+       ${[['Caixa, bancos e aplicações',D.B.disp],['Clientes a receber',D.B.cli],['Estoques',D.B.est],['Ativo circulante',D.B.AC,1],['Ativo não circulante',D.B.ANC],['Ativo total',D.B.AT,1],['Fornecedores',D.B.forn],['Empréstimos de curto prazo',D.B.empcp],['Passivo circulante',D.B.PC,1],['Passivo não circulante',D.B.PNC,1],['Patrimônio líquido',D.B.PL,1]].map(([t,v,b])=>`<tr${b?' class="syn"':''}><td>${t}</td><td class="r">${FMT_K(v)}</td></tr>`).join('')}
+     </tbody></table></div></div></section>
+   <footer class="rpt-ft">As faixas de referência são gerais para pequenas e médias empresas e não substituem a análise do contador. Os cálculos usam a classificação automática das contas do balancete. ${esc(CONFIG.marca)} · CNPJ 68.962.013/0001-85 · usarcifraclara.com.br</footer>
+  </div>`;}
+function printDiag(nome,D){let el=$('#rptPrint');if(!el){el=document.createElement('div');el.id='rptPrint';document.body.appendChild(el);}
+  el.innerHTML=diagReport(nome,D);document.body.classList.add('prt');const t0=document.title;
+  document.title='Diagnostico_'+String(nome||'empresa').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^A-Za-z0-9]+/g,'_').slice(0,40)+'_'+new Date().toISOString().slice(0,10);
+  const done=()=>{document.body.classList.remove('prt');document.title=t0;el.innerHTML='';removeEventListener('afterprint',done);};addEventListener('afterprint',done);
+  setTimeout(()=>{try{print();}catch(e){done();}},60);}
+
+/* ---------- página pública ---------- */
+function showPub(){$('#boot').hidden=true;$('#auth').hidden=true;$('#shell').hidden=true;let p=$('#pub');
+  if(!p){p=document.createElement('div');p.id='pub';document.body.insertBefore(p,$('#boot'));}
+  p.hidden=false;vDiagGratis();window.scrollTo(0,0);}
+function vDiagGratis(){const p=$('#pub');const C=DGX.C;
+  p.innerHTML=`<header class="pub-hd"><a class="pub-br" href="index.html"><i class="mk" aria-hidden="true"></i>${esc(CONFIG.marca)}</a><nav><a href="index.html">Voltar ao site</a>${USER?`<a class="btn sm" href="#empresas">Área do cliente</a>`:`<a class="btn sm" href="#entrar">Entrar</a>`}</nav></header>
+  <main class="pub-in">
+   <div class="pub-intro"><span class="pub-k">Diagnóstico Express · grátis</span><h1>A saúde financeira da sua empresa em 2 minutos.</h1>
+    <p>Envie o balancete da contabilidade e receba na hora a nota de saúde financeira, o termômetro de insolvência e a estrutura do capital de giro.</p>
+    <ul class="pub-ok"><li>O arquivo é lido no seu navegador e não é enviado para nenhum servidor.</li><li>Sem cadastro para ver o resumo.</li><li>Funciona com Excel, CSV, PDF com texto e os principais sistemas contábeis.</li></ul></div>
+   <div class="pub-card" id="dgxBox"></div>
+  </main>
+  <footer class="pub-ft">${esc(CONFIG.marca)} · CNPJ 68.962.013/0001-85 · <a href="legal.html#privacidade">Privacidade</a> · <a href="legal.html#seguranca">Segurança</a></footer>`;
+  C&&diagnose(C)?dgxResult():dgxForm();}
+function dgxForm(){const b=$('#dgxBox');const C=DGX.C;const nome=C?C.empresa.nome:'';
+  const pend=C?C.bal.filter(f=>f.det&&f.det.ok&&f.month==null):[],bad=C?C.bal.filter(f=>!f.det||!f.det.ok):[];
+  b.innerHTML=`<h2>1. Sua empresa</h2><div class="f"><label for="dgN">Nome da empresa</label><input id="dgN" value="${esc(nome==='Sua empresa'?'':nome)}" placeholder="Ex.: Padaria Bom Dia Ltda" autocomplete="organization"></div>
+   <h2 style="margin-top:22px">2. Balancete</h2><div class="drop" id="dgDrop" tabindex="0" role="button"><span class="ill">${IUP}</span><b>Escolha ou arraste o balancete</b><span>Um mês já funciona. Com 12 meses o diagnóstico fica completo. Até 40 MB por arquivo.</span></div>
+   ${C&&C.bal.length?`<ul class="dgx-files">${C.bal.map((f,i)=>`<li class="${f.det&&f.det.ok?'':'bad'}"><span>${esc(f.name)}</span>${f.det&&f.det.ok?(f.month!=null?`<em>${ML(f.month)}</em>`:`<select data-mm="${i}" aria-label="Mês do balancete">${monthOptions(null)}</select>`):`<em>${esc(f.det&&f.det.msg||'Não reconhecido')}</em>`}<button type="button" class="x" data-rm="${i}" aria-label="Remover">×</button></li>`).join('')}</ul>`:''}
+   ${pend.length?'<p class="dgx-msg">Escolha o mês de cada balancete marcado.</p>':''}${bad.length&&!(C.bal.length-bad.length)?'<p class="dgx-msg err">Não reconhecemos um balancete nesse arquivo. Confira se ele tem as colunas de conta e saldo.</p>':''}
+   <button class="btn primary lg" type="button" id="dgGo" ${C&&C.bal.some(f=>f.det&&f.det.ok&&f.month!=null)?'':'disabled'}>Ver o diagnóstico</button>
+   <p class="dgx-note">Não tem o arquivo agora? <a href="#" id="dgEx">Veja com dados de exemplo</a>.</p>`;
+  const nm=()=>{const v=$('#dgN').value.trim();if(DGX.C) {DGX.C.empresa.nome=v||'Sua empresa';DGX.C.empresa.curto=(v||'Sua empresa').slice(0,24);}return v;};
+  $('#dgN').oninput=nm;
+  bindDrop($('#dgDrop'),ACC,async fs=>{if(DGX.busy) return;DGX.busy=true;$('#dgDrop').classList.add('busy');
+    try{if(!DGX.C) DGX.C=dgxBlank(nm());for(const f of fs){const parts=await readBalFiles(f.name,await f.arrayBuffer());parts.forEach(r=>{DGX.C.bal=DGX.C.bal.filter(x=>!(r.month!=null&&x.month===r.month));DGX.C.bal.push(r);});}
+      DGX.C.rev++;nm();}catch(e){toast(e.message||'Não foi possível ler o arquivo.');}DGX.busy=false;dgxForm();});
+  b.querySelectorAll('[data-mm]').forEach(s=>s.onchange=()=>{const f=DGX.C.bal[+s.dataset.mm];f.month=s.value===''?null:+s.value;DGX.C.rev++;dgxForm();});
+  b.querySelectorAll('[data-rm]').forEach(x=>x.onclick=()=>{DGX.C.bal.splice(+x.dataset.rm,1);DGX.C.rev++;dgxForm();});
+  $('#dgGo').onclick=()=>{nm();if(!diagnose(DGX.C)){toast('Não foi possível montar o balanço com esse arquivo. Confira se é o balancete completo do mês.');return;}DGX.C.rev++;dgxResult();window.scrollTo({top:0,behavior:'smooth'});};
+  $('#dgEx').onclick=async e=>{e.preventDefault();try{const S=JSON.parse($('#sample').textContent);const C=dgxBlank(S.empresa.nome);for(const f of S.bal) C.bal.push(...await readBalFiles(f.name,b64buf(f.b64)));C.rev++;DGX.C=C;dgxResult();}catch(x){toast('Não foi possível carregar o exemplo.');}};}
+function dgxResult(){const b=$('#dgxBox'),C=DGX.C,D=diagnose(C);if(!D){dgxForm();return;}
+  const [stT,stC]=scoreTxt(D.score),full=dgxFull();
+  const best=D.rows.filter(r=>r.g===2),worst=D.rows.filter(r=>r.g===0);
+  const show=['lc','end','ml'].map(k=>D.rows.find(r=>r.key===k));
+  const head=`<div class="dgx-top"><div><span class="pub-k">Resultado · ${esc(C.empresa.nome)}</span><h2>Balanço de ${ML(D.last)}</h2></div><button class="btn sm ghost" type="button" id="dgNew">Analisar outro arquivo</button></div>`;
+  if(full){b.classList.add('wide');b.innerHTML=head+`<div class="dgx-acts"><button class="btn primary" type="button" id="dgPdf">Baixar relatório em PDF</button>${USER&&!USER.admin?'<button class="btn" type="button" id="dgSave">Salvar como empresa</button>':''}</div>`+diagReport(C.empresa.nome,D);
+    $('#dgPdf').onclick=()=>printDiag(C.empresa.nome,D);const sv=$('#dgSave');if(sv) sv.onclick=dgxSaveCompany;}
+  else{b.classList.remove('wide');
+    const msg=`Olá! Fiz o Diagnóstico Express da ${C.empresa.nome} (nota ${D.score}, ${stT.toLowerCase()}) e quero o relatório completo.`;
+    b.innerHTML=head+`<div class="dg-score"><div class="gauge" style="--p:${D.score||0}"><svg viewBox="0 0 120 70" aria-hidden="true"><path d="M10,62 A50,50 0 0 1 110,62" class="g0"/><path d="M10,62 A50,50 0 0 1 110,62" class="g1 ${stC}" pathLength="100" style="stroke-dasharray:${D.score||0} 100"/></svg><b>${D.score==null?'—':D.score}</b><small>de 100</small></div><div><span class="pill ${stC}">${stT}</span><h3>Nota de saúde financeira</h3><p>${best.length} indicadores na faixa ideal e ${worst.length} em situação crítica, de ${D.rows.length} analisados.</p></div></div>
+     <div class="dgx-g">
+       <div class="dg-card"><small>Termômetro de Kanitz</small><b>${D.KZ?D.KZ[0]:'—'}</b><em>${D.KZ?'Fator de insolvência calculado pelo balanço.':'Precisa de patrimônio líquido positivo.'}</em></div>
+       <div class="dg-card"><small>Capital de giro (Fleuriet)</small><b>${D.FT[1]}</b><em>${esc(D.FT[2])}</em></div>
+       ${show.map(r=>`<div class="dg-card"><small>${esc(r.nome)}</small><b>${esc(r.txt)}</b><em>Referência: ${esc(r.ref)}</em></div>`).join('')}
+     </div>
+     <div class="dgx-lock"><div class="dgx-lk-l"><h3>No relatório completo</h3><ul><li>Os ${D.rows.length} indicadores com valor, referência e situação</li><li>Plano de ação com o que fazer em cada ponto crítico</li><li>Resultado do período e balanço resumido</li><li>Arquivo em PDF para levar ao contador, sócio ou banco</li></ul></div>
+       <div class="dgx-lk-r"><b class="pz">${fmtBRL(DGX_PRECO())}</b><small>relatório avulso</small>
+         ${waLink()?`<a class="btn primary" target="_blank" rel="noopener" href="${waLink(msg)}">Pedir o relatório completo</a>`:''}
+         <button class="btn" type="button" id="dgAcc">${USER?'Ver os planos':'Criar conta e acompanhar todo mês'}</button>
+         <small class="sub">Nos planos do Vértice o relatório completo vem incluído, atualizado a cada balancete.</small></div></div>`;
+    $('#dgAcc').onclick=async()=>{await DGXDB.set('pend',{nome:C.empresa.nome,bal:C.bal,at:Date.now()});location.hash=USER?'assinatura':'cadastro';};}
+  $('#dgNew').onclick=()=>{DGX.C=null;vDiagGratis();};}
+async function dgxSaveCompany(){const C=DGX.C;if(!C||!USER) return;const ps=planState(USER),cos=await myCompanies();
+  if(ps.plan&&!USER.admin&&cos.length>=ps.plan.empresas){toast('Limite de empresas do plano atingido.');return;}
+  const N=blankCompany();N.empresa.nome=C.empresa.nome;N.empresa.curto=C.empresa.nome.slice(0,24);N.bal=C.bal;N.hist.push({at:Date.now(),t:'Empresa criada a partir do Diagnóstico Express'});
+  await DB.put('companies',N);await DGXDB.set('pend',null);DGX.C=null;toast('Empresa criada com os balancetes do diagnóstico.');openCompany(N.id,'geral');}
+/* depois do cadastro: oferece transformar o diagnóstico em empresa */
+async function dgxPendBanner(){const P=await DGXDB.get('pend');if(!P||!P.bal||!P.bal.length) return;const m=$('#main');if(!m) return;
+  const ps=planState(USER);const can=USER.admin||ps.plan;
+  const el=document.createElement('div');el.className='alert dgx-pend';el.innerHTML=`<div><b>Seu Diagnóstico Express de ${esc(P.nome)} está guardado neste navegador.</b><span>${can?'Crie a empresa com esses balancetes e veja o relatório completo.':'Escolha um plano para criar a empresa com esses balancetes e ver o relatório completo.'}</span></div><div class="acts">${can?'<button class="btn primary sm" type="button" id="pdGo">Criar a empresa</button>':'<a class="btn primary sm" href="#assinatura">Ver os planos</a>'}<button class="btn sm ghost" type="button" id="pdX">Descartar</button></div>`;
+  m.insertBefore(el,m.firstChild);
+  const go_=$('#pdGo');if(go_) go_.onclick=async()=>{DGX.C=dgxBlank(P.nome);DGX.C.bal=P.bal;await dgxSaveCompany();};
+  $('#pdX').onclick=async()=>{await DGXDB.set('pend',null);el.remove();};}
+{const _vE=vEmpresas;vEmpresas=async function(){const r=await _vE.apply(this,arguments);try{await dgxPendBanner();}catch(e){}return r;};}
+
 $('#kbB').onclick=()=>PAL.open();
 const h0=()=>(location.hash||'').slice(1);
 /* ================= início ================= */
@@ -4599,7 +4980,7 @@ const h0=()=>(location.hash||'').slice(1);
   if(await authHash()) return;
   USER=await restoreUser();
   $('#boot').hidden=true;
-  if(!USER){const h=(location.hash||'').slice(1);showAuth(h==='cadastro'?'up':'in');return;}
+  if(!USER){const h=(location.hash||'').slice(1).split('?')[0];if(h==='diagnostico-gratis'){showPub();return;}showAuth(h==='cadastro'?'up':'in');return;}
   if(h0()==='nova-senha') history.replaceState(null,'','#empresas');
   route();
 })();
@@ -4702,12 +5083,13 @@ const ADMI={
   'adm-financeiro':['Financeiro',ICN.dinh],
   'adm-msg':['Mensagens em massa',ICN.send],
   'adm-cupons':['Cupons de desconto',ICN.cup],
+  'adm-dx':['Diagnóstico Express','<path d="M3 12h4l3-8 4 16 3-8h4"/>'],
   'adm-reemb':['Reembolsos','<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/>'],
   'adm-senhas':['Senhas',ICN.cad],
   'adm-contatos':['Contatos do site',ICN.chat],
   'adm-site':['Configurações do site',ICN.cfg],
   'adm-log':['Atividade',ICN.log]};
-const ADMG=[['Painel',['adm']],['Clientes',['adm-contas','adm-empresas','adm-lib']],['Negócio',['adm-financeiro','adm-reemb','adm-msg','adm-cupons']],['Suporte',['adm-senhas','adm-contatos']],['Sistema',['adm-site','adm-log']]];
+const ADMG=[['Painel',['adm']],['Clientes',['adm-contas','adm-empresas','adm-lib']],['Negócio',['adm-financeiro','adm-dx','adm-reemb','adm-msg','adm-cupons']],['Suporte',['adm-senhas','adm-contatos']],['Sistema',['adm-site','adm-log']]];
 async function admNav(na){let P={pag:[],pain:[],senha:[],contato:[],reemb:[]};try{P=pendencias(await admData());}catch(e){}
   const bd={'adm-lib':P.pag.length+P.pain.length,'adm-senhas':P.senha.length,'adm-contatos':P.contato.length,'adm-reemb':P.reemb.length};
   na.innerHTML=ADMG.map(([t,ks])=>`<div class="grp">${t}</div>`+ks.map(k=>{const [n,ic]=ADMI[k];return `<a class="it" href="#${k}" aria-current="${ROUTE===k?'page':'false'}"><svg class="i" viewBox="0 0 24 24">${ic}</svg>${n}${bd[k]?`<span class="bdg">${bd[k]}</span>`:''}</a>`;}).join('')).join('');}
@@ -5290,7 +5672,7 @@ async function vAdmCupons(){
   document.querySelectorAll('[data-cl]').forEach(b=>b.onclick=e=>{const c=cup[+b.dataset.cl];const u=appUrl()+'#assinatura?cupom='+encodeURIComponent(c.codigo);copyText(u,e.currentTarget);});
 }
 
-const ADMV={adm:vAdm,'adm-contas':vAdmContas,'adm-empresas':vAdmEmpresas,'adm-lib':vAdmLib,'adm-senhas':vAdmSenhas,'adm-contatos':vAdmContatos,'adm-site':vAdmSite,'adm-log':vAdmLog,'adm-financeiro':vAdmFin,'adm-msg':vAdmMsg,'adm-cupons':vAdmCupons,'adm-reemb':vAdmReemb};
+const ADMV={adm:vAdm,'adm-contas':vAdmContas,'adm-empresas':vAdmEmpresas,'adm-lib':vAdmLib,'adm-senhas':vAdmSenhas,'adm-contatos':vAdmContatos,'adm-site':vAdmSite,'adm-log':vAdmLog,'adm-financeiro':vAdmFin,'adm-msg':vAdmMsg,'adm-cupons':vAdmCupons,'adm-reemb':vAdmReemb,'adm-dx':vAdmDx};
 
 </script>
 

@@ -128,6 +128,11 @@ section{padding-block:clamp(72px,10vw,128px)}
 .hero h1{font-family:var(--serif);font-size:clamp(46px,6vw,88px);letter-spacing:-.02em;line-height:.96;font-weight:400}
 .hero .lede{margin-top:24px}
 .hero .ctas{display:flex;gap:10px;flex-wrap:wrap;margin-top:32px}
+.h-dx{display:inline-flex;align-items:center;gap:10px;margin-top:18px;padding:8px 14px 8px 10px;border-radius:999px;border:1px solid color-mix(in srgb,var(--gold) 40%,var(--line));background:color-mix(in srgb,var(--gold-soft) 70%,var(--bg));color:var(--ink-2);font-size:14px;transition:transform .25s var(--ease),box-shadow .25s}
+.h-dx:hover{text-decoration:none;transform:translateY(-2px);box-shadow:0 12px 26px -16px rgba(164,124,40,.7);color:var(--ink)}.h-dx b{color:var(--ink)}
+.h-dx .dot{width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 4px rgba(198,160,74,.22);flex:none}
+.nav a.nv-dx{color:var(--gold-ink);font-weight:600}
+@media (max-width:1240px){.nav a.nv-dx{display:none}}
 .trust{display:flex;flex-wrap:wrap;gap:10px 22px;margin-top:36px;color:var(--ink-3);font-size:13.5px}
 .trust span{display:inline-flex;align-items:center;gap:7px}
 .trust svg{width:16px;height:16px;color:var(--brand)}
@@ -472,13 +477,13 @@ dialog[open]{animation:dlg .4s var(--ease)}
   <div class="wrap">
     <a class="brand" href="#" aria-label="Cifra Clara, início"><i class="mk"></i>Cifra Clara</a>
     <nav class="nav" aria-label="Menu principal">
-      <a href="#como">Como funciona</a><a href="#vertice">O painel</a><a href="#calculadora">Calculadora</a><a href="#seguranca">Segurança</a><a href="#sobre">Quem somos</a><a href="#duvidas">Dúvidas</a>
+      <a href="#como">Como funciona</a><a href="#vertice">O painel</a><a href="#calculadora">Calculadora</a><a href="#seguranca">Segurança</a><a href="#sobre">Quem somos</a><a href="#duvidas">Dúvidas</a><a href="diagnostico.html" class="nv-dx">Diagnóstico grátis</a>
     </nav>
     <div class="acts"><a class="btn ghost sm" href="app.html#entrar">Entrar</a><a class="btn primary sm" id="topWa" href="#contato" target="_blank" rel="noopener">Falar com a gente</a></div>
     <button class="menu-b" id="menuB" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="mnav"><i></i></button>
   </div>
 </header>
-<nav class="mnav" id="mnav" aria-label="Menu"><a href="#como">Como funciona</a><a href="#vertice">O painel</a><a href="#calculadora">Calculadora</a><a href="#seguranca">Segurança</a><a href="#sobre">Quem somos</a><a href="#duvidas">Dúvidas</a><a href="app.html#entrar">Entrar na área do cliente</a><a class="btn primary lg" id="mWa" href="#contato" target="_blank" rel="noopener">Falar com a gente</a></nav>
+<nav class="mnav" id="mnav" aria-label="Menu"><a href="#como">Como funciona</a><a href="#vertice">O painel</a><a href="#calculadora">Calculadora</a><a href="#seguranca">Segurança</a><a href="#sobre">Quem somos</a><a href="#duvidas">Dúvidas</a><a href="diagnostico.html">Diagnóstico grátis</a><a href="app.html#entrar">Entrar na área do cliente</a><a class="btn primary lg" id="mWa" href="#contato" target="_blank" rel="noopener">Falar com a gente</a></nav>
 
 <main>
 <section class="hero" aria-labelledby="hT">
@@ -487,6 +492,7 @@ dialog[open]{animation:dlg .4s var(--ease)}
       <h1 id="hT">Quanto a sua empresa precisa vender para lucrar?</h1>
       <p class="lede">A Cifra Clara transforma o balancete, os extratos e as vendas que você já tem em um painel de gestão atualizado todo mês. Margem, ponto de equilíbrio, caixa e metas, com cada número mostrando de onde veio.</p>
       <div class="ctas"><a class="btn primary lg" href="#contato" data-wa="Olá! Quero conhecer o painel da Cifra Clara.">Conversar no WhatsApp</a><a class="btn lg" href="demo.html">Abrir a demonstração</a></div>
+      <a class="h-dx" href="diagnostico.html"><span class="dot"></span><span>Novo: faça o <b>Diagnóstico Express</b> grátis e receba a nota financeira da sua empresa em 3 minutos</span><span aria-hidden="true">→</span></a>
       <div class="trust">
         <span><svg class="i" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>Dados criptografados</span>
         <span><svg class="i" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="m9 12 2 2 4-4"/></svg>Verificação em duas etapas</span>
@@ -654,7 +660,7 @@ dialog[open]{animation:dlg .4s var(--ease)}
 <footer>
   <div class="wrap">
     <div><a class="brand" href="#"><i class="mk"></i>Cifra Clara</a><p style="margin-top:14px;max-width:30em">Inteligência financeira para pequenas e médias empresas. Criadora do Vértice, o painel de gestão feito a partir dos relatórios da contabilidade.</p><p id="ftContato" style="margin-top:12px"></p></div>
-    <div><h4>Produto</h4><a href="#vertice">O painel</a><a href="#calculadora">Calculadora</a><a href="#escritorios">Para escritórios</a><a href="demo.html">Demonstração</a></div>
+    <div><h4>Produto</h4><a href="#vertice">O painel</a><a href="#calculadora">Calculadora</a><a href="#escritorios">Para escritórios</a><a href="demo.html">Demonstração</a><a href="diagnostico.html">Diagnóstico Express</a></div>
     <div><h4>Cifra Clara</h4><a href="#sobre">Quem somos</a><a href="#conteudos">Conteúdos</a><a href="#duvidas">Dúvidas</a><a href="#contato">Contato</a></div>
     <div><h4>Confiança</h4><a href="#seguranca">Segurança</a><a href="legal.html#termos">Termos de uso</a><a href="legal.html#privacidade">Privacidade</a><a href="app.html#entrar">Área do cliente</a></div>
     <div class="lg"><span>© <span id="yr"></span> Cifra Clara</span><span>CNPJ 68.962.013/0001-85, São Miguel do Oeste, SC</span><span>Vértice é um produto Cifra Clara.</span></div>
