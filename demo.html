@@ -5255,7 +5255,7 @@ var CFGX=RAW.CFG||{};var SKEY='vx-seg-'+(CFGX.ns||CFGX.nome||'p');
 var SG=null,SGC=false;try{var _k=localStorage.getItem(SKEY);if(_k) SG=ccSegGet(_k);SGC=localStorage.getItem('vx-segc')==='1';}catch(e){}
 function seg(){return SG||(SG=(window.CCSEGK&&window.CCSEGK!=='geral'?ccSegGet(window.CCSEGK):ccSegFind(CFGX)));}
 function segIco(s,cls){return '<svg class="'+(cls||'')+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="'+s.ic+'"/></svg>';}
-function logoSrc(){var l=window.CCLOGO||(typeof LOGO!=='undefined'?LOGO:null)||(typeof MED!=='undefined'&&MED&&MED.logo)||null;return typeof l==='string'&&/^data:image\/(png|jpe?g|webp|gif|svg\+xml);base64,/.test(l)?l:null;}
+function logoSrc(){var l=(typeof MED!=='undefined'&&MED&&MED.logo)||window.CCLOGO||(typeof LOGO!=='undefined'?LOGO:null)||null;return typeof l==='string'&&/^data:image\/(png|jpe?g|webp|gif|svg\+xml);base64,/.test(l)?l:null;}
 function inic(n){var p=String(n||'').replace(/\b(ltda|me|epp|eireli|s\/?a)\b\.?/gi,'').trim().split(/\s+/).filter(Boolean);return ((p[0]||'V')[0]+(p[1]?p[1][0]:'')).toUpperCase();}
 function brand(){var b=document.querySelector('.vx-brand');if(!b) return;var nm=CFGX.curto||CFGX.nome||'Vértice',lg=logoSrc(),s=seg();b.classList.toggle('has-logo',!!lg);
   b.innerHTML=(lg?'<span class="vx-lgi"><img src="'+lg+'" alt="Logo de '+E(nm)+'"></span>':'<span class="vx-lg vx-mono">'+E(inic(nm))+'</span>')+'<span style="display:block;min-width:0"><b>'+E(nm)+'</b><span>'+E(s.n)+'</span></span>';}
@@ -5308,7 +5308,12 @@ function rSeg(){var el=document.getElementById('v-vx-seg');if(!el) return;var s=
   document.getElementById('vsgC').onchange=function(){SGC=this.checked;try{localStorage.setItem('vx-segc',SGC?'1':'0');}catch(e){}segApply();};
   tilt(el);}
 segApply();
-if(typeof medLoad==='function'){var _ml=medLoad;medLoad=function(){var r=_ml.apply(this,arguments);try{Promise.resolve(r).then(brand);}catch(e){}return r;};}
+/* a logo enviada dentro do painel é guardada na conta (o painel roda isolado e não guarda arquivos sozinho) */
+var LGSENT=window.CCLOGO||null;
+function medFallback(){try{if(typeof MED!=='undefined'&&MED&&!MED.logo&&window.CCLOGO){MED.logo=window.CCLOGO;if(ST.view==='emp'&&typeof renderEmp==='function'){renderEmp();if(typeof applySub==='function') applySub();}}}catch(e){}brand();}
+if(typeof medLoad==='function'){var _ml=medLoad;medLoad=function(){var r=_ml.apply(this,arguments);try{Promise.resolve(r).then(medFallback,medFallback);}catch(e){}return r;};}
+if(typeof medSave==='function'){var _msv=medSave;medSave=function(){var r=_msv.apply(this,arguments);try{var lg=MED.logo||null;if(lg!==LGSENT&&window.parent!==window){LGSENT=lg;parent.postMessage({vt:'logo',d:lg},'*');}brand();}catch(e){}return r;};}
+setTimeout(function(){try{if(typeof MED!=='undefined'&&MED&&MED.ok) medFallback();}catch(e){}},0);
 setTimeout(brand,1200);
 
 /* ---------- registro das telas novas ---------- */
