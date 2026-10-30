@@ -3032,7 +3032,7 @@ const panelKey=e=>I.norm(e||'').replace(/\s+/g,'');
 
 /* padrão Cifra Clara em painéis importados: troca o índigo e o azul fixos por dourado, usa o ícone dourado
    e remove o bloco de extras antigo que veio dentro do arquivo (o sistema acrescenta o atual ao abrir) */
-const CC_MAP={"#4F46E5": "#A47C28", "#4338CA": "#8A6720", "#3730A3": "#6E521A", "#6366F1": "#B8913A", "#818CF8": "#C6A04A", "#A5B4FC": "#D9B768", "#C7D2FE": "#EBD9A8", "#E0E7FF": "#F5ECD5", "#EEF2FF": "#FAF4E4", "#312E81": "#6E521A", "#1E1B4B": "#3A2A0A", "#8B5CF6": "#C6A04A", "#7C3AED": "#A47C28", "#A78BFA": "#D9B768", "#80CFF5": "#E6C878", "#CFE9F8": "#F3E7C7", "#33445C": "#4E4463", "#1E2A44": "#6E521A"},CC_RG={"79,70,229": "164,124,40", "99,102,241": "184,145,58", "129,140,248": "198,160,74", "67,56,202": "138,103,32", "139,92,246": "198,160,74", "165,180,252": "217,183,104", "49,46,129": "110,82,26", "30,27,75": "58,42,10", "128,207,245": "230,200,120"};
+const CC_MAP={"#4F46E5": "#A47C28", "#4338CA": "#8A6720", "#3730A3": "#6E521A", "#6366F1": "#B8913A", "#818CF8": "#C6A04A", "#A5B4FC": "#D9B768", "#C7D2FE": "#EBD9A8", "#E0E7FF": "#F5ECD5", "#EEF2FF": "#FAF4E4", "#312E81": "#6E521A", "#1E1B4B": "#3A2A0A", "#8B5CF6": "#C6A04A", "#7C3AED": "#A47C28", "#A78BFA": "#D9B768", "#1E2A44": "#6E521A"},CC_RG={"79,70,229": "164,124,40", "99,102,241": "184,145,58", "129,140,248": "198,160,74", "67,56,202": "138,103,32", "139,92,246": "198,160,74", "165,180,252": "217,183,104", "49,46,129": "110,82,26", "30,27,75": "58,42,10"};
 function ccStandard(html){let h=String(html||'');
   h=h.replace(/<script>\n\(function\(\)\{var O=[\s\S]*?<\/script>/,'');
   h=h.replace(new RegExp('#('+Object.keys(CC_MAP).map(k=>k.slice(1)).join('|')+')\\b','gi'),m=>CC_MAP[m.toUpperCase()]||m);
