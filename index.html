@@ -570,7 +570,7 @@ dialog[open]{animation:dlg .4s var(--ease)}
 <section id="setores" aria-labelledby="eT">
   <div class="wrap">
     <div class="shd"><div><h2 class="h2" id="eT">Cada setor mede o resultado do seu jeito.</h2><p class="lede">O painel se ajusta ao ramo da empresa: escolhe os indicadores, a unidade de medida, as referências e os pontos de atenção do setor. Escolha o seu e veja.</p></div></div>
-    <div class="sx rv" id="sx">
+    <div class="sx" id="sx">
       <div class="sx-l">
         <label class="sx-q"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><input id="sxQ" type="search" placeholder="Digite o ramo da sua empresa: padaria, transportadora, clínica…" aria-label="Ramo da sua empresa" autocomplete="off"></label>
         <p class="sx-hit" id="sxHit" aria-live="polite"></p>
@@ -766,7 +766,7 @@ const startHero=()=>{$('.hero').classList.add('go');setTimeout(()=>HERO.render(t
 
 /* ================= entrada dos blocos e 3D ================= */
 (()=>{if(RM||!('IntersectionObserver' in window)) return;
-  const G=[['main .shd',''],['.stp','',1],['.q','',1],['.shot','rv-r'],['.sent','rv-z'],['.res>div','',1],['.cmsg',''],['.flow .node','rv-z',1],['.guard>div','',1],['.sec .more',''],['.row','',1],['.about figure','rv-l'],['.about .tx>*','',1],['.art','',1],['.faq details','',1],['.faq-g>div:first-child','rv-l'],['.ct .wrap>div:first-child','rv-l'],['.form','rv-r'],['footer .wrap>div','',1]];
+  const G=[['main .shd',''],['.stp','',1],['.q','',1],['.shot','rv-r'],['.sent','rv-z'],['.res>div','',1],['.cmsg',''],['.flow .node','rv-z',1],['.guard>div','',1],['.sec .more',''],['.sx',''],['.row','',1],['.about figure','rv-l'],['.about .tx>*','',1],['.art','',1],['.faq details','',1],['.faq-g>div:first-child','rv-l'],['.ct .wrap>div:first-child','rv-l'],['.form','rv-r'],['footer .wrap>div','',1]];
   const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),{rootMargin:'0px 0px -8% 0px',threshold:.06});
   G.forEach(([sel,cls,st])=>document.querySelectorAll(sel).forEach(el=>{el.classList.add('rv');if(cls) el.classList.add(cls);
     if(st){const sib=[...el.parentElement.children].filter(x=>x.matches(sel));el.style.setProperty('--rd',(sib.indexOf(el)%6)*0.08+'s');}io.observe(el);}));
